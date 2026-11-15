@@ -5,6 +5,7 @@
 
 ## 0. 코드가 있는 곳
 - **깃허브**: https://github.com/gonynas/STARmedia 저장소의 `Invoice/` 폴더 (공개 저장소). 이 폴더 = 사용자 PC의 `app/` 폴더.
+- **실행 주소(GitHub Pages)**: https://gonynas.github.io/STARmedia/Invoice/dist/ — `main` 브랜치 루트에서 자동 배포(저장소 루트에 `.nojekyll`). `Invoice/dist/`를 새로 빌드해 올리면 1~2분 뒤 반영된다.
 - `docs/`(설계서 · 질문지 답변)는 사업 문서라 **깃허브에 올리지 않고** 사용자 PC의 `app/docs/`에만 있다(`.gitignore`). 요구사항이 필요하면 사용자에게 그 파일을 달라고 한다.
 - 고친 뒤 올릴 때도 `.backup/` · `docs/`는 올리지 않는다. `dist/`는 함께 올린다(빌드된 프로그램).
 
