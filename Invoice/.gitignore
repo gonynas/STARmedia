@@ -1,0 +1,8 @@
+# 깃허브(공개 저장소)에 올리지 않는 것
+.backup/          # 정리 전 백업 (이 PC에만)
+.impeccable/      # 디자인 도구 설정
+docs/             # 사업 기획 · 질문지 답변 문서 (공개 저장소라 이 PC에만 둠)
+node_modules/
+*.log
+.DS_Store
+Thumbs.db

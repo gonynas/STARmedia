@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko" data-theme="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스타미디어 견적서 발행기</title>
+<meta name="theme-color" content="#3A83F7">
+<link rel="icon" href="assets/star-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="견적서">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css?v=mwh60llr">
+<script>
+// 문제 기록기 (가장 먼저 켜짐): 오류가 나면 이 기기에 최근 50개까지 남긴다.
+// 설정 · 백업 → 「문제 기록」에서 보고, 「AI에게 보낼 내용 복사」로 Claude · GPT 에 붙여 넣어 고칠 수 있다.
+// 형식은 program/errors.mjs 와 같다: { at, kind, msg, where, stack, page }
+(function () {
+  var KEY = 'starmedia-quote:problems';
+  function add(kind, msg, where, stack) {
+    try {
+      var list = JSON.parse(localStorage.getItem(KEY) || '[]');
+      list.push({ at: new Date().toISOString(), kind: kind, msg: String(msg || '').slice(0, 400), where: String(where || '').replace(location.origin, '').slice(0, 200), stack: String(stack || '').replace(new RegExp(location.origin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '').slice(0, 900), page: location.hash || '#home' });
+      localStorage.setItem(KEY, JSON.stringify(list.slice(-50)));
+    } catch (e) {}
+  }
+  window.__smProblem = add;
+  window.addEventListener('error', function (e) {
+    if (e.target && e.target !== window && (e.target.src || e.target.href)) { add('파일 못 불러옴', (e.target.src || e.target.href), e.target.tagName); return; }
+    add('오류', e.message, (e.filename || '') + ':' + (e.lineno || '') + ':' + (e.colno || ''), e.error && e.error.stack);
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason; add('처리 안 된 오류', r && r.message || r, '', r && r.stack);
+  });
+  // 6초가 지나도 프로그램이 시작되지 않으면 안내 (오래된 브라우저 · 파일 못 받음)
+  setTimeout(function () {
+    if (window.__smStarted) return;
+    add('시작 안 됨', '6초 안에 프로그램이 시작되지 않았어요', navigator.userAgent);
+    var r = document.getElementById('root');
+    if (r) r.innerHTML = '<div style="max-width:520px;margin:15vh auto;padding:24px;font:16px/1.6 sans-serif;color:#172B46"><h1 style="font-size:22px">프로그램을 열지 못했어요</h1><p>인터넷 연결을 확인하고 <b>새로 고침</b>(F5)을 눌러 주세요. 계속 안 되면 크롬 · 엣지 · 사파리 최신 버전으로 열어 주세요.</p><p style="color:#5F6B7D">자료는 지워지지 않았어요.</p></div>';
+  }, 6000);
+})();
+</script>
+</head>
+<body class="in-app">
+<div id="root"><p class="boot">불러오는 중…</p></div>
+<noscript><p style="padding:24px">이 프로그램은 자바스크립트가 켜져 있어야 열려요.</p></noscript>
+<script type="module" src="main.mjs?v=mwh60llr"></script>
+</body>
+</html>

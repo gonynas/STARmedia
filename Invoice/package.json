@@ -1,0 +1,10 @@
+{
+  "name": "starmedia-quote",
+  "version": "1.0.0",
+  "private": true,
+  "description": "스타미디어 견적서 발행기 — 첫 완성본 (외부 라이브러리 없음, 빌드 결과는 정적 파일)",
+  "scripts": {
+    "test": "node core/tests.mjs && node core/tests-storage.mjs && node core/tests-catalog.mjs && node core/tests-docs.mjs && node core/tests-events.mjs && node core/tests-export.mjs && node core/tests-reports.mjs",
+    "build": "npm test && node build.mjs && node --check dist/main.mjs"
+  }
+}

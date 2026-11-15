@@ -1,0 +1,17 @@
+{
+  "name": "스타미디어 견적서 발행기",
+  "short_name": "견적서",
+  "description": "견적서 · 거래명세서 · 납품ㆍ청구서 · 영수증 발행과 행사 · 입금 · 장비 관리",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F3F6FB",
+  "theme_color": "#3A83F7",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/app-icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

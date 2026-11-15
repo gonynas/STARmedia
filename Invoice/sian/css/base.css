@@ -1,0 +1,67 @@
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;font-size:16px}
+html.big{font-size:18px}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#172B46;background:#F5F7FB;line-height:1.5;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:inherit}
+h1,h2,h3,h4,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+.ic{width:1.25em;height:1.25em;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ic.sm{width:1em;height:1em}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── 시안별 색 (테마 토큰) ── */
+[data-theme="a"]{
+  --bg:#F3F6FB;--surface:#FFFFFF;--surface2:#F7F9FD;--line:#E3E9F2;--text:#172B46;--sub:#5F6B7D;--muted:#8A94A6;
+  --primary:#3A83F7;--primary-ink:#1C62D8;--primary-soft:#EAF2FE;
+  --hl:#3A83F7;--hl-ink:#1C62D8;--hl-soft:#EAF2FE;
+  --radius:16px;--radius-s:10px;
+  --shadow:0 1px 2px rgba(23,43,70,.05),0 12px 32px -14px rgba(23,43,70,.20);
+  --shadow-up:0 2px 4px rgba(23,43,70,.06),0 20px 40px -16px rgba(23,43,70,.30);
+  --border:1px solid #E6EBF3;
+  --side-bg:#FFFFFF;--side-text:#172B46;--side-sub:#6B7280;--side-on-bg:#EAF2FE;--side-on-text:#1C62D8;--side-border:1px solid #E6EBF3;
+  --t-quote:#3A83F7;--t-stmt:#3A83F7;--t-inv:#3A83F7;--t-rcpt:#3A83F7;
+}
+[data-theme="b"]{
+  --bg:#F4F5FA;--surface:#FFFFFF;--surface2:#F8F9FC;--line:#E6E8F0;--text:#172B46;--sub:#5D6476;--muted:#8C93A3;
+  --primary:#2B63F0;--primary-ink:#1F52D6;--primary-soft:#EAF0FF;
+  --orange:#FF6A3D;--orange-ink:#C9441A;--orange-soft:#FFF0EA;--mint:#16B985;--mint-ink:#0A8360;--mint-soft:#E5F8F1;
+  --hl:#FF6A3D;--hl-ink:#C9441A;--hl-soft:#FFF0EA;
+  --radius:22px;--radius-s:14px;
+  --shadow:0 1px 2px rgba(23,43,70,.04),0 16px 36px -18px rgba(43,99,240,.32);
+  --shadow-up:0 2px 4px rgba(23,43,70,.05),0 26px 46px -20px rgba(43,99,240,.40);
+  --border:1px solid #ECEEF5;
+  --side-bg:#FFFFFF;--side-text:#172B46;--side-sub:#6B7280;--side-on-bg:#2B63F0;--side-on-text:#FFFFFF;--side-border:1px solid #ECEEF5;
+  --t-quote:#2B63F0;--t-stmt:#0FA877;--t-inv:#E8582B;--t-rcpt:#172B46;
+}
+[data-theme="c"]{
+  --bg:#ECF0F6;--surface:#FFFFFF;--surface2:#F6F8FB;--line:#E1E6EE;--text:#14233A;--sub:#566176;--muted:#8893A5;
+  --primary:#3A83F7;--primary-ink:#1C62D8;--primary-soft:#E9F1FE;
+  --gold:#F2B33D;--gold-ink:#8A5D00;--gold-soft:#FFF4DA;
+  --hl:#F2B33D;--hl-ink:#8A5D00;--hl-soft:#FFF4DA;
+  --radius:14px;--radius-s:10px;
+  --shadow:inset 0 1px 0 rgba(255,255,255,.9),0 1px 2px rgba(23,43,70,.07),0 6px 12px -4px rgba(23,43,70,.07),0 26px 46px -22px rgba(23,43,70,.42);
+  --shadow-up:inset 0 1px 0 rgba(255,255,255,.9),0 2px 4px rgba(23,43,70,.08),0 10px 18px -6px rgba(23,43,70,.10),0 34px 56px -24px rgba(23,43,70,.50);
+  --border:1px solid #E3E8F0;
+  --side-bg:#172B46;--side-text:#DCE5F2;--side-sub:#9FB0C8;--side-on-bg:#3A83F7;--side-on-text:#FFFFFF;--side-border:0;
+  --t-quote:#3A83F7;--t-stmt:#172B46;--t-inv:#A26A00;--t-rcpt:#0E7A4C;
+}
+
+/* ── 공통 부품 ── */
+.schip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.84rem;font-weight:700;white-space:nowrap}
+.s-draft{background:#EEF1F5;color:#4B5563}
+.s-sent{background:#E6F0FF;color:#1C5FD1}
+.s-contract{background:#ECEBFF;color:#4A3FC9}
+.s-deposit{background:#FFF3DA;color:#8F5A00}
+.s-paid{background:#E2F6EC;color:#0E7A4C}
+.s-cancel{background:#F1F2F4;color:#7A8190;text-decoration:line-through}
+.s-overdue{background:#FDE7E7;color:#C02121}
+
+.tchip{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.9rem;white-space:nowrap;color:var(--text)}
+.tchip .ic{width:1.05em;height:1.05em}
+.tchip.t-quote .ic{color:var(--t-quote)}.tchip.t-stmt .ic{color:var(--t-stmt)}.tchip.t-inv .ic{color:var(--t-inv)}.tchip.t-rcpt .ic{color:var(--t-rcpt)}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#172B46;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;font-size:.95rem;opacity:0;pointer-events:none;transition:.2s;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}

@@ -1,0 +1,55 @@
+// 품목 · 세트 규칙 시험 (실행: npm test · 빌드할 때도 먼저 실행된다)
+import { categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
+
+let pass = 0, fail = 0;
+function eq(name, got, want) {
+  const ok = JSON.stringify(got) === JSON.stringify(want);
+  if (ok) pass++; else fail++;
+  console.log((ok ? '  통과 ' : '  실패 ') + name + (ok ? '' : `  → 결과 ${JSON.stringify(got)} / 기대 ${JSON.stringify(want)}`));
+}
+const mk = () => [
+  { id: 'i1', cat: '천막', name: '몽골텐트', spec: '5×5m', price: 170000, days: 1 },
+  { id: 'i2', cat: '천막', name: '몽골텐트', spec: '3×3m', price: 90000, days: 1 },
+  { id: 'i3', cat: '테이블 · 의자', name: '의자', spec: '접이식', price: 1000, days: 1 },
+  { id: 'i4', cat: '', name: '영상촬영', spec: '현장 스케치', price: 600000, days: 0.5, taxFree: false, memo: '편집본 1편' }
+];
+
+console.log('품목 · 분류');
+eq('숫자 칸 읽기 (쉼표 · 원)', [toNum('170,000원'), toNum('0.5'), toNum(''), toNum('abc')], [170000, 0.5, null, null]);
+eq('분류 목록 · 개수 (분류 없음은 맨 끝)', categories(mk()), [{ name: '천막', count: 2 }, { name: '테이블 · 의자', count: 1 }, { name: NO_CAT, count: 1 }]);
+eq('분류로 거르기', filterItems(mk(), { cat: '천막' }).map((i) => i.id), ['i2', 'i1']);
+eq('분류 없음 거르기', filterItems(mk(), { cat: NO_CAT }).map((i) => i.id), ['i4']);
+eq('검색 (띄어쓰기 무시 · 비고 포함)', filterItems(mk(), { q: '편집 본' }).map((i) => i.id), ['i4']);
+eq('같은 품목 찾기 (이름 + 규격)', findDuplicate(mk(), { name: '몽골 텐트', spec: '5×5M' })?.id, 'i1');
+eq('규격이 다르면 다른 품목', findDuplicate(mk(), { name: '몽골텐트', spec: '6×6m' }), null);
+eq('수정할 때 자기 자신은 중복 아님', findDuplicate(mk(), { name: '몽골텐트', spec: '5×5m' }, 'i1'), null);
+const a = mk();
+eq('분류 이름 바꾸기 → 바뀐 수', renameCategory(a, '천막', '천막 · 텐트', 'T'), 2);
+eq('바꾼 분류가 품목에 들어감', [a[0].cat, a[0].updatedAt], ['천막 · 텐트', 'T']);
+eq('분류 지우기 → 품목은 남고 분류 없음', [removeCategory(a, '테이블 · 의자'), a.length, categories(a).find((c) => c.name === NO_CAT).count], [1, 4, 2]);
+
+console.log('세트');
+const items = mk();
+const set = { id: 's1', name: '몽골텐트 기본 세트', lines: [snapshotLine(items[0], 4), snapshotLine(items[2], 40, 2)] };
+eq('세트 줄 사본 (일수 기본값은 품목 기본 일수)', set.lines[0], { itemId: 'i1', qty: 4, days: 1, name: '몽골텐트', spec: '5×5m', price: 170000, taxFree: false });
+eq('세트를 품목 줄로 펼치기', expandSet(set, items).map((l) => [l.name, l.days, l.qty, l.price]), [['몽골텐트', 1, 4, 170000], ['의자', 2, 40, 1000]]);
+eq('세트 금액 = 4×170,000 + 2×40×1,000', setAmount(set, items), 760000);
+items[0].price = 180000;
+eq('품목 단가를 바꾸면 세트도 새 단가', setAmount(set, items), 800000);
+const left = items.filter((i) => i.id !== 'i3');
+eq('품목을 지워도 세트는 사본으로 남음', expandSet(set, left)[1].missing && expandSet(set, left)[1].name, '의자');
+eq('이 품목을 쓰는 세트', setsUsing([set], 'i3'), ['몽골텐트 기본 세트']);
+
+console.log('엑셀 붙여넣기');
+const p1 = parsePaste('분류\t품목\t규격\t단가\n천막\t몽골텐트\t5×5m\t170,000\n\t의자\t접이식\t1000\n');
+eq('머리글 있는 표', [p1.header, p1.rows.length, p1.rows[0], p1.rows[1].cat], [true, 2, { cat: '천막', name: '몽골텐트', spec: '5×5m', price: 170000, days: 1, memo: '' }, '']);
+const p2 = parsePaste('품명\t단가\t규격\n난로\t50,000원\t등유식');
+eq('머리글 순서가 달라도 이름으로 맞춤', [p2.rows[0].name, p2.rows[0].spec, p2.rows[0].price], ['난로', '등유식', 50000]);
+const p3 = parsePaste('몽골텐트\t5×5m\t170000\n발전차\t100kW\t1,000,000\n\n합계\t\t\n12345\t\t');
+eq('머리글 없는 3칸 = 품목 · 규격 · 단가', p3.rows.map((r) => [r.name, r.spec, r.price]), [['몽골텐트', '5×5m', 170000], ['발전차', '100kW', 1000000]]);
+eq('합계 줄 · 숫자만 있는 줄은 건너뜀', p3.skipped, 2);
+eq('4칸 이상 = 분류 · 품목 · 규격 · 단가 · 일수', parsePaste('냉난방\t난로\t등유식\t50000\t0.5').rows[0].days, 0.5);
+eq('빈 글자는 0줄', parsePaste('  \n ').rows.length, 0);
+
+console.log(`\n결과: 통과 ${pass} / 실패 ${fail}`);
+if (fail) process.exit(1);

@@ -1,0 +1,200 @@
+/* ── A4 문서 (794 × 1123px = 210 × 297mm) ── */
+.a4{position:relative;width:794px;min-height:1123px;background:#fff;color:#1B2533;font-family:"Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif;font-size:12.5px;line-height:1.45;padding:44px 48px 34px;display:flex;flex-direction:column;word-break:keep-all;overflow:hidden;text-align:left}
+.a4 *{box-sizing:border-box}
+.a4 .num{font-variant-numeric:tabular-nums}
+.a4 .b{font-weight:700}
+.a4 small{font-size:.86em}
+
+/* 머리 */
+.d-head{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding-bottom:14px;margin-bottom:18px}
+.d-title .en{display:block;font-size:10.5px;letter-spacing:.32em;font-weight:800;color:var(--d-accent)}
+.d-title h1{font-size:34px;font-weight:800;letter-spacing:.22em;color:var(--d-title);line-height:1.15;margin-top:2px}
+.d-meta{display:grid;gap:3px;justify-items:end}
+.d-meta div{display:flex;gap:10px;align-items:baseline}
+.d-meta span{font-size:11px;color:#6B7280;font-weight:600}
+.d-meta b{font-size:12.5px;font-weight:700;color:#1B2533}
+.d-slant{display:none}
+
+/* 받는 곳 / 보내는 곳 */
+.d-parties{display:grid;grid-template-columns:1fr 1.12fr;gap:18px;margin-bottom:14px;align-items:start}
+.d-label{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--d-accent);margin-bottom:6px}
+.d-to-name{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.d-to-name b{font-size:19px;font-weight:800;color:var(--d-title);line-height:1.3}
+.d-to-name span{font-size:13px;font-weight:700}
+.d-to-sub{color:#4B5563;margin-top:2px}
+.d-event{display:grid;grid-template-columns:56px 1fr;gap:3px 10px;margin:10px 0 0;padding:9px 12px;border-radius:8px;background:var(--d-soft);font-size:12px}
+.d-event dt{color:#6B7280;font-weight:700}
+.d-greet{margin-top:10px;color:#374151;font-size:12px}
+.d-from{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+.d-from th,.d-from td{border:1px solid var(--d-line);padding:5px 7px;vertical-align:middle}
+.d-from col.fv{width:24px}.d-from col.fl{width:56px}.d-from col.fl2{width:40px}
+.d-from th{background:var(--d-th);color:var(--d-th-text);font-weight:700;white-space:nowrap;text-align:center;padding:5px 2px}
+.d-from th.v{padding:4px 0}
+.d-from td.num{white-space:nowrap}
+.d-from th.v span,.s-par th.v span{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.35em;font-weight:800}
+.d-from small{color:#6B7280}
+.stamp-cell{position:relative;overflow:visible}
+.stamp-cell .in{color:#9CA3AF;font-size:.92em}
+.stamp{position:absolute;right:2px;top:50%;width:50px;height:50px;transform:translateY(-50%);opacity:.88;pointer-events:none}
+
+/* 합계금액 띠 */
+.d-sum{display:flex;align-items:center;gap:14px;padding:11px 16px;border-radius:10px;background:var(--d-sum-bg);color:var(--d-sum-text);margin-bottom:12px}
+.d-sum .lbl{display:grid;font-weight:800;font-size:13px;line-height:1.2}
+.d-sum .lbl small{font-size:10px;font-weight:600;opacity:.85}
+.d-sum .han{flex:1;font-weight:700;font-size:14.5px;text-align:center}
+.d-sum .amt{font-size:22px;font-weight:800;letter-spacing:-.01em}
+
+/* 품목표 */
+.d-items{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11.8px}
+.d-items col.w-no{width:32px}.d-items col.w-spec{width:84px}.d-items col.w-d{width:40px}.d-items col.w-q{width:46px}
+.d-items col.w-p{width:80px}.d-items col.w-s{width:90px}.d-items col.w-t{width:72px}.d-items col.w-m{width:76px}
+.d-items th{background:var(--d-th);color:var(--d-th-text);font-weight:700;padding:7px 5px;text-align:center;white-space:nowrap;font-size:11.5px}
+.d-items td{padding:6px 5px;border-bottom:1px solid var(--d-line);height:27px;overflow:hidden;text-overflow:ellipsis}
+.d-items td.c{text-align:center}.d-items td.r{text-align:right}
+.d-items td.nm{font-weight:700}
+.d-items td.memo{font-size:10.5px;color:#6B7280}
+.d-items tr.empty td{color:transparent}
+
+/* 아래: 특이사항 + 합계 */
+.d-bottom{display:grid;grid-template-columns:1fr 268px;gap:16px;margin-top:14px;align-items:start}
+.d-notes{border:1px solid var(--d-line);border-radius:10px;padding:10px 14px 12px}
+.d-notes h4{margin-bottom:4px}
+.d-notes ol{list-style:decimal;padding-left:18px;display:grid;gap:3px;font-size:11.8px;color:#374151}
+.d-totals{display:grid;border-radius:10px;overflow:hidden;border:1px solid var(--d-line)}
+.d-totals .tr{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 12px;border-top:1px solid var(--d-line)}
+.d-totals .tr:first-child{border-top:0}
+.d-totals .tr span{color:#4B5563;font-weight:600}
+.d-totals .tr span small{display:inline;margin-left:4px;color:#6B7280;font-size:10px}
+.d-totals .tr b{font-weight:700}
+.d-totals .grand{background:var(--d-grand-bg);color:var(--d-grand-text)}
+.d-totals .grand span{color:inherit;font-weight:800}
+.d-totals .grand span small{color:inherit;opacity:.8}
+.d-totals .grand b{font-size:18px;font-weight:800;color:var(--d-grand-amt)}
+.d-totals .dep b{color:#6B7280}
+.d-totals .bal{background:var(--d-bal-bg)}
+.d-totals .bal span{font-weight:800;color:#1B2533}
+.d-totals .bal b{font-size:15px;font-weight:800;color:var(--d-bal-amt)}
+
+/* 납품ㆍ청구서: 입금 계좌 */
+.d-bank{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:12px 16px;border-radius:10px;border:2px solid var(--d-accent);background:var(--d-soft)}
+.d-bank .bk-lbl{font-weight:800;color:var(--d-accent)}
+.d-bank b{font-size:15px;font-weight:800}
+.d-bank .bk-amt{margin-left:auto;font-weight:700}
+.d-bank .bk-amt b{color:var(--d-bal-amt);font-size:16px;margin-left:6px}
+
+/* 맨 아래 가운데 로고 */
+.d-foot{margin-top:auto;padding-top:24px;display:flex;justify-content:center;position:relative}
+.d-foot img{height:38px;width:auto}
+
+/* 영수증 */
+.r-hero{display:grid;justify-items:center;gap:2px;padding:18px;border-radius:12px;background:var(--d-sum-bg);color:var(--d-sum-text);margin-bottom:16px}
+.r-lbl{font-weight:700;font-size:13px;opacity:.9}
+.r-amt{font-size:34px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.r-han{font-weight:700;font-size:14px}
+.r-info{display:grid;grid-template-columns:86px 1fr;border:1px solid var(--d-line);border-radius:10px;overflow:hidden;margin-bottom:14px}
+.r-info dt{background:var(--d-th);color:var(--d-th-text);font-weight:700;padding:8px 12px;border-top:1px solid var(--d-line)}
+.r-info dd{padding:8px 12px;border-top:1px solid var(--d-line)}
+.r-info dt:first-of-type,.r-info dd:first-of-type{border-top:0}
+.r-info small{color:#6B7280;margin-left:6px}
+.r-state{margin:18px 0 6px;text-align:center;font-size:17px;font-weight:800;letter-spacing:.06em;color:var(--d-title)}
+.r-sign{display:grid;gap:8px;justify-items:center}
+.r-date{font-weight:700;font-size:13px}
+.r-sign .d-from{max-width:470px}
+
+/* 거래명세서 (A4에 2부) */
+.k-stmt{padding:0}
+.half{height:552px;padding:20px 30px 14px;display:flex;flex-direction:column;gap:6px}
+.cut{height:19px;display:flex;align-items:center;justify-content:center;border-top:1.5px dashed #B6BFCC;margin:0 18px;position:relative}
+.cut span{position:absolute;top:-9px;background:#fff;padding:0 10px;color:#8A94A6;font-size:10.5px;font-weight:600}
+.s-top{display:flex;align-items:baseline;gap:10px}
+.s-top h2{font-size:22px;font-weight:800;letter-spacing:.32em;color:var(--d-title)}
+.s-copy{font-size:11px;font-weight:700;color:var(--d-accent)}
+.half.mine .s-copy{color:#E5484D}
+.s-no{margin-left:auto;font-size:11px;color:#6B7280;font-weight:600}
+.s-par{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.8px}
+.s-par col.sv{width:22px}.s-par col.sl{width:54px}
+.s-par th,.s-par td{border:1px solid var(--d-line);padding:3px 6px;height:23px;vertical-align:middle;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s-par th{background:var(--d-th);color:var(--d-th-text);font-weight:700;text-align:center}
+.s-par th.v{padding:2px 0;font-size:10px}
+.s-par th.v span{letter-spacing:.12em}
+.s-par .stamp{width:40px;height:40px}
+.s-sum{display:flex;align-items:center;gap:12px;padding:6px 12px;border-radius:7px;background:var(--d-sum-bg);color:var(--d-sum-text)}
+.s-sum .lbl{font-weight:800;font-size:12px}
+.s-sum b{font-size:17px;font-weight:800}
+.s-sum em{margin-left:auto;font-style:normal;font-size:10.5px;opacity:.85}
+.s-items{font-size:10.8px}
+.s-items th{padding:4px 4px;font-size:10.5px}
+.s-items td{padding:3px 4px;height:21px}
+.s-items col.w-spec{width:76px}.s-items col.w-m{width:64px}
+.s-total td{font-weight:800;background:var(--d-soft);text-align:center;border-bottom:1px solid var(--d-line)}
+.s-total td.r{text-align:right}
+.s-bal{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.8px}
+.s-bal th,.s-bal td{border:1px solid var(--d-line);padding:4px 6px;height:23px}
+.s-bal th{background:var(--d-th);color:var(--d-th-text);font-weight:700;width:62px;text-align:center}
+.s-bal td{text-align:right}
+.s-bal td.b{color:var(--d-bal-amt)}
+.s-sign{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding:6px 10px;border:1px solid var(--d-line);border-radius:7px;font-size:11px;color:#4B5563}
+.s-recv{display:flex;align-items:center;gap:6px;font-weight:700;color:#1B2533}
+.s-recv i{display:inline-block;width:110px;border-bottom:1px solid #9CA3AF;height:14px}
+
+/* ── 시안 A: 블루 모던 ── */
+.doc--a{--d-title:#172B46;--d-accent:#3A83F7;--d-soft:#F2F7FF;--d-th:#EAF2FE;--d-th-text:#173A6B;--d-line:#DCE5F2;--d-sum-bg:#3A83F7;--d-sum-text:#fff;--d-grand-bg:#172B46;--d-grand-text:#fff;--d-grand-amt:#fff;--d-bal-bg:#EAF2FE;--d-bal-amt:#1C62D8}
+.doc--a::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:#3A83F7}
+.doc--a .d-head{border-bottom:2px solid #172B46}
+.doc--a .d-items thead th{border-bottom:2px solid #3A83F7}
+.doc--a.k-stmt::before{display:none}
+.doc--a .half{border-top:6px solid #3A83F7}
+.doc--a .half.mine{border-top-color:#172B46}
+
+/* ── 시안 B: 트리컬러 포인트 ── */
+.doc--b{--d-title:#172B46;--d-accent:#2B63F0;--d-soft:#E9F8F2;--d-th:#2B63F0;--d-th-text:#fff;--d-line:#E1E5EE;--d-sum-bg:#FFF1EA;--d-sum-text:#172B46;--d-grand-bg:#2B63F0;--d-grand-text:#fff;--d-grand-amt:#fff;--d-bal-bg:#FFF1EA;--d-bal-amt:#D9481C}
+.doc--b::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:linear-gradient(90deg,#2B63F0 0 62%,#FF6A3D 62% 82%,#16B985 82% 100%)}
+.doc--b .d-head{border-bottom:1px solid #E1E5EE}
+.doc--b .d-title h1{letter-spacing:.18em}
+.doc--b .d-title h1::after{content:"";display:block;width:56px;height:4px;border-radius:2px;margin-top:6px;background:linear-gradient(90deg,#2B63F0 0 60%,#FF6A3D 60% 80%,#16B985 80%)}
+.doc--b .d-label{padding:2px 8px;border-radius:999px;background:#EAF0FF;color:#1F52D6}
+.doc--b .d-label.l-from{background:#FFF0EA;color:#C9441A}
+.doc--b .d-label.l-note{background:#E5F8F1;color:#0A8360}
+.doc--b .d-event{border:1px solid #BFEBDC}
+.doc--b .d-sum{border:1.5px solid #FFC9B5}
+.doc--b .d-sum .amt{color:#D9481C}
+.doc--b .d-items thead th:first-child{border-radius:8px 0 0 0}
+.doc--b .d-items thead th:last-child{border-radius:0 8px 0 0}
+.doc--b .d-items tbody tr:nth-child(even) td{background:#F8F9FC}
+.doc--b .d-items tr.empty td{background:transparent!important}
+.doc--b .d-bank{border-color:#FF6A3D;background:#FFF7F3}
+.doc--b .d-bank .bk-lbl{color:#C9441A}
+.doc--b.k-inv .d-title .en{color:#E8582B}
+.doc--b.k-rcpt .d-title .en{color:#172B46}
+.doc--b.k-stmt{--d-th:#0FA877;--d-accent:#0A8360;--d-sum-bg:#E5F8F1}
+.doc--b.k-stmt .s-sum b{color:#0A8360}
+.doc--b.k-stmt::before{height:8px}
+.doc--b .half.mine{--d-th:#2B63F0}
+.doc--b .r-hero{background:linear-gradient(135deg,#FFF1EA 0%,#FFE4D7 100%)}
+.doc--b .r-hero .r-amt{color:#D9481C}
+
+/* ── 시안 C: 네이비 & 골드 (로고의 기울어진 모양) ── */
+.doc--c{--d-title:#172B46;--d-accent:#3A83F7;--d-soft:#F3F6FA;--d-th:#172B46;--d-th-text:#fff;--d-line:#DDE3EC;--d-sum-bg:#172B46;--d-sum-text:#fff;--d-grand-bg:#172B46;--d-grand-text:#fff;--d-grand-amt:#F2B33D;--d-bal-bg:#FFF6E0;--d-bal-amt:#8A5D00}
+.doc--c .d-head{margin:-44px -48px 20px;padding:36px 48px 24px;background:#172B46;color:#fff;overflow:hidden;align-items:center}
+.doc--c .d-head .d-slant{display:block;position:absolute;right:120px;top:0;bottom:0;width:150px;background:#3A83F7;transform:skewX(-24deg);opacity:.95}
+.doc--c .d-head::after{content:"";position:absolute;right:92px;top:0;bottom:0;width:16px;background:#F2B33D;transform:skewX(-24deg)}
+.doc--c .d-title,.doc--c .d-meta{position:relative;z-index:1}
+.doc--c .d-title h1{color:#fff}
+.doc--c .d-title .en{color:#F2B33D}
+.doc--c .d-meta{background:rgba(255,255,255,.96);color:#1B2533;padding:8px 12px;border-radius:8px;box-shadow:0 10px 20px -10px rgba(0,0,0,.4)}
+.doc--c .d-sum .amt{color:#F2B33D}
+.doc--c .d-sum{border-radius:4px;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+.doc--c .d-items tbody tr:nth-child(even) td{background:#F6F8FB}
+.doc--c .d-items tr.empty td{background:transparent!important}
+.doc--c .d-items thead th{border-bottom:3px solid #F2B33D}
+.doc--c .d-label{color:#172B46;border-bottom:2px solid #F2B33D;padding-bottom:1px}
+.doc--c .d-bank{border-color:#172B46;background:#F3F6FA}
+.doc--c .d-bank .bk-lbl{color:#172B46}
+.doc--c .d-foot::before{content:"";position:absolute;left:-48px;right:-48px;bottom:-34px;height:10px;background:linear-gradient(100deg,#172B46 0 70%,#3A83F7 70% 92%,#F2B33D 92%)}
+.doc--c .d-foot{padding-bottom:8px}
+.doc--c.k-stmt .half{border-top:8px solid #172B46}
+.doc--c.k-stmt .half.mine{border-top-color:#3A83F7}
+.doc--c .s-sum{clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+.doc--c .s-sum b{color:#F2B33D}
+.doc--c .r-hero{background:linear-gradient(120deg,#172B46 0 74%,#3A83F7 74% 90%,#F2B33D 90%)}
+.doc--c .r-hero .r-amt{color:#F2B33D}
