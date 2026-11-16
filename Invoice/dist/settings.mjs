@@ -1,12 +1,15 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwh60llr';
-import { toNum } from './core/catalog.mjs?v=mwh60llr';
-import { onlyDigits, validPin } from './core/lock.mjs?v=mwh60llr';
-import { hasLock, lockNow, setPin, verifyPin, removePin } from './lockscreen.mjs?v=mwh60llr';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwh60llr';
-import { wrap } from './core/datafile.mjs?v=mwh60llr';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwitgfh5';
+import { toNum } from './core/catalog.mjs?v=mwitgfh5';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwitgfh5';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwitgfh5';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwitgfh5';
+import { wrap } from './core/datafile.mjs?v=mwitgfh5';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwitgfh5';
+import { openInstall, isStandalone } from './install.mjs?v=mwitgfh5';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwitgfh5';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
@@ -38,17 +41,18 @@ export function settingsPage() {
     // 2. 화면
     '<section class="card"><div class="card-h"><h2>' + C.ic('type') + '화면</h2></div><div class="set-rows">' +
     '<div class="set-row"><span class="sl"><b>글자 크게</b><small>기본 16px → 18px · 화면만 커지고 문서(A4)는 그대로</small></span><label class="switch"><input type="checkbox" id="setBig"' + (s.bigText ? ' checked' : '') + '><i></i><span>' + (s.bigText ? '켜짐' : '꺼짐') + '</span></label></div>' +
+    '<div class="set-row"><span class="sl"><b>바탕화면 아이콘</b><small>' + (isStandalone() ? '지금 아이콘(앱)으로 열려 있어요' : '휴대폰 · 태블릿 · PC 바탕화면에 앱처럼 아이콘 만들기') + '</small></span><button type="button" class="btn" data-act="set-install">' + C.ic('phone') + '만드는 방법 보기</button></div>' +
     '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +
-    '<div class="set-rows"><div class="set-row"><span class="sl"><b>비밀번호</b><small>' + (lockOn ? '정해져 있어요 · 숫자 4~6자리' : '아직 정하지 않았어요') + '</small></span>' +
-    (lockOn ? '<span class="set-btns"><button type="button" class="btn" data-act="set-lock-now">' + C.ic('lock') + '지금 잠그기</button><button type="button" class="btn" data-act="set-pin-change">비밀번호 바꾸기</button><button type="button" class="btn danger-o" data-act="set-pin-remove">잠금 끄기</button></span>'
+    '<div class="set-rows"><div class="set-row"><span class="sl"><b>비밀번호</b><small>' + (lockOn ? '정해져 있어요 · 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리' : '아직 정하지 않았어요 · 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리') + '</small></span>' +
+    (lockOn ? '<span class="set-btns"><button type="button" class="btn" data-act="set-lock-now">' + C.ic('lock') + '지금 잠금</button><button type="button" class="btn" data-act="set-pin-change">비밀번호 재설정</button><button type="button" class="btn danger-o" data-act="set-pin-remove">잠금 끄기</button></span>'
       : '<button type="button" class="btn primary" data-act="set-pin-new">' + C.ic('lock') + '비밀번호 정하기</button>') + '</div>' +
     '<div class="set-row"><span class="sl"><b>자동 잠금</b><small>이 시간 동안 손대지 않으면 잠가요 · 휴대폰은 다른 앱에 다녀와도</small></span>' + seg('set-autolock', LOCK_MIN, s.autoLockMin ?? 5) + '</div></div>' +
-    '<p class="note">' + C.ic('alert') + '<span>비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 <b>내 정보의 사업자등록번호</b>로 다시 정해요. (구글 계정으로 다시 정하기는 2단계)</span></p></section>' +
+    '<p class="note">' + C.ic('alert') + '<span>비밀번호를 정하거나 재설정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 <b>사업자등록번호 + 초기화 코드</b>로 초기화한 뒤 새 비밀번호를 정해요.</span></p></section>' +
     // 4. 저장 위치
     '<section class="card"><div class="card-h"><h2>' + C.ic('cloud') + '저장 위치</h2><span class="hint">입력하면 저절로 저장돼요</span></div><div id="setSave">' + C.homeSaveRows() + '</div>' +
-    '<div class="set-row dim"><span class="sl"><b>' + C.ic('google') + '구글 드라이브</b><small>PC ↔ 아이폰 자료 맞추기 · 2단계에서 연결해요 (사용자님 구글 계정 설정이 먼저 필요)</small></span><span class="schip s-draft">준비 중</span></div></section>' +
+    '<ul class="savelist" id="gdRow">' + driveRowHtml() + '</ul></section>' +
     // 5. 백업
     '<section class="card"><div class="card-h"><h2>' + C.ic('copy') + '백업 · 자료 파일</h2><span class="hint">백업은 최근 10개(+ 직접 「보관」한 것)를 이 기기와 PC 폴더에 둬요</span></div>' +
     '<div class="set-btns wrap"><button type="button" class="btn primary" data-act="backup-now">' + C.ic('copy') + '지금 백업 만들기</button>' +
@@ -66,7 +70,7 @@ export function settingsPage() {
     '<p class="note">' + C.ic('chat') + '<span>복사한 글을 Claude나 ChatGPT(Codex) 대화창에 붙여 넣고 「이 문제를 고쳐 줘」라고 하면 돼요.</span></p></section>' +
     // 7. 정보
     '<section class="card"><div class="card-h"><h2>' + C.ic('star') + '프로그램 정보</h2></div><div class="set-rows">' +
-    '<div class="set-row"><span class="sl"><b>버전</b><small>v' + C.esc(C.appInfo.version) + ' · 빌드 ' + C.esc(C.appInfo.build) + '</small></span><button type="button" class="btn" data-act="set-update">' + C.ic('download') + '업데이트 확인</button></div>' +
+    '<div class="set-row"><span class="sl"><b>버전</b><small>v' + C.esc(C.appInfo.version) + ' · ' + C.esc((RELEASES.find((r) => r.version === C.appInfo.version) || {}).date || '') + ' · 빌드 ' + C.esc(C.appInfo.build) + '</small></span><span class="set-btns"><button type="button" class="btn" data-act="set-releases">' + C.ic('list') + '릴리즈 노트</button><button type="button" class="btn" data-act="set-update">' + C.ic('download') + '업데이트 확인</button></span></div>' +
     '<div class="set-row"><span class="sl"><b>디자인 시안</b><small>처음에 고른 시안 A 블루 모던 (참고용)</small></span><a class="btn" href="sian/" target="_blank" rel="noopener">' + C.ic('eye') + '시안 보기</a></div>' +
     '</div><p id="updMsg" class="note" style="display:none"></p></section>' +
     '</div>';
@@ -74,6 +78,7 @@ export function settingsPage() {
 
 /** 화면을 그린 뒤: 백업 목록 읽기 (기기 저장소에서) */
 export async function settingsAfterRender() {
+  preloadGis();
   const box = document.getElementById('bkList'); if (!box) return;
   let names = [];
   try { names = (await C.S.store.listBackups()).slice().reverse(); } catch (e) { box.innerHTML = '<p class="hint">백업 목록을 읽지 못했어요.</p>'; return; }
@@ -83,7 +88,7 @@ export async function settingsAfterRender() {
 }
 
 function pinForm(fields) {
-  return '<div class="fgrid one">' + fields.map(([id, l]) => '<label class="fld"><span>' + l + '</span><input class="in" id="' + id + '" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>').join('') + '</div><p class="note" id="pinMsg" style="display:none;margin:4px 0 0"></p>';
+  return '<div class="fgrid one">' + fields.map(([id, l]) => '<label class="fld"><span>' + l + '</span><input class="in" id="' + id + '" type="password" inputmode="numeric" maxlength="' + PIN_MAX + '" autocomplete="off"></label>').join('') + '</div><p class="note" id="pinMsg" style="display:none;margin:4px 0 0"></p>';
 }
 const pinSay = (t) => { const m = document.getElementById('pinMsg'); m.style.display = 'flex'; m.innerHTML = C.ic('alert') + '<span>' + t + '</span>'; return false; };
 const val = (id) => onlyDigits((document.getElementById(id) || {}).value);
@@ -113,12 +118,12 @@ export function settingsClick(act, a) {
     case 'set-autolock': s.autoLockMin = Number(a.dataset.v); C.changed(); C.render(); C.toast(Number(a.dataset.v) ? a.dataset.v + '분 동안 손대지 않으면 잠가요' : '자동 잠금을 껐어요'); return true;
     case 'set-lock-now': lockNow(); return true;
     case 'set-pin-new':
-      C.openModal({ icon: 'lock', title: '비밀번호 정하기', body: pinForm([['pinA', '새 비밀번호 (숫자 4~6자리)'], ['pinB', '한 번 더']]) + (onlyDigits(S.data.me.bizNo).length < 10 ? '<p class="warnbox">' + C.ic('alert') + '<span>내 정보에 사업자등록번호가 없으면 비밀번호를 잊었을 때 다시 정할 수 없어요. 먼저 넣어 두세요.</span></p>' : ''), ok: '정하기',
-        onOk: async () => { const p = val('pinA'); if (!validPin(p)) return pinSay('숫자 4~6자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); await setPin(p); if (!s.autoLockMin && s.autoLockMin !== 0) s.autoLockMin = 5; C.render(); C.toast('비밀번호를 정했어요. 왼쪽 아래 「화면 잠금」으로 바로 잠글 수 있어요'); } });
+      C.openModal({ icon: 'lock', title: '비밀번호 정하기', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + (onlyDigits(S.data.me.bizNo).length < 10 ? '<p class="warnbox">' + C.ic('alert') + '<span>내 정보에 사업자등록번호가 없으면 비밀번호를 잊었을 때 다시 정할 수 없어요. 먼저 넣어 두세요.</span></p>' : ''), ok: '정하기',
+        onOk: async () => { const p = val('pinA'); if (!validPin(p)) return pinSay('숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); const code = await setPin(p); if (s.autoLockMin == null) s.autoLockMin = 5; C.render(); showCodeModal(code, '비밀번호를 정했어요'); } });
       return true;
     case 'set-pin-change':
-      C.openModal({ icon: 'lock', title: '비밀번호 바꾸기', body: pinForm([['pinO', '지금 비밀번호'], ['pinA', '새 비밀번호 (숫자 4~6자리)'], ['pinB', '한 번 더']]), ok: '바꾸기',
-        onOk: async () => { if (!(await verifyPin(val('pinO')))) return pinSay('지금 비밀번호가 맞지 않아요'); const p = val('pinA'); if (!validPin(p)) return pinSay('새 비밀번호는 숫자 4~6자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); await setPin(p); C.render(); C.toast('비밀번호를 바꿨어요'); } });
+      C.openModal({ icon: 'lock', title: '비밀번호 재설정', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + '<p class="note">' + C.ic('alert') + '<span>재설정하면 예전 초기화 코드는 못 쓰고, 새 초기화 코드를 드려요.</span></p>', ok: '재설정',
+        onOk: async () => { const p = val('pinA'); if (!validPin(p)) return pinSay('새 비밀번호는 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); const code = await setPin(p); C.render(); showCodeModal(code, '비밀번호를 재설정했어요'); } });
       return true;
     case 'set-pin-remove':
       C.openModal({ tone: 'danger', icon: 'lock', title: '잠금을 끌까요?', body: pinForm([['pinO', '지금 비밀번호']]), ok: '잠금 끄기',
@@ -139,8 +144,17 @@ export function settingsClick(act, a) {
     case 'prob-save': download('견적서발행기_문제보고_' + today8() + '.md', report(), 'text/markdown'); C.toast('문제 보고 파일을 내려받았어요'); return true;
     case 'prob-clear': C.openModal({ icon: 'trash', title: '문제 기록을 지울까요?', body: '<p>AI에게 보낼 일이 끝났다면 지워도 돼요.</p>', ok: '지우기', onOk: () => { clearProblems(); C.render(); C.toast('문제 기록을 지웠어요'); } }); return true;
     case 'set-update': checkUpdate(); return true;
+    case 'set-install': openInstall(); return true;
+    case 'set-releases': C.openModal({ icon: 'list', title: '릴리즈 노트', body: releasesHtml(), ok: '닫기', cancel: false, wide: true }); return true;
   }
   return false;
+}
+/** 릴리즈 노트: 최신 버전부터, 버전마다 날짜 · 제목 · 새 기능 / 좋아짐 / 고침 */
+function releasesHtml() {
+  return '<div class="relnotes">' + RELEASES.map((r, i) => '<article class="rel' + (r.version === C.appInfo.version ? ' cur' : '') + '"><header><b class="rel-v">v' + r.version + '</b>' + (i === 0 ? '<span class="schip s-sent">최신</span>' : '') + (r.version === C.appInfo.version ? '<span class="schip s-contract">지금 쓰는 버전</span>' : '') + '<time>' + r.date.replace(/-/g, '.') + '</time></header>' +
+    '<h4>' + C.esc(r.title) + '</h4>' + (r.intro ? '<p class="rel-intro">' + C.esc(r.intro) + '</p>' : '') +
+    '<ul>' + r.items.map(([k, t]) => '<li><span class="rk rk-' + k + '">' + KIND_LABEL[k] + '</span><span>' + C.esc(t) + '</span></li>').join('') + '</ul></article>').join('') + '</div>' +
+    '<p class="note">' + C.ic('star') + '<span>버전 번호 v<b>주</b>.<b>부</b>.<b>수</b> — 주: 크게 바뀜 · 부: 새 기능 · 수: 고침</span></p>';
 }
 async function checkUpdate() {
   const msg = document.getElementById('updMsg'); if (!msg) return;

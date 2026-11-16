@@ -1,6 +1,6 @@
 // 1.0 완성본 시험: 매출 · 미수금 · 장비 부족 · 달력 · 오늘 챙길 일 · 휴지통 · 잠금
 import { isContracted, salesByMonth, salesByClient, receivables, yearSummary, salesYears, usageOn, gearShortage, equipmentOn, equipState, monthGrid, undatedEvents, todo, purgeTrash, daysLeft, gearRange } from './reports.mjs';
-import { validPin, makeLock, checkPin, canResetWith, shouldAutoLock } from './lock.mjs';
+import { validPin, makeLock, checkPin, checkReset, shouldAutoLock, formatBizNo, bizNoState } from './lock.mjs';
 import { eventFromDoc, newPayment } from './events.mjs';
 import { newDoc, newLine } from './docs.mjs';
 import { emptyData } from './datafile.mjs';
@@ -101,12 +101,19 @@ eq('30일 지난 것은 비움', purgeTrash(trash, '2026-11-15T00:00:00.000Z').m
 eq('남은 날수', daysLeft(trash[1], '2026-11-15T00:00:00.000Z'), 25);
 
 console.log('잠금');
-eq('비밀번호는 숫자 4~6자리', [validPin('123'), validPin('1234'), validPin('123456'), validPin('1234567'), validPin('12a4')], [false, true, true, false, false]);
-const lk = await makeLock('2580', '2026-11-15T00');
-eq('비밀번호 자체는 저장하지 않음', JSON.stringify(lk).includes('2580'), false);
-eq('맞는 비밀번호', await checkPin(lk, '2580'), true);
-eq('틀린 비밀번호', await checkPin(lk, '0000'), false);
-eq('잊었을 때: 사업자등록번호가 맞으면 다시 정함', [canResetWith({ bizNo: '123-45-67890' }, '1234567890'), canResetWith({ bizNo: '123-45-67890' }, '1234567891'), canResetWith({ bizNo: '' }, '')], [true, false, false]);
+eq('비밀번호는 숫자 4~10자리', [validPin('123'), validPin('1234'), validPin('1234567890'), validPin('12345678901'), validPin('12a4')], [false, true, true, false, false]);
+const made = await makeLock('258014', '2026-11-15T00'), lk = made.lock;
+eq('비밀번호 · 초기화 코드 자체는 저장하지 않음', [JSON.stringify(lk).includes('258014'), JSON.stringify(lk).includes(made.code)], [false, false]);
+eq('잠금 화면 동그라미 개수 = 비밀번호 자릿수', lk.len, 6);
+eq('맞는 비밀번호', await checkPin(lk, '258014'), true);
+eq('틀린 비밀번호', await checkPin(lk, '2580'), false);
+eq('초기화 코드: 영어 대문자 · 숫자 5자리, 헷갈리는 0 O 1 I 없음', /^[A-HJ-NP-Z2-9]{5}$/.test(made.code), true);
+const me = { bizNo: '123-45-67890' };
+eq('초기화: 사업자번호 + 코드가 모두 맞아야', [(await checkReset(lk, me, '1234567890', made.code)).ok, (await checkReset(lk, me, '1234567890', 'ZZZZZ')).ok, (await checkReset(lk, me, '1234567891', made.code)).ok], [true, false, false]);
+eq('초기화 코드는 소문자로 쳐도 됨', (await checkReset(lk, me, '123-45-67890', made.code.toLowerCase())).ok, true);
+eq('코드가 생기기 전(v1.0.0) 비밀번호는 사업자번호만 확인', (await checkReset({ salt: 'a', hash: 'b' }, me, '1234567890', '')).ok, true);
+eq('사업자번호 치는 동안 자동 - 넣기', [formatBizNo('123'), formatBizNo('1234'), formatBizNo('12345'), formatBizNo('123456'), formatBizNo('1234567890123'), formatBizNo('123-45-6789a0')], ['123', '123-4', '123-45', '123-45-6', '123-45-67890', '123-45-67890']);
+eq('사업자번호 확인: 빔 · 10자리 아님 · 검증 숫자 · 맞음', [bizNoState(''), bizNoState('12345'), bizNoState('1234567890'), bizNoState('1208147521')], ['', 'short', 'check', 'ok']);
 eq('5분 지나면 자동 잠금, 0이면 끔', [shouldAutoLock(0, 5 * 60000, 5), shouldAutoLock(0, 4 * 60000, 5), shouldAutoLock(0, 99 * 60000, 0)], [true, false, false]);
 
 console.log(`\n매출 · 장비 · 잠금 시험: ${pass}개 통과, ${fail}개 실패`);

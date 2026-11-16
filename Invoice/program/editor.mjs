@@ -169,7 +169,7 @@ export function editorPage() {
     '<nav class="steps" aria-label="작성 단계">' + steps + '</nav>' +
     '<div class="ed-bar card">' +
     '<div class="ed-bar-l">' + seg('type', kinds, d.type) + '</div>' +
-    '<div class="ed-bar-r"><label class="status-sel"><span>진행 상태</span><select class="in" data-d="status">' + statusOpts + '</select></label>' +
+    '<div class="ed-bar-r"><button type="button" class="btn primary ed-save" data-act="doc-save" title="지금 바로 저장 (Ctrl+S) · 입력하면 저절로도 저장돼요">' + ic('download') + '저장</button><label class="status-sel"><span>진행 상태</span><select class="in" data-d="status">' + statusOpts + '</select></label>' +
     '<div class="menu"><button type="button" class="btn" data-act="menu" aria-haspopup="menu">' + ic('copy') + '바꿔 · 복사해 만들기' + ic('down') + '</button><div class="menu-pop" role="menu">' +
     (d.type !== 'stmt' ? '<button type="button" data-act="conv" data-type="stmt">' + ic('clipboard') + '거래명세서로 만들기</button>' : '') +
     (d.type !== 'inv' ? '<button type="button" data-act="conv" data-type="inv">' + ic('truck') + '납품ㆍ청구서로 만들기</button>' : '') +
@@ -232,7 +232,7 @@ export function editorPage() {
     '<button type="button" class="sb" data-act="doc-copy" data-id="' + d.id + '">' + ic('copy') + '복사해서 새로</button><button type="button" class="sb" data-act="doc-del" data-id="' + d.id + '">' + ic('trash') + '삭제</button></div>' +
     '<p class="note pv-note">' + ic('check') + '<span>입력하면 저절로 저장되고, 미리보기도 바로 바뀌어요.</span></p>' +
     '</aside></div>' +
-    '<div class="ed-next">' + prev + next + '</div>' +
+    '<div class="ed-next">' + prev + '<button type="button" class="btn ed-save" data-act="doc-save" aria-label="지금 바로 저장">' + ic('download') + '저장</button>' + next + '</div>' +
     '<div class="pvfull" id="pvFull" role="dialog" aria-modal="true" aria-label="문서 크게 보기"><div class="pvfull-bar"><b>' + C.esc(docNo(d)) + '</b><button type="button" class="btn" data-act="doc-print">' + ic('print') + '인쇄</button><button type="button" class="btn primary" data-act="pv-close">' + ic('x') + '닫기</button></div><div class="pvfull-body" id="pvFullBody"></div></div>' +
     '</div>';
 }

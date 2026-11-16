@@ -19,6 +19,9 @@ import { initTrash, trashPage, trashClick } from './trash.mjs';
 import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs';
 import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs';
 import { logProblem } from './errors.mjs';
+import { initInputs } from './inputs.mjs';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected } from './gdrive.mjs';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs';
 import { purgeTrash } from './core/reports.mjs';
 
 const APP_VERSION = '0.0.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
@@ -71,7 +74,7 @@ function modalHtml() {
     '</div></div>';
 }
 function openModal(o) {
-  const m = $('#modal'); if (!m) return;
+  const m = $('#modal'); if (!m) return; delete m.dataset.sticky;
   MODAL.onOk = o.onOk || null; MODAL.onCancel = o.onCancel || null;
   m.className = 'modal on ' + (o.tone || 'primary') + (o.wide ? ' wide' : '');
   $('#mIcon').innerHTML = ic(o.icon || 'alert');
@@ -84,7 +87,7 @@ function openModal(o) {
   cc.style.display = o.cancel === false ? 'none' : '';
   setTimeout(() => { const f = m.querySelector('.modal-body input, .modal-body textarea'); (f || ok).focus(); }, 30);
 }
-function closeModal() { const m = $('#modal'); if (m) m.className = 'modal'; MODAL.onOk = null; MODAL.onCancel = null; }
+function closeModal() { const m = $('#modal'); if (m) { m.className = 'modal'; delete m.dataset.sticky; } MODAL.onOk = null; MODAL.onCancel = null; }
 async function modalOk() {
   const fn = MODAL.onOk; const keep = fn ? await fn() : undefined;
   if (keep !== false && MODAL.onOk === fn) closeModal();
@@ -96,6 +99,7 @@ function changed() {
   clearTimeout(S.timer);
   S.timer = setTimeout(saveNow, 700);
   paintStatus('busy');
+  syncSoon();   // 구글 드라이브를 연결했으면 몇 초 뒤 맞추기
 }
 async function saveNow() {
   clearTimeout(S.timer);
@@ -109,6 +113,14 @@ async function saveNow() {
   if (S.dirty) saveNow();
 }
 
+/** 문서 작성 화면 「저장」 단추: 바로 저장하고 「저장됨 ○○:○○」을 보여 준다 (자동 저장은 그대로) */
+async function saveDocNow(btn) {
+  await saveNow();
+  const ok = Object.values(S.store.status).every((x) => !x || x.ok);
+  const t = hhmm(new Date().toISOString());
+  document.querySelectorAll('[data-act="doc-save"]').forEach((b) => { b.classList.add('saved'); b.innerHTML = ic('check') + (ok ? '저장됨<small class="st-t"> ' + t + '</small>' : '저장 안 됨'); clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('saved'); b.innerHTML = ic('download') + '저장'; }, 3000); });
+  toast(ok ? '저장했어요 (' + t + ')' : '일부 저장 위치에 저장하지 못했어요. 저장 상태를 확인해 주세요');
+}
 function pillHtml(name) {
   const st = S.store.status[name];
   if (name === FOLDER) {
@@ -121,7 +133,7 @@ function pillHtml(name) {
   if (st.ok) return '<div class="pill ok" title="' + name + ' ' + hhmm(st.at) + ' 저장됨"><i></i><span>' + name + '</span><small>' + hhmm(st.at) + ' 저장됨</small></div>';
   return '<div class="pill fail" title="' + name + ' 저장 실패"><i></i><span>' + name + ' · 저장 안 됨</span><button data-act="retry">다시 시도</button></div>';
 }
-function statusHtml() { return pillHtml(DEVICE) + pillHtml(FOLDER); }
+function statusHtml() { return pillHtml(DEVICE) + pillHtml(FOLDER) + drivePill(); }
 function paintStatus() {
   document.querySelectorAll('[data-status]').forEach((el) => { el.innerHTML = statusHtml(); });
   const h = $('#homeSave'); if (h) h.innerHTML = homeSaveRows();
@@ -161,6 +173,39 @@ async function connectFolderKeepCurrent(handle) {
   render();
   toast(files.main ? 'PC 폴더 연결 · 폴더에 있던 자료는 백업 폴더에 보관했어요' : 'PC 폴더를 연결했어요. 이제 폴더에도 저절로 저장돼요');
   return true;
+}
+
+/** 폴더 바꾸기: 새 폴더로 자료 · 하루 전 사본 · 백업을 모두 복사하고, 앞으로는 새 폴더에 저장한다. 예전 폴더 파일은 지우지 않는다(사용자 결정). */
+async function onFolderChange() {
+  const oldH = S.folder.handle; if (!oldH) return onFolderConnect();
+  const h = await pickFolder(); if (!h) return;
+  try { if (oldH.isSameEntry && await oldH.isSameEntry(h)) { toast('지금 쓰고 있는 폴더예요. 다른 폴더를 골라 주세요'); return; } } catch (e) {}
+  let oldFiles = {};
+  try { if ((await oldH.queryPermission({ mode: 'read' })) === 'granted') oldFiles = await readFolderFiles(oldH); } catch (e) { oldFiles = {}; }
+  const nBk = Object.keys(oldFiles).filter((k) => k !== 'main').length;
+  const newAd = folderAdapter(h), there = await newAd.get('main').catch(() => null);
+  openModal({
+    icon: 'cloud', title: '저장 폴더를 바꿀까요?',
+    body: '<p>지금 폴더: <b>' + esc(oldH.name || '') + '</b> → 새 폴더: <b>' + esc(h.name || '') + '</b></p>' +
+      '<ul class="x-steps"><li>지금 자료와 ' + (nBk ? '하루 전 사본 · 백업 ' + nBk + '개를' : '백업을') + ' 새 폴더로 <b>복사</b>해요.</li><li>앞으로는 <b>새 폴더에만</b> 저장해요.</li><li>예전 폴더의 파일은 <b>지우지 않고 그대로</b> 둬요.</li></ul>' +
+      (there ? '<p class="warnbox">' + ic('alert') + '<span>새 폴더에 이미 견적서 자료가 있어요. 그 자료는 지우지 않고 그 폴더의 백업에 「폴더바꾸기전_보관」으로 남겨 둬요.</span></p>' : '') +
+      (S.folder.state !== 'connected' && !Object.keys(oldFiles).length ? '<p class="note">' + ic('alert') + '<span>예전 폴더를 읽을 허락이 없어 백업은 복사하지 못해요. 지금 자료는 새 폴더에 저장돼요.</span></p>' : ''),
+    ok: '바꾸기',
+    onOk: async () => {
+      const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', '-');
+      try {
+        if (there) await newAd.set('backup:' + stamp + '_폴더바꾸기전_보관', there);
+        let n = 0;
+        for (const [k, t] of Object.entries(oldFiles)) { if (k === 'main') continue; if (!(await newAd.get(k))) { await newAd.set(k, t); n++; } }
+        const i = S.targets.findIndex((t) => t.name === FOLDER);   // 저장 장치가 쓰는 같은 배열을 그 자리에서 바꾼다
+        if (i >= 0) S.targets.splice(i, 1, newAd); else S.targets.push(newAd);
+        S.folder.handle = h; S.folder.state = 'connected';
+        try { await S.device.set('folderHandle', h); } catch (e) {}
+        await saveNow(); render();
+        toast('새 폴더 「' + (h.name || '') + '」로 바꿨어요' + (n ? ' · 백업 ' + n + '개 복사' : '') + ' (예전 폴더 파일은 그대로)');
+      } catch (e) { logProblem('폴더 바꾸기 실패', e); toast('새 폴더에 쓸 수 없어요. 다른 폴더를 골라 주세요'); }
+    }
+  });
 }
 
 async function onFolderConnect() {
@@ -261,9 +306,9 @@ function setupScreen() {
   return '<div class="setup"><div class="setup-card">' +
     '<div class="setup-head"><img src="assets/starmedia-logo.png" alt="스타미디어 기획사"><h1>견적서 발행기</h1><p>어떻게 시작할까요?</p></div>' + warn +
     '<div class="setup-opts">' +
-    '<button class="opt primary" data-act="start-fresh"><span class="opt-ic">' + ic('plus') + '</span><b>처음 시작하기</b><span>처음 써요. 내 정보부터 넣고 시작해요.</span></button>' + find +
+    '<button class="opt primary" data-act="start-fresh"><span class="opt-ic">' + ic('plus') + '</span><b>처음 시작하기</b><span>처음 써요. 내 정보부터 넣고 시작해요.</span></button>' + setupOptionHtml() + find +
     '</div>' +
-    '<p class="setup-note">자료는 이 기기에 저절로 저장되고, PC 폴더를 정하면 폴더에도 함께 저장돼요.</p>' +
+    '<p class="setup-note">자료는 이 기기에 저절로 저장되고, PC 폴더 · 구글 드라이브를 연결하면 거기에도 함께 저장돼요.</p>' +
     '</div></div>' + creditHtml();
 }
 
@@ -324,7 +369,9 @@ function homeSaveRows() {
     if (n === FOLDER && S.folder.state === 'unsupported') return '<li><b>PC 폴더</b><span>이 기기(브라우저)에서는 쓸 수 없어요</span></li>';
     if (n === FOLDER && S.folder.state !== 'connected') return '<li><b>PC 폴더</b><span>' + (S.folder.state === 'none' ? '아직 연결 안 됨' : '허락이 필요해요') + '</span><button class="btn sm" data-act="' + (S.folder.state === 'none' ? 'folder-connect' : 'folder-permit') + '">' + (S.folder.state === 'none' ? '폴더 연결' : '다시 연결') + '</button></li>';
     const st = S.store.status[n];
-    return '<li><b>' + n + '</b><span>' + (!st ? '준비됨' : st.ok ? dateKo(st.at) + ' 저장됨' : '저장 안 됨') + '</span>' + (st && !st.ok ? '<button class="btn sm" data-act="retry">다시 시도</button>' : '') + '</li>';
+    const fname = n === FOLDER && S.folder.handle && S.folder.handle.name ? ' <small class="fname">' + esc(S.folder.handle.name) + '</small>' : '';
+    return '<li><b>' + n + fname + '</b><span>' + (!st ? '준비됨' : st.ok ? dateKo(st.at) + ' 저장됨' : '저장 안 됨') + '</span>' + (st && !st.ok ? '<button class="btn sm" data-act="retry">다시 시도</button>' : '') +
+      (n === FOLDER ? '<button class="btn sm" data-act="folder-change">' + ic('cloud') + '폴더 바꾸기</button>' : '') + '</li>';
   }).join('');
   return '<ul class="savelist">' + rows + '</ul>';
 }
@@ -341,7 +388,7 @@ function homePage() {
   ];
   const stepHtml = steps.map(([done, t, s, go], i) =>
     '<li class="' + (done ? 'done' : '') + '"><span class="snum">' + (done ? ic('check') : i + 1) + '</span><span class="stx"><b>' + t + '</b><small>' + s + '</small></span>' +
-    (done ? '<em>완료</em>' : go === 'folder' ? '<button class="btn sm primary" data-act="folder-connect">하기</button>' : '<a class="btn sm primary" href="' + go + '">하기</a>') + '</li>').join('');
+    (done ? '<em>완료</em>' : go === 'folder' ? '<button class="btn sm primary" data-act="folder-connect">입력</button>' : '<a class="btn sm primary" href="' + go + '">입력</a>') + '</li>').join('');
   return '<div class="home">' +
     '<section class="card c-new"><div class="card-h"><h2>새 문서 만들기</h2><span class="hint">영수증은 행사 · 입금에서 완납했을 때 만들어요</span></div><div class="tiles">' + tiles + '</div></section>' + homeRecentHtml() +
     homeTodoHtml() + homeMoneyHtml() +
@@ -373,7 +420,7 @@ function mePage() {
     '<label class="fld span2"><span>상호 (업체명) <em class="tag2">최대 2줄</em></span>' +
     '<textarea class="in ta2" data-me="name" rows="2" aria-describedby="nmHint" placeholder="스타미디어&#10;(STARmedia)">' + esc(m.name) + '</textarea>' +
     '<small id="nmHint" class="fhint">' + ic('check') + '<span><b>엔터</b>를 누르면 다음 줄로 넘어가요. 예: 스타미디어 ↵ (STARmedia)</span></small></label>' +
-    meField('대표자', 'ceo') + meField('사업자등록번호', 'bizNo', ' inputmode="numeric" placeholder="000-00-00000"') +
+    meField('대표자', 'ceo') + meField('사업자등록번호', 'bizNo', ' inputmode="numeric" maxlength="12" placeholder="숫자 10자리 (- 는 저절로)"') +
     meField('주소', 'addr', '', 'span2') +
     meField('업태', 'bizType') + meField('종목', 'bizItem') + meField('전화', 'tel', ' inputmode="tel"') + meField('팩스', 'fax', ' inputmode="tel"') +
     '</div></section>' +
@@ -503,7 +550,7 @@ function setBigText(on) { S.data.settings.bigText = !!on; applyBigText(); change
 
 /* ── 움직임 ── */
 document.addEventListener('click', async (e) => {
-  if (e.target.id === 'modal') { closeModal(); return; }
+  if (e.target.id === 'modal') { if (!e.target.dataset.sticky) closeModal(); return; }
   if (e.target.id === 'moreSheet') { e.target.classList.remove('on'); return; }
   if (e.target.closest('#moreSheet a')) $('#moreSheet').classList.remove('on');
   const mb = e.target.closest('[data-modal]');
@@ -519,6 +566,7 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (a.tagName === 'A') e.preventDefault();
+  if (driveClick(act)) return;
   if (act === 'lock-now') { if (!lockNow()) { location.hash = '#set'; toast('먼저 비밀번호를 정해 주세요 (화면 잠금)'); } return; }
   if (equipClick(act, a, curEvent()) || editorClick(act, a) || eventsClick(act, a) || exportClick(act, a, curDoc()) ||
       moneyClick(act, a) || calendarClick(act, a) || trashClick(act, a) || settingsClick(act, a)) return;
@@ -529,6 +577,8 @@ document.addEventListener('click', async (e) => {
   else if (act === 'import-file') onImportFile();
   else if (act === 'folder-connect') onFolderConnect();
   else if (act === 'folder-permit') onFolderPermit();
+  else if (act === 'folder-change') onFolderChange();
+  else if (act === 'doc-save') saveDocNow(a);
   else if (act === 'retry') saveNow();
   else if (act === 'backup-now') { await saveNow(); const n = await S.store.backup('수동'); toast(n ? '백업을 만들었어요 (최근 10개 보관)' : '백업할 자료가 아직 없어요'); }
   else if (act === 'client-add') openClient(null);
@@ -576,7 +626,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && sh && sh.classList.contains('on')) { sh.classList.remove('on'); return; }
   const m = $('#modal');
   if (m && m.classList.contains('on')) {
-    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Escape') { if (!m.dataset.sticky) closeModal(); return; }
     if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); modalOk(); }
     return;
   }
@@ -600,8 +650,8 @@ initItems({ S, $, esc, ic, uid, toast, openModal, changed, render: () => render(
 initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal });
-const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx);
+const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
+initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {
@@ -616,6 +666,7 @@ async function boot() {
       }
     } catch (e) { /* 폴더를 못 찾으면 연결 안 됨으로 둔다 */ }
   }
+  await initDrive(ctx);
   let r;
   try { r = await S.store.open(); } catch (e) { r = { ok: false, reason: 'device-error' }; }
   if (r.ok) {
@@ -628,6 +679,9 @@ async function boot() {
   render();
   window.__smStarted = true;
   if (S.data) lockOnBoot();
+  if (shouldShowInstall()) openInstall();
+  if (!S.data) preloadGis();
+  if (S.data && driveConnected()) syncSoon(800);   // 열 때 드라이브와 한 번 맞추기   // 휴대폰 · 태블릿 처음: 바탕화면 아이콘 만들기 안내부터
   // 홈 화면 설치용 도우미 (인터넷 먼저 · 끊겼을 때만 저장해 둔 파일). 실패해도 프로그램은 그대로 쓴다.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
     navigator.serviceWorker.register('sw.js').catch((e) => logProblem('홈 화면 설치 도우미 등록 실패', e));

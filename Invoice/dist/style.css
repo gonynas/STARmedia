@@ -1592,3 +1592,83 @@ body.is-locked{overflow:hidden}
   .lk-pad{grid-template-columns:repeat(3,64px)}
   .lk-key{height:56px}
 }
+
+/* ══ v1.1.0 고침 ══ */
+/* 시작 준비: 「입력」 단추와 「완료」 글자를 같은 폭 · 가운데 정렬 */
+.steps3 li>.btn,.steps3 li>em{flex:none;min-width:72px;display:inline-flex;align-items:center;justify-content:center;text-align:center}
+
+/* 날짜 칸: 다른 칸과 같은 폭 (아이폰 사파리가 날짜 칸을 넓히는 문제) + 오른쪽 달력 아이콘 */
+input[type="date"].in{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;text-align:left;padding-right:44px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235F6B7D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4.5' width='18' height='16' rx='2.5'/%3E%3Cpath d='M3 9.5h18M8 2.5v4M16 2.5v4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:20px 20px;position:relative}
+input[type="date"].in::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type="date"].in::-webkit-calendar-picker-indicator{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;opacity:0;cursor:pointer}
+.eq-date input[type="date"].in{width:auto;padding-right:38px;background-position:right 10px center;background-size:16px 16px}
+
+/* 휴대폰 아래 메뉴: 5칸 모두 같은 모양, 지금 화면만 파란 단추(아이콘 + 글자 흰색) */
+@media (max-width:767px){
+  .bnav{align-items:stretch;gap:4px;padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
+  .bnav a,.bnav a.bnew{flex:1;min-width:0;display:grid;justify-items:center;align-content:center;gap:2px;padding:6px 0;border-radius:14px;color:var(--muted)}
+  .bnav a .bi,.bnav a.bnew .bi{width:auto;height:28px;margin:0;border-radius:0;background:none;box-shadow:none;color:inherit}
+  [data-theme="a"] .bnav a.on,[data-theme="a"] .bnav a.on:not(.bnew){background:var(--primary);color:#fff;padding:6px 0}
+  [data-theme="a"] .bnav a.on .bi{background:none;color:#fff}
+  [data-theme="a"] .bnav a:active{background:var(--primary);color:#fff}
+}
+
+/* 잠금: 단계 표시 · 초기화 코드 상자 */
+.lk-step{font-size:.82rem;font-weight:800;color:var(--primary-ink);background:var(--primary-soft);padding:3px 10px;border-radius:999px}
+.lk-card .fld span small{font-weight:500;color:var(--sub);margin-left:6px;font-size:.8rem}
+.lk-codein{text-transform:uppercase;letter-spacing:.3em;font-weight:800;text-align:center}
+.lk-dots{flex-wrap:wrap;justify-content:center;max-width:300px}
+.rc-box{display:grid;justify-items:center;gap:6px;width:100%;padding:16px 12px;margin:4px 0 10px;border-radius:var(--radius-s);background:var(--primary-soft);border:2px dashed var(--primary)}
+.rc-l{font-size:.85rem;font-weight:800;color:var(--primary-ink)}
+.rc-code{font-size:2rem;font-weight:800;letter-spacing:.35em;padding-left:.35em;color:var(--text);font-variant-numeric:tabular-nums}
+.lk-card .warnbox,.modal .rc-box+.warnbox{display:flex;gap:8px;align-items:flex-start;text-align:left;width:100%}
+.biz-msg{display:block;margin-top:4px;color:#C02121;font-weight:700;font-size:.85rem}
+
+/* 휴대폰 처음: 바탕화면 아이콘 만들기 안내 */
+.installscreen{position:fixed;inset:0;z-index:190;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,#F3F6FB 0%,#E4ECF8 100%);overflow:auto}
+.in-card{width:100%;max-width:420px;display:grid;gap:12px;justify-items:center;text-align:center;padding:26px 22px;border-radius:var(--radius);background:var(--surface);box-shadow:0 20px 50px -20px rgba(23,43,70,.35)}
+.in-icon{width:72px;height:72px;border-radius:18px;box-shadow:0 8px 20px -8px rgba(58,131,247,.6)}
+.in-app{font-weight:800;color:var(--sub);font-size:.9rem}
+.in-card h2{font-size:1.3rem}
+.in-card p{color:var(--sub)}
+.in-card .btn.wide{width:100%;justify-content:center}
+.in-card .btn[hidden]{display:none}
+.in-steps{list-style:none;display:grid;gap:10px;width:100%;padding:0;margin:4px 0;text-align:left}
+.in-steps li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-s);background:var(--surface2);border:1px solid var(--line)}
+.in-steps .ic{width:18px;height:18px;vertical-align:-3px;color:var(--primary-ink)}
+.in-n{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800}
+.in-later{color:var(--sub);font-weight:700;text-decoration:underline;padding:8px}
+
+/* 릴리즈 노트 */
+.relnotes{display:grid;gap:14px;max-height:62vh;overflow:auto;padding-right:4px}
+.rel{padding:14px 16px;border-radius:var(--radius-s);border:1.5px solid var(--line);background:var(--surface2)}
+.rel.cur{border-color:var(--primary)}
+.rel header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rel-v{font-size:1.15rem;font-weight:800}
+.rel time{margin-left:auto;color:var(--sub);font-weight:700;font-size:.88rem}
+.rel h4{margin:6px 0 4px;font-size:1rem}
+.rel-intro{color:var(--sub);font-size:.92rem;margin-bottom:6px}
+.rel ul{display:grid;gap:6px;margin-top:6px}
+.rel li{display:flex;gap:8px;align-items:flex-start;font-size:.92rem}
+.rk{flex:none;font-size:.75rem;font-weight:800;padding:2px 8px;border-radius:999px;margin-top:1px}
+.rk-new{background:var(--primary-soft);color:var(--primary-ink)}
+.rk-improve{background:#E7F7EE;color:#15803D}
+.rk-fix{background:#FFF4DE;color:#A86400}
+
+/* ══ v1.2.0 ══ */
+.savelist .fname{font-weight:600;color:var(--sub);font-size:.82rem;margin-left:4px}
+.savelist li .btn{margin-left:auto}
+.savelist li .btn+.btn{margin-left:6px}
+.gd-row span{flex:1;min-width:0}
+.ed-save.saved{background:#16A34A;border-color:#16A34A}
+@media (max-width:767px){
+  .ed-bar-r .ed-save{order:-1;min-height:44px}
+  .savelist li{flex-wrap:wrap}
+}
+.ed-next .ed-save{flex:0 0 auto;min-width:84px}
+.ed-next .ed-save.saved{color:#fff}
+.ed-next .ed-save .st-t{display:none}
+.ed-save .st-t{font-weight:700}
+.gd-row>b{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}

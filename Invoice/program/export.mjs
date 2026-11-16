@@ -117,13 +117,18 @@ async function pageCanvas(html, scale) {
   const wrap = document.createElementNS(XHTML, 'div');
   wrap.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') || 'a');
   wrap.setAttribute('class', 'in-app x-shot');
-  wrap.setAttribute('style', rootVars() + 'width:' + A4W + 'px;height:' + A4H + 'px;margin:0;padding:0;background:#fff;overflow:hidden');
+  // 크게 만들기는 SVG viewBox 가 아니라 안쪽 CSS zoom 으로 한다 (transform 은 일부 글자가 굵게 찍혀서 zoom).
+  // (아이폰 사파리 · 카톡 안 브라우저(WebKit)는 foreignObject 에 viewBox 확대를 적용하지 않아, 그림이 왼쪽 위에 작게 찍히고 오른쪽 · 아래가 빈 여백이 됐다)
+  const W = Math.round(A4W * scale), H = Math.round(A4H * scale);
+  wrap.setAttribute('style', rootVars() + 'width:' + A4W + 'px;height:' + A4H + 'px;margin:0;padding:0;background:#fff;overflow:hidden;zoom:' + scale + '');
   const st = document.createElementNS(XHTML, 'style');
   st.textContent = fonts + '\n' + appCss() + '\n.x-shot .a4{width:' + A4W + 'px!important;height:' + A4H + 'px!important;min-height:' + A4H + 'px!important;margin:0!important;box-shadow:none!important;transform:none!important}';
   wrap.appendChild(st); wrap.appendChild(page);
-  const xml = new XMLSerializer().serializeToString(wrap);
-  const W = Math.round(A4W * scale), H = Math.round(A4H * scale);
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + A4W + ' ' + A4H + '"><foreignObject x="0" y="0" width="' + A4W + '" height="' + A4H + '">' + xml + '</foreignObject></svg>';
+  const outer = document.createElementNS(XHTML, 'div');
+  outer.setAttribute('style', 'width:' + W + 'px;height:' + H + 'px;margin:0;padding:0;overflow:hidden;background:#fff');
+  outer.appendChild(wrap);
+  const xml = new XMLSerializer().serializeToString(outer);
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '"><foreignObject x="0" y="0" width="' + W + '" height="' + H + '">' + xml + '</foreignObject></svg>';
   const img = new Image();
   await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('문서 그림을 만들지 못했어요')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
   if (img.decode) await img.decode().catch(() => {});
