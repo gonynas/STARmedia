@@ -1,9 +1,9 @@
 // 행사 · 입금 화면: 행사 목록(#event) · 행사 한 건(#event/ID)
 // 행사 한 건에 묶인 문서, 계약 기준 문서, 입금 여러 번(취소 표시 · 환불), 완납 영수증, 계약 취소 시 돌려줄 금액
-import { DOC_TYPES, DOC_STATUS, ymd, dateShort, docNo, docTotals, newDoc } from './core/docs.mjs?v=mwitgfh5';
-import { blankEvent, eventDocs, eventPays, baseDoc, eventMoney, MONEY_STATE, parsePayment, newPayment, receiptFor, receiptValid, eventDateText, filterEvents, convertDoc } from './core/events.mjs?v=mwitgfh5';
-import { won } from './docview.mjs?v=mwitgfh5';
-import { gearCardHtml } from './equip.mjs?v=mwitgfh5';
+import { DOC_TYPES, DOC_STATUS, ymd, dateShort, docNo, docTotals, newDoc } from './core/docs.mjs?v=mwj79qfo';
+import { blankEvent, eventDocs, eventPays, baseDoc, eventMoney, MONEY_STATE, parsePayment, newPayment, receiptFor, receiptValid, eventDateText, filterEvents, convertDoc } from './core/events.mjs?v=mwj79qfo';
+import { won } from './docview.mjs?v=mwj79qfo';
+import { gearCardHtml } from './equip.mjs?v=mwj79qfo';
 
 let C = null;
 export function initEvents(ctx) { C = ctx; }
@@ -48,7 +48,7 @@ function docsHtml(e, m) {
     const voided = d.type === 'rcpt' && !receiptValid(d, S.data);
     return '<li class="' + (isBase ? 'base' : '') + '"><span class="tchip t-' + d.type + '">' + ic(TYPE_ICON[d.type]) + DOC_TYPES[d.type].label + '</span>' +
       '<a class="evd-no num" href="#doc/' + d.id + '">' + esc(docNo(d)) + '</a><span class="evd-ver num">₩' + won(t.total) + '</span>' +
-      '<span class="schip s-' + d.status + '">' + DOC_STATUS[d.status] + '</span>' +
+      '<span class="schip s-' + d.status + '">' + (DOC_STATUS[d.status] || DOC_STATUS.draft) + '</span>' +
       (voided ? '<span class="schip s-overdue">무효</span>' : '') +
       (isBase ? '<span class="evd-base">' + ic('check') + '계약 기준</span>' : d.type !== 'rcpt' ? '<button type="button" class="btn sm ghost" data-act="ev-base" data-id="' + d.id + '">계약 기준으로</button>' : '') +
       '<span class="evd-date num">' + dateShort(d.date) + '</span></li>';
@@ -86,11 +86,14 @@ export function eventPage() {
   const m = eventMoney(e, S.data);
   const dt = eventDateText(e);
   return '<div class="evpage">' +
-    '<section class="card ev-head"><div class="evh-l"><span class="evh-tag">행사 한 건</span>' + stateChip(m) + '<h2>' + esc(e.name) + '</h2>' +
+    '<section class="card ev-head"><div class="evh-l"><span class="evh-tag">행사 한 건</span>' + (e.contract && e.status !== 'cancel' ? '<span class="schip s-contract">' + ic('check') + '계약 확정</span>' : '') + stateChip(m) + '<h2>' + esc(e.name) + '</h2>' +
     '<p>' + esc([e.client.name, e.client.person && e.client.person + ' 님', e.client.tel].filter(Boolean).join(' · ') || '받는 곳 없음') + '</p></div>' +
     '<div class="evh-r"><dl class="evh-dates"><dt>행사 일정</dt><dd>' + (dt ? esc(dt) : '-') + '</dd><dt>행사 장소</dt><dd>' + (e.place ? esc(e.place) : '-') + '</dd></dl>' +
     '<div class="evh-btns"><button type="button" class="btn sm" data-act="ev-edit">' + ic('fileText') + '행사 정보 고치기</button>' +
-    (e.status === 'cancel' ? '<button type="button" class="btn sm" data-act="ev-uncancel">취소 되돌리기</button>' : '<button type="button" class="btn sm danger-o" data-act="ev-cancel">' + ic('x') + '계약 취소</button>') + '</div></div>' +
+    (e.status === 'cancel' ? '<button type="button" class="btn sm" data-act="ev-uncancel">취소 되돌리기</button>'
+      : (e.contract ? '<button type="button" class="btn sm" data-act="ev-uncontract">계약 확정 풀기</button>' : '<button type="button" class="btn sm primary" data-act="ev-contract">' + ic('check') + '계약 확정</button>') +
+        '<button type="button" class="btn sm danger-o" data-act="ev-cancel">' + ic('x') + '계약 취소</button>') + '</div></div>' +
+    (!e.contract && e.status !== 'cancel' ? '<p class="note ev-contract-note">' + ic('alert') + '<span>계약이 정해지면 <b>「계약 확정」</b>을 눌러 주세요. 계약 확정한 행사(또는 입금 · 명세서 · 청구서가 있는 행사)만 <b>매출 · 미수금</b>에 들어가요.</span></p>' : '') +
     '<p class="evh-note">' + ic('layers') + '<span>이 행사의 견적서 · 수정본 · 거래명세서 · 청구서 · 영수증은 <b>하나로 묶여</b> 있어서, 문서를 여러 장 만들어도 돈은 <b>계약 기준 문서 한 장</b>으로만 계산돼요.</span></p></section>' +
     '<div class="ev-cols">' +
     '<section class="card"><div class="card-h"><h2>' + ic('fileText') + '이 행사의 문서</h2><span class="hint">계약 기준은 한 장만</span></div><div id="evDocs">' + docsHtml(e, m) + '</div>' +
@@ -231,6 +234,8 @@ export function eventsClick(act, a) {
       return true;
     }
     case 'ev-uncancel': e.status = 'active'; touchEvent(e); C.render(); C.toast('취소를 되돌렸어요'); return true;
+    case 'ev-contract': e.contract = true; e.contractAt = new Date().toISOString(); touchEvent(e); C.render(); C.toast('「계약 확정」으로 표시했어요 · 매출 · 미수금에 들어가요'); return true;
+    case 'ev-uncontract': C.openModal({ icon: 'alert', title: '계약 확정을 풀까요?', body: '<p>입금 · 명세서 · 청구서가 없으면 매출 · 미수금에서 빠져요. 문서와 입금 기록은 그대로예요.</p>', ok: '확정 풀기', onOk: () => { e.contract = false; touchEvent(e); C.render(); C.toast('계약 확정을 풀었어요'); } }); return true;
   }
   return false;
 }

@@ -2,9 +2,9 @@
 // 화면 없이 자료(data)만 받아 계산한다 → node 로 시험(core/tests-reports.mjs).
 //
 // 낱말 정리
-//  · 계약된 행사: 취소되지 않았고, 계약 기준 문서의 진행 상태가 「계약」이거나, 입금이 한 번이라도 있거나,
+//  · 계약된 행사: 취소되지 않았고, 행사 화면에서 「계약 확정」했거나(event.contract), 입금이 한 번이라도 있거나,
 //                 거래명세서 · 납품ㆍ청구서 · 영수증을 만든 행사.
-//  · 매출: 계약된 행사의 계약 금액(행사 시작일의 달) + 행사로 묶지 않은 문서 중 진행 상태 「계약」인 문서(문서 날짜의 달).
+//  · 매출: 계약된 행사의 계약 금액(행사 시작일의 달). 행사로 묶지 않은 문서는 매출에 넣지 않는다(v1.3.0: 계약은 행사에 표시).
 //  · 받은 돈: 취소 표시하지 않은 입금(환불은 빼기), 입금한 날의 달.
 //  · 미수금: 계약된 행사의 계약 금액 − 받은 돈 (0보다 클 때만). 행사로 묶지 않은 문서는 입금을 셀 수 없어 넣지 않는다.
 //  · 장비: 행사에 넣은 장비(gear)는 반출일(out)부터 반납일(back)까지 나가 있다고 본다. 없으면 행사 시작 · 끝 날짜.
@@ -17,8 +17,8 @@ const monthOf = (s) => Number(String(s).slice(5, 7));
 /* ── 행사 ── */
 export function isContracted(e, data) {
   if (!e || e.status === 'cancel') return false;
+  if (e.contract) return true;
   const m = eventMoney(e, data);
-  if (m.base && m.base.status === 'contract') return true;
   if (m.received > 0) return true;
   return eventDocs(e, data.docs).some((d) => d.type === 'stmt' || d.type === 'inv' || d.type === 'rcpt');
 }
@@ -29,7 +29,7 @@ export function saleDate(e, data) {
   if (m.base && m.base.date) return m.base.date;
   return String(e.createdAt || '').slice(0, 10);
 }
-const looseDocs = (data) => data.docs.filter((d) => !d.eventId && d.type !== 'rcpt' && d.status === 'contract');
+const looseDocs = () => [];   // v1.3.0: 계약은 행사에만 — 묶지 않은 문서는 매출에 넣지 않음
 const validPays = (data) => data.payments.filter((p) => !p.cancelled);
 
 /** 매출이 생긴 해 목록 (최근 해 먼저, 올해는 늘 포함) */
@@ -97,7 +97,7 @@ export function yearSummary(data, year, today) {
   const ms = salesByMonth(data, year);
   const sales = ms.reduce((s, m) => s + m.sales, 0), received = ms.reduce((s, m) => s + m.received, 0);
   const rec = receivables(data, today);
-  const pending = data.docs.filter((d) => d.type === 'quote' && (d.status === 'draft' || d.status === 'sent') && inYear(d.date, year) && !(d.eventId && isContracted(data.events.find((e) => e.id === d.eventId), data)));
+  const pending = data.docs.filter((d) => d.type === 'quote' && inYear(d.date, year) && !(d.eventId && isContracted(data.events.find((e) => e.id === d.eventId), data)));
   return {
     sales, received, count: ms.reduce((s, m) => s + m.count, 0),
     remaining: rec.reduce((s, r) => s + r.remaining, 0), overdue: rec.filter((r) => r.overdue).reduce((s, r) => s + r.remaining, 0),
@@ -173,7 +173,7 @@ export const undatedEvents = (data) => data.events.filter((e) => e.status !== 'c
 
 /* ── 오늘 챙길 일 ── */
 export function todo(data, today, { soonDays = 3, weekDays = 7 } = {}) {
-  const expiring = data.docs.filter((d) => d.type === 'quote' && (d.status === 'draft' || d.status === 'sent') && !(d.eventId && isContracted(data.events.find((e) => e.id === d.eventId), data)))
+  const expiring = data.docs.filter((d) => d.type === 'quote' && !(d.eventId && isContracted(data.events.find((e) => e.id === d.eventId), data)))
     .map((d) => ({ doc: d, until: validUntil(d) })).filter((x) => x.until >= today && x.until <= addDays(today, soonDays))
     .sort((a, b) => a.until.localeCompare(b.until));
   const overdue = receivables(data, today).filter((r) => r.overdue);

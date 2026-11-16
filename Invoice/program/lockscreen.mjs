@@ -49,8 +49,8 @@ export function codeBoxHtml(code) {
   return '<div class="rc-box"><span class="rc-l">비밀번호 초기화 코드</span><b class="rc-code" aria-label="초기화 코드 ' + code.split('').join(' ') + '">' + code + '</b></div><p class="warnbox">' + C.ic('alert') + '<span>' + WARN + '</span></p>';
 }
 /** 설정 화면에서: 새 비밀번호를 정한 뒤 코드 창 (확인을 눌러야 닫힘) */
-export function showCodeModal(code, title = '비밀번호를 정했어요') {
-  C.openModal({ icon: 'lock', title, body: codeBoxHtml(code), ok: '확인 (캡처 · 메모했어요)', cancel: false });
+export function showCodeModal(code, title = '비밀번호를 정했어요', onDone = null) {
+  C.openModal({ icon: 'lock', title, body: codeBoxHtml(code), ok: '확인 (캡처 · 메모했어요)', cancel: false, onOk: onDone || undefined });
   const m = document.getElementById('modal'); if (m) m.dataset.sticky = '1';
 }
 

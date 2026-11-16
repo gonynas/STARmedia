@@ -6,11 +6,11 @@
 //  · 한쪽만 바꿨으면 바꾼 쪽, 둘 다 바꿨으면 나중에 고친 쪽(updatedAt), 같으면 그대로
 //  · base 에 있던 것을 한쪽이 지웠고 다른 쪽은 안 바꿨으면 → 지운다. 다른 쪽이 그 사이 고쳤으면 → 남긴다(자료를 잃지 않게)
 //  · 새로 생긴 것은 양쪽 모두 남긴다
-// 내 정보 · 설정은 칸(키)마다 같은 규칙. 다만 화면 잠금(settings.lock)은 기기마다 따로라 맞추지 않는다.
+// 내 정보 · 설정은 칸(키)마다 같은 규칙. 화면 잠금 비밀번호(settings.lock)도 맞춘다. 글자 크게 · 자동 잠금 시간만 기기마다 따로.
 // 화면 없이 계산만 한다 → node 시험(core/tests-sync.mjs).
 
 export const LISTS = ['clients', 'items', 'sets', 'equipment', 'events', 'docs', 'payments', 'trash'];
-export const DEVICE_ONLY_SETTINGS = ['lock', 'bigText', 'autoLockMin'];   // 이 기기에서만 쓰는 설정
+export const DEVICE_ONLY_SETTINGS = ['bigText', 'autoLockMin'];   // 이 기기에서만 쓰는 설정 (화면 잠금 비밀번호는 PC · 휴대폰 같은 번호로 맞춘다 — 사용자 결정 v1.3.0)
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const keyOf = (list, x) => (list === 'trash' ? (x.kind + ':' + (x.item && x.item.id)) : x.id);

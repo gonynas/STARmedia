@@ -12,6 +12,8 @@ import { logProblem } from './errors.mjs';
 
 let C;
 export function initExport(ctx) { C = ctx; }
+/** 카톡 · 메일 보내기 창을 연 순간 「발송 완료」 (실제로 전송했는지는 프로그램이 알 수 없음 → 잘못 바뀌면 드롭다운으로 되돌림) */
+function markSent(doc) { if (doc && doc.status !== 'sent' && C.setDocStatus) C.setDocStatus(doc, 'sent'); }
 
 const A4W = 794, A4H = 1123;           // CSS 픽셀 (96dpi 기준 A4)
 const DPI_SCALE = 200 / 96;            // 파일용: 200dpi (1654 × 2339)
@@ -254,7 +256,7 @@ function saveJpg(doc) { noLinesWarn(doc); return withBusy('이미지 파일을 �
 function saveXlsx(doc) { return withBusy('엑셀 파일을 만드는 중이에요…', async () => { download(makeDocXlsx(doc)); C.toast('엑셀 파일을 내려받았어요 (금액 칸은 수식이에요)'); }); }
 
 function kakao(doc) {
-  noLinesWarn(doc);
+  noLinesWarn(doc); markSent(doc);
   if (isTouch()) {
     return withBusy('카톡으로 보낼 그림을 만드는 중이에요…', async () => {
       const jpgs = await makeJpgs(doc);
@@ -280,7 +282,7 @@ function kakao(doc) {
 }
 
 function mail(doc) {
-  noLinesWarn(doc);
+  noLinesWarn(doc); markSent(doc);
   const m = mailParts(doc);
   if (isTouch()) {
     return withBusy('메일에 붙일 PDF를 만드는 중이에요…', async () => {

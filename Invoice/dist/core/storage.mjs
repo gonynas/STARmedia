@@ -2,7 +2,7 @@
 // 저장 위치마다 따로 성공/실패를 기록한다(최종확정 v1.0 8절): '이 기기' · 'PC 폴더' (· 2단계 '구글 드라이브')
 // 백업: 최근 10개 + 하루 전 사본. 되돌리기 전에는 항상 지금 자료를 자동 백업(P07), 실패하면 원상복구.
 // 저장소는 '어댑터'로 갈아 끼운다: 시험은 메모리, 브라우저는 IndexedDB · PC 폴더(File System Access).
-import { wrap, load, APP_ID } from './datafile.mjs?v=mwitgfh5';
+import { wrap, load, APP_ID } from './datafile.mjs?v=mwj79qfo';
 
 export const BACKUP_KEEP = 10;
 const MAIN = 'main';           // 현재 자료
@@ -69,9 +69,9 @@ const stamp = (iso) => iso.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('
  * 저장 장치. targets[0]이 '주 저장소'(이 기기), 나머지는 사본(PC 폴더 …).
  * opts.now: 시각 함수(시험용), opts.appVersion
  */
-export function createStore(targets, { appVersion = '1.0.0', now = () => new Date().toISOString(), migrations = {}, target } = {}) {
+export function createStore(targets, { appVersion = '1.0.0', now = () => new Date().toISOString(), migrations, target } = {}) {
   const status = {};  // 저장소 이름 → { ok, at, error }
-  const loadOpts = { migrations, ...(target ? { target } : {}) };
+  const loadOpts = { ...(migrations ? { migrations } : {}), ...(target ? { target } : {}) };
 
   async function writeAll(key, text) {
     const result = {};

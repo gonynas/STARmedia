@@ -69,9 +69,9 @@ const stamp = (iso) => iso.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('
  * 저장 장치. targets[0]이 '주 저장소'(이 기기), 나머지는 사본(PC 폴더 …).
  * opts.now: 시각 함수(시험용), opts.appVersion
  */
-export function createStore(targets, { appVersion = '1.0.0', now = () => new Date().toISOString(), migrations = {}, target } = {}) {
+export function createStore(targets, { appVersion = '1.0.0', now = () => new Date().toISOString(), migrations, target } = {}) {
   const status = {};  // 저장소 이름 → { ok, at, error }
-  const loadOpts = { migrations, ...(target ? { target } : {}) };
+  const loadOpts = { ...(migrations ? { migrations } : {}), ...(target ? { target } : {}) };
 
   async function writeAll(key, text) {
     const result = {};

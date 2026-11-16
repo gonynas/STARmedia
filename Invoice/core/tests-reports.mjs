@@ -23,8 +23,8 @@ function quote(id, date, client, price, status = 'draft') {
 function event(q, id, start, end) { const e = eventFromDoc(q, { id, now: q.date + 'T01' }); e.start = start; e.end = end; q.eventId = id; data.events.push(e); return e; }
 
 // 행사 A: 계약(문서 상태), 11월, 1,100,000 · 입금 500,000 → 미수 600,000, 청구서 기한 11/10 지남
-const qa = quote('qa', '2026-11-01', '○○군청', 1000000, 'contract');
-const ea = event(qa, 'ea', '2026-11-21', '2026-11-22');
+const qa = quote('qa', '2026-11-01', '○○군청', 1000000, 'sent');
+const ea = event(qa, 'ea', '2026-11-21', '2026-11-22'); ea.contract = true;   // 행사 화면 「계약 확정」
 data.payments.push(newPayment('ea', { date: '2026-11-05', amount: 500000 }, { id: 'p1', now: '2026-11-05T01' }));
 const inv = newDoc('inv', data, { today: '2026-11-03', id: 'ia', now: '2026-11-03T01' }); inv.eventId = 'ea'; inv.dueDate = '2026-11-10'; data.docs.push(inv);
 // 행사 B: 견적만(작성 중), 입금 없음 → 매출 아님
@@ -35,28 +35,29 @@ const qc = quote('qc', '2026-11-04', '○○군청', 300000, 'sent');
 event(qc, 'ec', '2026-12-05', '');
 data.payments.push(newPayment('ec', { date: '2026-11-20', amount: 330000 }, { id: 'p2', now: '2026-11-20T01' }));
 // 행사로 안 묶은 계약 문서 D: 10월 220,000
-quote('qd', '2026-10-10', '농협', 200000, 'contract');
+const qd = quote('qd', '2026-10-10', '농협', 200000, 'sent'); const ed = event(qd, 'ed', '2026-10-10', ''); ed.contract = true;
 // 취소 표시한 입금은 세지 않음
 data.payments.push(Object.assign(newPayment('ea', { date: '2026-11-06', amount: 999 }, { id: 'p3', now: '2026-11-06T01' }), { cancelled: true }));
 
 console.log('매출 · 미수금');
-eq('계약 상태 문서 → 계약된 행사', isContracted(ea, data), true);
+eq('「계약 확정」한 행사 → 계약된 행사', isContracted(ea, data), true);
 eq('견적만 있는 행사 → 아직 계약 아님', isContracted(data.events[1], data), false);
 eq('입금이 있으면 계약으로 봄', isContracted(data.events[2], data), true);
+eq('행사로 안 묶은 문서는 매출에 안 넣음', salesByMonth({ ...data, events: [], payments: [] }, 2026).reduce((s, m) => s + m.sales, 0), 0);
 const ms = salesByMonth(data, 2026);
-eq('10월 매출 = 묶지 않은 계약 문서', ms[9].sales, 220000);
+eq('10월 매출 = 계약 확정한 행사(농협)', ms[9].sales, 220000);
 eq('11월 매출 = 행사 A (시작일 기준)', ms[10].sales, 1100000);
 eq('12월 매출 = 행사 C', ms[11].sales, 330000);
 eq('11월 받은 돈 = 입금일 기준, 취소 표시 제외', ms[10].received, 830000);
 const cl = salesByClient(data, 2026);
 eq('거래처별: ○○군청 2건 합계', [cl[0].name, cl[0].count, cl[0].sales, cl[0].remaining], ['○○군청', 2, 1430000, 600000]);
 const rec = receivables(data, '2026-11-15');
-eq('미수금은 남은 돈 있는 계약 행사만', rec.map((r) => [r.event.id, r.remaining, r.due, r.overdue]), [['ea', 600000, '2026-11-10', true]]);
+eq('미수금은 남은 돈 있는 계약 행사만 (기한 지난 것 먼저)', rec.map((r) => [r.event.id, r.remaining, r.due, r.overdue]), [['ea', 600000, '2026-11-10', true], ['ed', 220000, '', false]]);
 const ys = yearSummary(data, 2026, '2026-11-15');
-eq('한 해 요약', [ys.sales, ys.received, ys.remaining, ys.overdue, ys.pendingCount, ys.pendingTotal], [1650000, 830000, 600000, 600000, 1, 2200000]);
+eq('한 해 요약', [ys.sales, ys.received, ys.remaining, ys.overdue, ys.pendingCount, ys.pendingTotal], [1650000, 830000, 820000, 600000, 1, 2200000]);
 eq('매출 있는 해 목록(올해 포함)', salesYears(data, '2027-01-02'), ['2027', '2026']);
 data.events[0].status = 'cancel';
-eq('취소한 행사는 매출 · 미수금에서 빠짐', [salesByMonth(data, 2026)[10].sales, receivables(data, '2026-11-15').length], [0, 0]);
+eq('취소한 행사는 매출 · 미수금에서 빠짐', [salesByMonth(data, 2026)[10].sales, receivables(data, '2026-11-15').map((r) => r.event.id)], [0, ['ed']]);
 data.events[0].status = 'active';
 
 console.log('장비');

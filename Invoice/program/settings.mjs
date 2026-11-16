@@ -52,7 +52,7 @@ export function settingsPage() {
     '<p class="note">' + C.ic('alert') + '<span>비밀번호를 정하거나 재설정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 <b>사업자등록번호 + 초기화 코드</b>로 초기화한 뒤 새 비밀번호를 정해요.</span></p></section>' +
     // 4. 저장 위치
     '<section class="card"><div class="card-h"><h2>' + C.ic('cloud') + '저장 위치</h2><span class="hint">입력하면 저절로 저장돼요</span></div><div id="setSave">' + C.homeSaveRows() + '</div>' +
-    '<ul class="savelist" id="gdRow">' + driveRowHtml() + '</ul></section>' +
+    '</section>' +
     // 5. 백업
     '<section class="card"><div class="card-h"><h2>' + C.ic('copy') + '백업 · 자료 파일</h2><span class="hint">백업은 최근 10개(+ 직접 「보관」한 것)를 이 기기와 PC 폴더에 둬요</span></div>' +
     '<div class="set-btns wrap"><button type="button" class="btn primary" data-act="backup-now">' + C.ic('copy') + '지금 백업 만들기</button>' +

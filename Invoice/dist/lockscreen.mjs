@@ -3,7 +3,7 @@
 // 잠금 화면 동그라미는 정한 비밀번호 자릿수만큼(settings.lock.len), 그만큼 누르면 저절로 열어 본다.
 // 비밀번호를 잊었을 때: ① 비밀번호 초기화(사업자등록번호 + 초기화 코드 5자리) → ② 비밀번호 재설정(새 비밀번호 두 번) → 새 초기화 코드.
 // 규칙(해시 · 코드 · 사업자번호 형식)은 core/lock.mjs. 「남이 화면을 못 보게 하는 문」이며 자료 파일을 암호화하지는 않는다.
-import { validPin, onlyDigits, makeLock, checkPin, checkReset, hasRecovery, shouldAutoLock, formatBizNo, normCode, PIN_MIN, PIN_MAX, CODE_LEN } from './core/lock.mjs?v=mwitgfh5';
+import { validPin, onlyDigits, makeLock, checkPin, checkReset, hasRecovery, shouldAutoLock, formatBizNo, normCode, PIN_MIN, PIN_MAX, CODE_LEN } from './core/lock.mjs?v=mwj79qfo';
 
 let C;
 const LAST = 'starmedia-quote:lastActive';
@@ -49,8 +49,8 @@ export function codeBoxHtml(code) {
   return '<div class="rc-box"><span class="rc-l">비밀번호 초기화 코드</span><b class="rc-code" aria-label="초기화 코드 ' + code.split('').join(' ') + '">' + code + '</b></div><p class="warnbox">' + C.ic('alert') + '<span>' + WARN + '</span></p>';
 }
 /** 설정 화면에서: 새 비밀번호를 정한 뒤 코드 창 (확인을 눌러야 닫힘) */
-export function showCodeModal(code, title = '비밀번호를 정했어요') {
-  C.openModal({ icon: 'lock', title, body: codeBoxHtml(code), ok: '확인 (캡처 · 메모했어요)', cancel: false });
+export function showCodeModal(code, title = '비밀번호를 정했어요', onDone = null) {
+  C.openModal({ icon: 'lock', title, body: codeBoxHtml(code), ok: '확인 (캡처 · 메모했어요)', cancel: false, onOk: onDone || undefined });
   const m = document.getElementById('modal'); if (m) m.dataset.sticky = '1';
 }
 

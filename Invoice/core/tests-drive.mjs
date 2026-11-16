@@ -1,5 +1,5 @@
 // v1.2.0 시험: 구글 드라이브 맞추기 — 가짜 드라이브(메모리)로 PC · 휴대폰 두 기기를 흉내 낸다
-import { createDrive, syncOnce, peekRemote, FOLDER_NAME, FILE_NAME, BACKUP_KEEP } from './drive.mjs';
+import { createDrive, syncOnce, peekRemote, FOLDER_NAME, FILE_NAME, BACKUP_KEEP, OLD_FOLDER_NAMES } from './drive.mjs';
 import { emptyData } from './datafile.mjs';
 
 let pass = 0, fail = 0;
@@ -38,6 +38,7 @@ function fakeDrive() {
       const f = { id: 'f' + (++n), ...md, content, version: 1, modifiedTime: now }; files.set(f.id, f); void parts; return res(200, meta(f));
     }
     if (method === 'POST') { const md = JSON.parse(opts.body); const f = { id: 'f' + (++n), ...md, version: 1, modifiedTime: now }; files.set(f.id, f); return res(200, meta(f)); }
+    if (method === 'PATCH' && !u.pathname.includes('/upload/')) { const f = files.get(id); Object.assign(f, JSON.parse(opts.body)); f.version++; return res(200, meta(f)); }
     if (method === 'PATCH') { const f = files.get(id); f.content = opts.body; f.version++; f.modifiedTime = now; n++; return res(200, meta(f)); }
     if (method === 'DELETE') { files.delete(id); return res(204, {}); }
     return res(400, {});
@@ -95,9 +96,15 @@ let code = ''; try { await syncOnce(noAuth, st, d); } catch (e) { code = e.code;
 eq('토큰이 끝나면 「다시 연결」 필요(auth)', code, 'auth');
 const newer = fakeDrive(); const dn = createDrive({ fetch: newer.fetch, getToken: () => 'ok' });
 await syncOnce(dn, {}, pc);
-const mf = [...newer.files.values()].find((f) => f.name === FILE_NAME); mf.content = mf.content.replace('"schema":1', '"schema":99'); mf.version++;
+const mf = [...newer.files.values()].find((f) => f.name === FILE_NAME); mf.content = mf.content.replace(/"schema":\d+/, '"schema":99'); mf.version++;
 let code2 = ''; try { await syncOnce(dn, {}, pc); } catch (e) { code2 = e.code; }
 eq('더 새 버전 프로그램이 올린 자료는 덮어쓰지 않음', code2, 'newer');
+
+console.log('예전 폴더 이름');
+const oldc = fakeDrive(); const od = createDrive({ fetch: oldc.fetch, getToken: () => 'ok' });
+oldc.files.set('o1', { id: 'o1', name: OLD_FOLDER_NAMES[0], mimeType: 'application/vnd.google-apps.folder', version: 1, modifiedTime: 'x' });
+const fo = await od.ensureFolder();
+eq('예전 이름 폴더(01_스타미디어 견적서)는 새 이름으로 바꿔 그대로 씀', [fo.id, oldc.files.get('o1').name, FOLDER_NAME], ['o1', '01_견적서 발행기', '01_견적서 발행기']);
 
 console.log(`\n구글 드라이브 맞추기 시험: ${pass}개 통과, ${fail}개 실패`);
 if (fail) process.exit(1);

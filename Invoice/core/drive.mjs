@@ -1,12 +1,14 @@
 // 구글 드라이브 파일 다루기 + 한 번 맞추기 — 화면 · 구글 로그인 없이(fetch 와 토큰을 받아서) 동작 → node 에서 가짜 드라이브로 시험
 // 드라이브 안 모양:
-//   01_스타미디어 견적서/                (프로그램이 만든 폴더. 권한 drive.file = 이 프로그램이 만든 파일만 보고 고친다)
+//   01_견적서 발행기/                    (프로그램이 만든 폴더. 권한 drive.file = 이 프로그램이 만든 파일만 보고 고친다)
+//                                       예전 이름(01_스타미디어 견적서) 폴더가 있으면 새 이름으로 바꿔서 그대로 쓴다
 //     견적서발행기.json                  (자료 한 파일: PC · 휴대폰이 같이 씀)
 //     백업/견적서발행기_YYYY-MM-DD.json   (하루 한 번, 최근 10개)
 import { wrap, load } from './datafile.mjs';
 import { mergeData, sameData } from './sync.mjs';
 
-export const FOLDER_NAME = '01_스타미디어 견적서';
+export const FOLDER_NAME = '01_견적서 발행기';
+export const OLD_FOLDER_NAMES = ['01_스타미디어 견적서'];   // v1.2.x 에서 쓰던 이름
 export const FILE_NAME = '견적서발행기.json';
 export const BACKUP_FOLDER = '백업';
 export const BACKUP_KEEP = 10;
@@ -45,8 +47,18 @@ export function createDrive({ fetch, getToken }) {
       '\r\n--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + text + '\r\n--' + b + '--';
     return json(UP + '?uploadType=multipart&fields=' + META, { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body });
   }
+  /** 우리 폴더: 새 이름 → 없으면 예전 이름 폴더를 새 이름으로 바꿈 → 그것도 없으면 새로 만듦 */
+  async function mainFolder() {
+    const found = await find('name=' + q(FOLDER_NAME) + ' and mimeType=' + q(FOLDER_MIME));
+    if (found[0]) return found[0];
+    for (const old of OLD_FOLDER_NAMES) {
+      const o = (await find('name=' + q(old) + ' and mimeType=' + q(FOLDER_MIME)))[0];
+      if (o) return json(API + '/' + encodeURIComponent(o.id) + '?fields=' + META, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FOLDER_NAME }) });
+    }
+    return createFolder(FOLDER_NAME);
+  }
   return {
-    ensureFolder: () => folder(FOLDER_NAME),
+    ensureFolder: mainFolder,
     findFile: async (folderId) => (await find('name=' + q(FILE_NAME) + ' and ' + q(folderId) + ' in parents'))[0] || null,
     meta: (id) => json(API + '/' + encodeURIComponent(id) + '?fields=' + META),
     download: async (id) => (await call(API + '/' + encodeURIComponent(id) + '?alt=media')).text(),
@@ -71,14 +83,14 @@ export function createDrive({ fetch, getToken }) {
  * local: 이 기기 자료, appVersion, day(YYYY-MM-DD), migrations
  * 돌려주는 값: { data(맞춘 자료), localChanged, uploaded, state(새 상태), remoteFound }
  */
-export async function syncOnce(drive, state, local, { appVersion = '1.0.0', day = new Date().toISOString().slice(0, 10), migrations = {}, now = new Date().toISOString() } = {}) {
+export async function syncOnce(drive, state, local, { appVersion = '1.0.0', day = new Date().toISOString().slice(0, 10), migrations, now = new Date().toISOString() } = {}) {
   const st = { ...state };
   if (!st.folderId) st.folderId = (await drive.ensureFolder()).id;
   let meta = st.fileId ? await drive.meta(st.fileId).catch((e) => { if (e.code === 'http') return null; throw e; }) : null;
   if (!meta) { meta = await drive.findFile(st.folderId); st.fileId = meta ? meta.id : null; }
   let remote = null;
   if (meta && (String(meta.version) !== String(st.version) || !st.base)) {
-    const r = load(await drive.download(meta.id), { migrations });
+    const r = load(await drive.download(meta.id), migrations ? { migrations } : {});
     if (r.ok) remote = r.data;
     else if (r.reason === 'newer-version') throw new DriveError('newer', '드라이브 자료가 더 새 버전 프로그램에서 저장됐어요. 새로 고침해 주세요');
   }

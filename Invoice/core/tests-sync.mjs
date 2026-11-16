@@ -29,7 +29,9 @@ eq('휴지통은 종류+id 로 비교', mergeList('trash', [], tr, [{ kind: 'cli
 console.log('내 정보 · 설정');
 eq('칸마다: 휴대폰이 전화번호, PC가 주소를 고침 → 둘 다', mergeObject({ tel: '1', addr: 'A' }, { tel: '1', addr: 'B' }, { tel: '2', addr: 'A' }), { tel: '1', addr: 'B' } && { tel: '2', addr: 'B' });
 eq('같은 칸을 둘 다 고침 → 이 기기 것', mergeObject({ tel: '1' }, { tel: 'PC' }, { tel: '폰' }), { tel: 'PC' });
-eq('화면 잠금 · 글자 크게 · 자동 잠금은 기기마다 따로', mergeObject({}, { lock: 'L', bigText: true, autoLockMin: 5, vat: 'excl' }, { lock: 'R', bigText: false, autoLockMin: 1, vat: 'incl' }, ['lock', 'bigText', 'autoLockMin']), { lock: 'L', bigText: true, autoLockMin: 5, vat: 'excl' });
+eq('글자 크게 · 자동 잠금 시간은 기기마다 따로', mergeObject({}, { bigText: true, autoLockMin: 5, vat: 'excl' }, { bigText: false, autoLockMin: 1, vat: 'incl' }, ['bigText', 'autoLockMin']), { bigText: true, autoLockMin: 5, vat: 'excl' });
+const pcLock = { salt: 's', hash: 'h', len: 6 };
+eq('잠금 비밀번호는 PC → 휴대폰으로 맞춤 (휴대폰이 아직 없을 때)', mergeData(emptyData(), Object.assign(emptyData(), {}), Object.assign(emptyData(), { settings: { ...emptyData().settings, lock: pcLock } })).settings.lock, pcLock);
 
 console.log('자료 전체');
 const pc = emptyData(); pc.me.name = '스타미디어'; pc.me.bizNo = '120-81-47521'; pc.clients = [doc('c1', '1', { name: '○○군청' })]; pc.docs = [doc('q1', '1')];

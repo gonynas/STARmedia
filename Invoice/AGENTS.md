@@ -46,6 +46,7 @@ app/
 │  ├─ trash.mjs        휴지통(#trash)
 │  ├─ settings.mjs     설정 · 백업(#set): 기본값 · 글자 크게 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 업데이트 확인
 │  ├─ lockscreen.mjs   화면 잠금(숫자 4~10자리, 동그라미 = 자릿수, 자동 잠금, 초기화 코드로 「초기화 → 재설정」)
+│  ├─ setup.mjs        처음 설정 단계(needsSetup: drive → folder(PC만, 나중 가능) → me → pin) — 자료를 보고 단계를 정해서 드라이브에 설정이 있으면 건너뜀
 │  ├─ gdrive.mjs       구글 드라이브 연결 · 휴대폰 「드라이브에서 불러오기」 · 저절로 맞추기 · 상태 알약 (규칙은 core/drive.mjs · core/sync.mjs)
 │  ├─ config.mjs       GOOGLE_CLIENT_ID (비어 있으면 드라이브 칸이 「설정 전」) — 만드는 법 GOOGLE_SETUP.md
 │  ├─ install.mjs      휴대폰 · 태블릿 첫 화면 「바탕화면 아이콘 만들기」, 카카오톡 등 앱 안 브라우저 → Safari · 기본 브라우저
@@ -82,21 +83,21 @@ app/
 - **저장**: `changed()` → 이 기기(IndexedDB `starmedia-quote`) + 연결했으면 PC 폴더(`견적서발행기.json`, `견적서발행기_하루전.json`, `백업/`). 저장 위치마다 성공/실패를 따로 보여 준다.
 - **오류**: 화면 그리기 실패는 `render()`가 잡아 안내 화면 + 문제 기록. 저장 실패 · 파일 만들기 실패도 `logProblem()`으로 기록.
 
-## 5. 자료 형식 (schema 1, `S.data`)
+## 5. 자료 형식 (schema 2, `S.data`) — 1 → 2 변환은 core/datafile.mjs MIGRATIONS[1]
 ```
 me        { name(2줄까지), ceo, bizNo, addr, bizType, bizItem, tel, fax, bankName, bankNo, holder, stamp(dataURL), stampSize }
 clients   [{ id, name, person, tel, email, bizNo, addr, memo, createdAt, updatedAt }]
 items     [{ id, cat, name, spec, price, days, memo, taxFree, ... }]
 sets      [{ id, name, lines:[{ itemId, qty, days, 사본… }] }]
 equipment [{ id, cat, name, spec, total, price, memo, createdAt, updatedAt }]
-events    [{ id, name, clientId, client{name,person,tel}, start, end, place, dateText, baseDocId, status('active'|'cancel'),
+events    [{ id, name, clientId, client{name,person,tel}, start, end, place, dateText, baseDocId, status('active'|'cancel'), contract(계약 확정), contractAt,
              gear:[{equipId, qty}], out(반출일), back(반납일), gearNote, memo, createdAt, updatedAt }]
-docs      [{ id, type('quote'|'stmt'|'inv'|'rcpt'), serial, version, showNo, date, validDays, status('draft'|'sent'|'contract'|'cancel'),
+docs      [{ id, type('quote'|'stmt'|'inv'|'rcpt'), serial, version, showNo, date, validDays, status('draft' 작성 중|'done' 작성 완료|'sent' 발송 완료), editedAfter, doneAt, sentAt,
              clientId, client{...사본}, event{name,date,place}, lines[{name,spec,days,qty,price,note,...}], vat('excl'|'incl'|'none'),
              agreed, deposit{on,amount}, notes{...}, fillRows, eventId, tradeDate, copies, dueDate, paidDate, payMethod, device, createdAt, updatedAt }]
 payments  [{ id, eventId, date, amount(환불은 음수), method, memo, cancelled, createdAt }]
 trash     [{ kind('doc'|'client'|'item'|'set'|'equip'), item, deletedAt, gearOf? }]   30일 뒤 자동으로 비움
-settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], lock?{salt,hash,setAt} }
+settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)
 ```
 날짜는 모두 `YYYY-MM-DD` 글자, 시각은 ISO 문자열. 금액은 원 단위 정수.
 

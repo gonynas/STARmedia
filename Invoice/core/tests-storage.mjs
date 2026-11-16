@@ -71,7 +71,7 @@ const pk = pickLatest(files);
 eq('가장 최근 자료 파일을 고름', [pk.name, pk.data.docs.length], ['견적서발행기.json', 2]);
 // 옛 형식 자료를 새 프로그램(형식 2)이 열면: 변환 전 '업데이트전' 백업이 자동으로 생김
 const dev2 = memoryAdapter('이 기기');
-await dev2.set('main', JSON.stringify(wrap({ ...emptyData(), docs: [{ id: 'x' }] }, '1.0.0', now())));
+await dev2.set('main', JSON.stringify({ ...wrap({ ...emptyData(), docs: [{ id: 'x' }] }, '1.0.0', now()), schema: 1 }));   // 옛 형식 1 자료
 const store2 = createStore([dev2], { now, target: 2, migrations: { 1: (d) => ({ ...d, settings: { ...d.settings, startPage: 'home' } }) } });
 const o2 = await store2.open();
 eq('U01 업데이트 후 열면 자동 변환', [o2.ok, o2.migrated, o2.data.docs.length, o2.data.settings.startPage], [true, true, 1, 'home']);

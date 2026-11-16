@@ -4,8 +4,8 @@
 //         event:{name,date,place}, lines:[줄], vat, deposit:{on,amount}, agreed, notes:{valid,bank,phrases:[],text},
 //         fillRows, eventId, device, lastDevice, createdAt, updatedAt }
 // 줄: { id, itemId, name, spec, days, qty, price, memo, taxFree }
-import { settle } from './money.mjs?v=mwitgfh5';
-import { toNum } from './catalog.mjs?v=mwitgfh5';
+import { settle } from './money.mjs?v=mwj79qfo';
+import { toNum } from './catalog.mjs?v=mwj79qfo';
 
 export const DOC_TYPES = {
   quote: { label: '견적서', short: '견적', title: '견 적 서', en: 'QUOTATION' },
@@ -14,7 +14,9 @@ export const DOC_TYPES = {
   rcpt: { label: '영수증', short: '영수', title: '영 수 증', en: 'RECEIPT' }
 };
 /** 이번 묶음에서 직접 고를 수 있는 진행 상태 (입금 관련 상태는 행사 · 입금 묶음에서 입금 내역으로 정해짐) */
-export const DOC_STATUS = { draft: '작성 중', sent: '보냄', contract: '계약', cancel: '취소' };
+// 문서 진행 상태 3단계 (v1.3.0, 사용자 결정): 작성 중 → 작성 완료(단추) → 발송 완료(카톡 · 메일 보내기 때 저절로). 드롭다운으로 언제든 바꿀 수 있다.
+// 계약 · 계약 취소는 문서가 아니라 행사(event.contract · event.status)에 표시한다.
+export const DOC_STATUS = { draft: '작성 중', done: '작성 완료', sent: '발송 완료' };
 export const DEFAULT_PHRASES = [
   '우천 시 행사 일정은 협의하여 조정합니다.',
   '설치 · 철수 인건비가 포함된 금액입니다.',

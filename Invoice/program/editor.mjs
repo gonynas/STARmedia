@@ -17,7 +17,9 @@ const device = () => (matchMedia('(max-width:767px)').matches ? 'phone' : matchM
 const DEV_ICON = { pc: 'monitor', phone: 'phone', tablet: 'tablet' };
 
 export function curDoc() { return C.S.data && C.S.data.docs.find((d) => d.id === C.S.docId) || null; }
-function touch(doc) { doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); C.changed(); }
+function touch(doc) { doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); if (doc.status === 'done' || doc.status === 'sent') doc.editedAfter = true; C.changed(); }
+/** 진행 상태 바꾸기 (드롭다운 · 「작성 완료」 단추 · 보내기) — 바꾸면 「수정됨」 표시는 지운다 */
+export function setDocStatus(doc, st) { doc.status = st; doc.editedAfter = false; if (st === 'sent') doc.sentAt = new Date().toISOString(); if (st === 'done') doc.doneAt = new Date().toISOString(); doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); C.changed(); document.querySelectorAll('select[data-d="status"]').forEach((s) => { s.value = st; s.className = 'in st-sel st-' + st; }); document.querySelectorAll('[data-act="doc-done"]').forEach((b) => { b.hidden = st !== 'draft'; }); }
 const phrasesAll = () => (C.S.data.settings.phrases && C.S.data.settings.phrases.length ? C.S.data.settings.phrases : DEFAULT_PHRASES);
 
 /* ── 새 문서 · 복사 · 지우기 ── */
@@ -169,7 +171,8 @@ export function editorPage() {
     '<nav class="steps" aria-label="작성 단계">' + steps + '</nav>' +
     '<div class="ed-bar card">' +
     '<div class="ed-bar-l">' + seg('type', kinds, d.type) + '</div>' +
-    '<div class="ed-bar-r"><button type="button" class="btn primary ed-save" data-act="doc-save" title="지금 바로 저장 (Ctrl+S) · 입력하면 저절로도 저장돼요">' + ic('download') + '저장</button><label class="status-sel"><span>진행 상태</span><select class="in" data-d="status">' + statusOpts + '</select></label>' +
+    '<div class="ed-bar-r"><button type="button" class="btn primary ed-save" data-act="doc-save" title="지금 바로 저장 (Ctrl+S) · 입력하면 저절로도 저장돼요">' + ic('download') + '저장</button><button type="button" class="btn ed-done" data-act="doc-done"' + (d.status === 'draft' ? '' : ' hidden') + '>' + ic('check') + '작성 완료</button>' +
+    '<label class="status-sel"><span>진행 상태</span><select class="in st-sel st-' + d.status + '" data-d="status">' + statusOpts + '</select></label>' + (d.editedAfter ? '<span class="schip s-edited" title="작성 완료 · 발송 완료 뒤에 고쳤어요">수정됨</span>' : '') +
     '<div class="menu"><button type="button" class="btn" data-act="menu" aria-haspopup="menu">' + ic('copy') + '바꿔 · 복사해 만들기' + ic('down') + '</button><div class="menu-pop" role="menu">' +
     (d.type !== 'stmt' ? '<button type="button" data-act="conv" data-type="stmt">' + ic('clipboard') + '거래명세서로 만들기</button>' : '') +
     (d.type !== 'inv' ? '<button type="button" data-act="conv" data-type="inv">' + ic('truck') + '납품ㆍ청구서로 만들기</button>' : '') +
@@ -226,6 +229,7 @@ export function editorPage() {
     '<aside class="ed-preview card" data-s="3"><div class="card-h"><h2>' + ic('eye') + '미리보기</h2><span class="hint" id="pvMeta">' + C.esc(docNo(d)) + ' · A4</span>' +
     '<button type="button" class="btn sm pv-zoom" data-act="pv-full">' + ic('search') + '크게 보기</button></div>' +
     '<div class="pv-box"><div class="pv-fit" id="pvFit"><div class="pv-inner" id="pv">' + pagesOf(d).join('') + '</div></div></div>' +
+    '<div class="st-row"><label class="status-sel"><span>진행 상태</span><select class="in st-sel st-' + d.status + '" data-d="status">' + statusOpts + '</select></label><button type="button" class="btn primary ed-done" data-act="doc-done"' + (d.status === 'draft' ? '' : ' hidden') + '>' + ic('check') + '작성 완료</button></div>' +
     '<div class="share-big"><button type="button" class="sb kakao" data-act="x-kakao">' + ic('chat') + '카톡 보내기</button><button type="button" class="sb" data-act="x-mail">' + ic('mail') + '메일 보내기</button>' +
     '<button type="button" class="sb" data-act="x-pdf">' + ic('pdf') + 'PDF 저장</button><button type="button" class="sb" data-act="x-jpg">' + ic('image') + '이미지 저장</button>' +
     '<button type="button" class="sb" data-act="doc-print">' + ic('print') + '인쇄</button><button type="button" class="sb" data-act="x-xlsx">' + ic('table') + '엑셀 저장</button>' +
@@ -466,7 +470,7 @@ export function editorChange(t) {
     else setTimeout(() => document.querySelector('[data-d="agreed"]').focus(), 30);
     return true;
   }
-  if (t.tagName === 'SELECT' && t.dataset.d === 'status') { d.status = t.value; touch(d); C.toast('진행 상태: ' + DOC_STATUS[d.status]); return true; }
+  if (t.tagName === 'SELECT' && t.dataset.d === 'status') { setDocStatus(d, t.value); C.toast('진행 상태: ' + DOC_STATUS[d.status]); return true; }
   return false;
 }
 export function editorBlur(t) {
@@ -519,6 +523,7 @@ export function editorClick(act, a) {
     case 'revise': reviseCurrent(); return true;
     case 'doc-to-event': { const e = ensureEvent(d); touch(d); C.render(); C.toast('행사 「' + e.name + '」로 묶었어요'); return true; }
     case 'doc-print': printDoc(false); return true;
+    case 'doc-done': { const d = curDoc(); if (d) { setDocStatus(d, 'done'); C.toast('「작성 완료」로 표시했어요 · 카톡 · 메일로 보내면 「발송 완료」가 돼요'); } return true; }
     case 'doc-pdf': printDoc(true); return true;
     case 'pv-full': {
       const f = document.getElementById('pvFull'); document.getElementById('pvFullBody').innerHTML = pagesOf(d).map((p) => '<div class="pvfull-page">' + p + '</div>').join('');
@@ -602,7 +607,7 @@ function docRow(d) {
     '<span class="d-cl"><b>' + (d.client.name ? esc(d.client.name) : '<span class="dim">받는 곳 없음</span>') + '</b><small>' + esc(d.event.name || '') + '</small></span>' +
     '<span class="d-dt">' + dateShort(d.date) + '</span>' +
     '<span class="d-amt num">₩' + won(t.total) + '</span>' +
-    '<span class="schip s-' + d.status + '">' + DOC_STATUS[d.status] + '</span>' +
+    '<span class="schip s-' + d.status + '">' + (DOC_STATUS[d.status] || DOC_STATUS.draft) + (d.editedAfter ? '<i class="ed-mark" title="완료 뒤에 고쳤어요">수정됨</i>' : '') + '</span>' +
     '<span class="d-dev" title="만든 기기 → 마지막으로 고친 기기">' + dev + '</span></a>' +
     '<span class="d-act"><button type="button" class="icbtn" data-act="doc-copy" data-id="' + d.id + '" aria-label="복사해서 새로" title="복사해서 새로">' + ic('copy') + '</button>' +
     '<button type="button" class="icbtn danger-i" data-act="doc-del" data-id="' + d.id + '" aria-label="삭제" title="삭제">' + ic('trash') + '</button></span></div>';

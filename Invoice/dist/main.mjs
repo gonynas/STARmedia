@@ -2,30 +2,31 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwitgfh5';
-import { emptyData, load } from './core/datafile.mjs?v=mwitgfh5';
-import { ic } from './icons.mjs?v=mwitgfh5';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwitgfh5';
-import { initEditor, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwitgfh5';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwitgfh5';
-import { processStamp } from './stamp.mjs?v=mwitgfh5';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwitgfh5';
-import { stampImg } from './docview.mjs?v=mwitgfh5';
-import { initExport, exportClick } from './export.mjs?v=mwitgfh5';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwitgfh5';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwitgfh5';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwitgfh5';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwitgfh5';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwitgfh5';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwitgfh5';
-import { logProblem } from './errors.mjs?v=mwitgfh5';
-import { initInputs } from './inputs.mjs?v=mwitgfh5';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected } from './gdrive.mjs?v=mwitgfh5';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwitgfh5';
-import { purgeTrash } from './core/reports.mjs?v=mwitgfh5';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwj79qfo';
+import { emptyData, load } from './core/datafile.mjs?v=mwj79qfo';
+import { ic } from './icons.mjs?v=mwj79qfo';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwj79qfo';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwj79qfo';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwj79qfo';
+import { processStamp } from './stamp.mjs?v=mwj79qfo';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwj79qfo';
+import { stampImg } from './docview.mjs?v=mwj79qfo';
+import { initExport, exportClick } from './export.mjs?v=mwj79qfo';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwj79qfo';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwj79qfo';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwj79qfo';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwj79qfo';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwj79qfo';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwj79qfo';
+import { logProblem } from './errors.mjs?v=mwj79qfo';
+import { initInputs } from './inputs.mjs?v=mwj79qfo';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwj79qfo';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwj79qfo';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwj79qfo';
+import { purgeTrash } from './core/reports.mjs?v=mwj79qfo';
 
-const APP_VERSION = '1.2.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwitgfh5';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.3.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwj79qfo';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
@@ -133,10 +134,10 @@ function pillHtml(name) {
   if (st.ok) return '<div class="pill ok" title="' + name + ' ' + hhmm(st.at) + ' 저장됨"><i></i><span>' + name + '</span><small>' + hhmm(st.at) + ' 저장됨</small></div>';
   return '<div class="pill fail" title="' + name + ' 저장 실패"><i></i><span>' + name + ' · 저장 안 됨</span><button data-act="retry">다시 시도</button></div>';
 }
-function statusHtml() { return pillHtml(DEVICE) + pillHtml(FOLDER) + drivePill(); }
+function statusHtml() { return drivePill() + pillHtml(FOLDER) + pillHtml(DEVICE); }
 function paintStatus() {
   document.querySelectorAll('[data-status]').forEach((el) => { el.innerHTML = statusHtml(); });
-  const h = $('#homeSave'); if (h) h.innerHTML = homeSaveRows();
+  ['#homeSave', '#setSave'].forEach((id) => { const h = $(id); if (h) h.innerHTML = homeSaveRows(); });
 }
 
 /* ── PC 폴더 ── */
@@ -365,15 +366,15 @@ function shell(body) {
 
 /* ── 홈 ── */
 function homeSaveRows() {
-  const rows = [DEVICE, FOLDER].map((n) => {
-    if (n === FOLDER && S.folder.state === 'unsupported') return '<li><b>PC 폴더</b><span>이 기기(브라우저)에서는 쓸 수 없어요</span></li>';
-    if (n === FOLDER && S.folder.state !== 'connected') return '<li><b>PC 폴더</b><span>' + (S.folder.state === 'none' ? '아직 연결 안 됨' : '허락이 필요해요') + '</span><button class="btn sm" data-act="' + (S.folder.state === 'none' ? 'folder-connect' : 'folder-permit') + '">' + (S.folder.state === 'none' ? '폴더 연결' : '다시 연결') + '</button></li>';
+  const rows = [FOLDER, DEVICE].map((n) => {
+    if (n === FOLDER && S.folder.state === 'unsupported') return '';   // 휴대폰 · 태블릿: 2차 저장소 없음
+    if (n === FOLDER && S.folder.state !== 'connected') return '<li><b>2차 · PC 폴더</b><span>' + (S.folder.state === 'none' ? '아직 연결 안 됨' : '허락이 필요해요') + '</span><button class="btn sm" data-act="' + (S.folder.state === 'none' ? 'folder-connect' : 'folder-permit') + '">' + (S.folder.state === 'none' ? '폴더 연결' : '다시 연결') + '</button></li>';
     const st = S.store.status[n];
     const fname = n === FOLDER && S.folder.handle && S.folder.handle.name ? ' <small class="fname">' + esc(S.folder.handle.name) + '</small>' : '';
-    return '<li><b>' + n + fname + '</b><span>' + (!st ? '준비됨' : st.ok ? dateKo(st.at) + ' 저장됨' : '저장 안 됨') + '</span>' + (st && !st.ok ? '<button class="btn sm" data-act="retry">다시 시도</button>' : '') +
+    return '<li><b>' + (n === FOLDER ? '2차 · PC 폴더' : '이 기기 <small class="fname">빠른 열기용 사본</small>') + (n === FOLDER ? fname : '') + '</b><span>' + (!st ? '준비됨' : st.ok ? dateKo(st.at) + ' 저장됨' : '저장 안 됨') + '</span>' + (st && !st.ok ? '<button class="btn sm" data-act="retry">다시 시도</button>' : '') +
       (n === FOLDER ? '<button class="btn sm" data-act="folder-change">' + ic('cloud') + '폴더 바꾸기</button>' : '') + '</li>';
   }).join('');
-  return '<ul class="savelist">' + rows + '</ul>';
+  return '<ul class="savelist">' + driveRowHtml() + rows + '</ul>';
 }
 function homePage() {
   const d = S.data;
@@ -420,7 +421,7 @@ function mePage() {
     '<label class="fld span2"><span>상호 (업체명) <em class="tag2">최대 2줄</em></span>' +
     '<textarea class="in ta2" data-me="name" rows="2" aria-describedby="nmHint" placeholder="스타미디어&#10;(STARmedia)">' + esc(m.name) + '</textarea>' +
     '<small id="nmHint" class="fhint">' + ic('check') + '<span><b>엔터</b>를 누르면 다음 줄로 넘어가요. 예: 스타미디어 ↵ (STARmedia)</span></small></label>' +
-    meField('대표자', 'ceo') + meField('사업자등록번호', 'bizNo', ' inputmode="numeric" maxlength="12" placeholder="숫자 10자리 (- 는 저절로)"') +
+    meField('대표자', 'ceo') + meField('사업자등록번호', 'bizNo', ' inputmode="numeric" maxlength="12" placeholder="숫자 10자리 (- 는 자동입력)"') +
     meField('주소', 'addr', '', 'span2') +
     meField('업태', 'bizType') + meField('종목', 'bizItem') + meField('전화', 'tel', ' inputmode="tel"') + meField('팩스', 'fax', ' inputmode="tel"') +
     '</div></section>' +
@@ -530,7 +531,9 @@ function restoreClient(id) {
 /* ── 그리기 ── */
 function render() {
   const root = $('#root');
-  if (!S.data) { root.innerHTML = setupScreen() + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; return; }
+  const step = needsSetup();
+  if (step === 'legacy') { root.innerHTML = setupScreen() + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; return; }
+  if (step) { root.innerHTML = setupWizardHtml(step) + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; preloadGis(); document.title = '처음 설정 · 스타미디어 견적서 발행기'; return; }
   S.route = hashRoute(); S.hash = location.hash;
   const PAGES = { me: mePage, clients: clientsPage, items: itemsPage, list: listPage, doc: editorPage, event: eventListPage, event1: eventPage, equip: equipPage, money: moneyPage, cal: calendarPage, trash: trashPage, set: settingsPage, home: homePage };
   let body;
@@ -541,6 +544,7 @@ function render() {
   document.title = (typeof t0 === 'function' ? t0() : t0).replace('안녕하세요, 대표님', '홈') + ' · 스타미디어 견적서 발행기';
   editorAfterRender();
   if (S.route === 'set') settingsAfterRender();
+  if (S.route === 'doc') setTimeout(warnIfDisconnected, 400);
 }
 /** 백업 되살리기 · 불러오기 뒤: 새 자료로 바꾸고 다시 그리기 */
 function normalize(d) { const e = emptyData(); return { ...e, ...d, me: { ...e.me, ...(d.me || {}) }, settings: { ...e.settings, ...(d.settings || {}) } }; }
@@ -566,7 +570,7 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (a.tagName === 'A') e.preventDefault();
-  if (driveClick(act)) return;
+  if (setupClick(act) || driveClick(act)) return;
   if (act === 'lock-now') { if (!lockNow()) { location.hash = '#set'; toast('먼저 비밀번호를 정해 주세요 (화면 잠금)'); } return; }
   if (equipClick(act, a, curEvent()) || editorClick(act, a) || eventsClick(act, a) || exportClick(act, a, curDoc()) ||
       moneyClick(act, a) || calendarClick(act, a) || trashClick(act, a) || settingsClick(act, a)) return;
@@ -649,9 +653,9 @@ window.addEventListener('beforeunload', (e) => { if (S.dirty || S.saving) { save
 initItems({ S, $, esc, ic, uid, toast, openModal, changed, render: () => render() });
 initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
-initExport({ S, $, esc, ic, toast, openModal, closeModal });
-const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
+initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
+const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
+initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {

@@ -52,16 +52,19 @@ const v1 = wrap({ ...emptyData(), docs: [{ id: 'd1', type: 'quote' }], payments:
 eq('현재 형식 파일은 그대로 열림', load(JSON.stringify(v1)).migrated, false);
 // U01/U02: 옛 형식(1) 파일을 새 형식(2) 프로그램이 열면 자동 변환 + 변환 전 자동 백업
 const backups = [];
+const v1old = { ...v1, schema: 1 };   // 옛 형식 1 파일
 const migrations = { 1: (d) => ({ ...d, settings: { ...d.settings, startPage: 'home' }, docs: d.docs.map((x) => ({ ...x, venue: x.venue || '' })) }) };
-const r = load(JSON.stringify(v1), { migrations, target: 2, backup: (env) => backups.push(env) });
+const r = load(JSON.stringify(v1old), { migrations, target: 2, backup: (env) => backups.push(env) });
 eq('U01 자동 변환됨 (1 → 2)', [r.ok, r.migrated, r.from, r.schema], [true, true, 1, 2]);
 eq('U01 기존 문서 · 입금 그대로', [r.data.docs.length, r.data.payments[0].amount], [1, 100000]);
 eq('U01 새 칸은 기본값으로 추가', [r.data.docs[0].venue, r.data.settings.startPage], ['', 'home']);
 eq('U01 변환 직전 원본 백업이 1개 생김', [backups.length, backups[0].schema], [1, 1]);
 // U03: 변환이 실패하면 원본을 그대로 돌려줌
-const bad = load(JSON.stringify(v1), { migrations: { 1: () => { throw new Error('test'); } }, target: 2 });
+const bad = load(JSON.stringify(v1old), { migrations: { 1: () => { throw new Error('test'); } }, target: 2 });
 eq('U03 변환 실패 시 원본 보존', [bad.ok, bad.reason, bad.original.data.docs.length], [false, 'migration-failed', 1]);
 // 더 새 버전 파일은 막음
+const real = load(JSON.stringify({ ...v1old, data: { ...v1old.data, docs: [{ id: 'a', status: 'contract', client: { name: '농협' }, event: { name: '김장' } }, { id: 'b', status: 'sent' }, { id: 'c', status: 'cancel' }, { id: 'd', status: 'draft' }] } }));
+eq('v1.3.0 변환: 계약 → 발송 완료 + 행사 「계약 확정」, 보냄 → 발송 완료, 취소 → 작성 완료', [real.ok, real.data.docs.map((x) => x.status), real.data.events.length, real.data.events[0].contract, real.data.events[0].name, real.data.docs[0].eventId === real.data.events[0].id], [true, ['sent', 'sent', 'done', 'draft'], 1, true, '김장', true]);
 eq('미래 버전 파일은 열지 않음', load(JSON.stringify({ ...v1, schema: CURRENT_SCHEMA + 5 })).reason, 'newer-version');
 eq('다른 프로그램 파일은 거부', load('{"hello":1}').reason, 'not-our-file');
 eq('깨진 파일은 거부', load('{broken').reason, 'broken-file');
