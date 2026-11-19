@@ -1,9 +1,9 @@
 // 화면: 매출 · 미수금 (#money) + 홈의 「오늘 챙길 일」 · 「이번 달 돈 흐름」 · 「월별 매출」 카드
 // 계산은 전부 core/reports.mjs (node 시험 통과). 이 파일은 그 결과를 그리기만 한다.
-import { salesByMonth, salesByClient, receivables, yearSummary, salesYears, todo } from './core/reports.mjs?v=mwj79qfo';
-import { eventDateText } from './core/events.mjs?v=mwj79qfo';
-import { ymd, dateShort } from './core/docs.mjs?v=mwj79qfo';
-import { won } from './docview.mjs?v=mwj79qfo';
+import { salesByMonth, salesByClient, receivables, yearSummary, salesYears, todo } from './core/reports.mjs?v=mwmwhfll';
+import { eventDateText } from './core/events.mjs?v=mwmwhfll';
+import { ymd, dateShort } from './core/docs.mjs?v=mwmwhfll';
+import { won } from './docview.mjs?v=mwmwhfll';
 
 let C;
 export function initMoney(ctx) { C = ctx; }

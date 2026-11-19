@@ -125,12 +125,12 @@ function stmtBlock(doc, me, t, money, a, b, cap, last, copy, mine, full) {
   const left = money && money.linked ? money.remaining : t.total;
   return '<div class="half' + (mine ? ' mine' : '') + (full ? ' full' : '') + '">' +
     '<div class="s-top"><h2>거 래 명 세 서</h2><span class="s-copy">(' + copy + ')</span>' + (doc.showNo ? '<span class="s-no">' + esc(docNo(doc)) + '</span>' : '') + '</div>' +
-    '<table class="s-par"><colgroup><col class="sv"><col class="sl"><col><col class="sv"><col class="sl"><col><col class="sl"><col></colgroup><tbody>' +
-    '<tr><th class="v" rowspan="4"><span>공급받는자</span></th><th>상호</th><td class="b">' + esc(c.name) + ' 귀하</td>' +
+    '<table class="s-par"><colgroup><col style="width:20px"><col style="width:58px"><col style="width:25%"><col style="width:20px"><col style="width:58px"><col><col style="width:40px"><col style="width:16%"></colgroup><tbody>' +
+    '<tr><th class="v" rowspan="4"><span>공급받는자</span></th><th>상호</th><td class="b rv">' + esc(c.name) + ' 귀하</td>' +
     '<th class="v" rowspan="4"><span>공급자</span></th><th>등록번호</th><td colspan="3" class="b num">' + esc(me.bizNo) + '</td></tr>' +
-    '<tr><th>담당자</th><td>' + esc(c.person) + '</td><th>상호</th><td class="nm2">' + nl2br(me.name || '') + '</td><th>대표</th><td class="stamp-cell">' + esc(me.ceo) + ' <span class="in">(인)</span>' + stampImg(me) + '</td></tr>' +
-    '<tr><th>연락처</th><td class="num">' + esc(c.tel) + '</td><th>주소</th><td colspan="3">' + esc(me.addr) + '</td></tr>' +
-    '<tr><th>거래일자</th><td>' + dateKo(doc.tradeDate || doc.date) + '</td><th>업태</th><td>' + esc(me.bizType) + '</td><th>종목</th><td>' + esc(me.bizItem) + '</td></tr>' +
+    '<tr><th>담당자</th><td class="rv">' + esc(c.person) + '</td><th>상호</th><td class="nm2">' + nl2br(me.name || '') + '</td><th>대표</th><td class="stamp-cell">' + esc(me.ceo) + ' <span class="in">(인)</span>' + stampImg(me) + '</td></tr>' +
+    '<tr><th>연락처</th><td class="num rv">' + esc(c.tel) + '</td><th>주소</th><td colspan="3">' + esc(me.addr) + '</td></tr>' +
+    '<tr><th>거래일자</th><td class="rv">' + dateKo(doc.tradeDate || doc.date) + '</td><th>업태</th><td>' + esc(me.bizType) + '</td><th>종목</th><td>' + esc(me.bizItem) + '</td></tr>' +
     '</tbody></table>' +
     '<div class="s-sum"><span class="lbl">합계금액</span><b class="num">₩' + won(t.total) + '</b><em>일금 ' + hangul(t.total) + ' 원정 · 공급가액 ' + won(t.supply) + ' + 세액 ' + won(t.tax) + '</em></div>' +
     '<table class="d-items s-items">' + COLS + THEAD + '<tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +

@@ -336,3 +336,14 @@ input[type="date"].in::-webkit-date-and-time-value{min-height:1.4em;line-height:
 .d-main{grid-template-columns:118px 120px minmax(0,1fr) 64px 118px 140px 52px}
 .d-main .schip{white-space:nowrap}
 @media (max-width:1280px) and (min-width:768px){ .d-main{grid-template-columns:110px minmax(0,1fr) 110px 140px 52px} }
+
+/* ══ v1.3.1 고침 ══ */
+/* 거래명세서 윗부분: 공급받는자 값은 두 줄까지 보이게, 도장은 칸 높이에 맞게 작게 · 잘리지 않게 */
+.s-par td.rv{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.15;font-size:10.2px}
+.s-par td.stamp-cell{overflow:visible;position:relative;padding-right:46px}
+.s-par .stamp{width:40px!important;height:40px!important;right:2px;top:50%;transform:translateY(-50%)}
+/* 품목 줄: 품목 이름 한 줄 전체 → 규격 · 비고 아래 줄 */
+.line-top{flex-wrap:wrap}
+.line-top .nm{flex:1 1 calc(100% - 44px);min-width:0}
+.line-top .sp,.line-top .mm{flex:1 1 40%;min-width:0}
+.s-par th{padding-left:2px;padding-right:2px;text-overflow:clip}

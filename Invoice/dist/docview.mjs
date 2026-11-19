@@ -1,9 +1,9 @@
 // A4 문서 그리기 (미리보기와 인쇄 · PDF가 똑같은 그림을 쓴다) — 시안 A 블루 모던
 // 견적서 · 납품ㆍ청구서(입금 기한 · 입금 계좌 상자 · 이번에 청구하는 금액) · 거래명세서(A4에 2부 또는 1부) · 영수증(무효 표시)
 // money: 행사에 묶인 문서면 { linked, received, remaining, valid } — 받은 금액 · 남은 금액은 이 행사 것만 보여 준다
-import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwj79qfo';
-import { lineTax } from './core/money.mjs?v=mwj79qfo';
-import { hangul } from './core/money.mjs?v=mwj79qfo';
+import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwmwhfll';
+import { lineTax } from './core/money.mjs?v=mwmwhfll';
+import { hangul } from './core/money.mjs?v=mwmwhfll';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nl2br = (s) => esc(s).replace(/\n/g, '<br>');
@@ -125,12 +125,12 @@ function stmtBlock(doc, me, t, money, a, b, cap, last, copy, mine, full) {
   const left = money && money.linked ? money.remaining : t.total;
   return '<div class="half' + (mine ? ' mine' : '') + (full ? ' full' : '') + '">' +
     '<div class="s-top"><h2>거 래 명 세 서</h2><span class="s-copy">(' + copy + ')</span>' + (doc.showNo ? '<span class="s-no">' + esc(docNo(doc)) + '</span>' : '') + '</div>' +
-    '<table class="s-par"><colgroup><col class="sv"><col class="sl"><col><col class="sv"><col class="sl"><col><col class="sl"><col></colgroup><tbody>' +
-    '<tr><th class="v" rowspan="4"><span>공급받는자</span></th><th>상호</th><td class="b">' + esc(c.name) + ' 귀하</td>' +
+    '<table class="s-par"><colgroup><col style="width:20px"><col style="width:58px"><col style="width:25%"><col style="width:20px"><col style="width:58px"><col><col style="width:40px"><col style="width:16%"></colgroup><tbody>' +
+    '<tr><th class="v" rowspan="4"><span>공급받는자</span></th><th>상호</th><td class="b rv">' + esc(c.name) + ' 귀하</td>' +
     '<th class="v" rowspan="4"><span>공급자</span></th><th>등록번호</th><td colspan="3" class="b num">' + esc(me.bizNo) + '</td></tr>' +
-    '<tr><th>담당자</th><td>' + esc(c.person) + '</td><th>상호</th><td class="nm2">' + nl2br(me.name || '') + '</td><th>대표</th><td class="stamp-cell">' + esc(me.ceo) + ' <span class="in">(인)</span>' + stampImg(me) + '</td></tr>' +
-    '<tr><th>연락처</th><td class="num">' + esc(c.tel) + '</td><th>주소</th><td colspan="3">' + esc(me.addr) + '</td></tr>' +
-    '<tr><th>거래일자</th><td>' + dateKo(doc.tradeDate || doc.date) + '</td><th>업태</th><td>' + esc(me.bizType) + '</td><th>종목</th><td>' + esc(me.bizItem) + '</td></tr>' +
+    '<tr><th>담당자</th><td class="rv">' + esc(c.person) + '</td><th>상호</th><td class="nm2">' + nl2br(me.name || '') + '</td><th>대표</th><td class="stamp-cell">' + esc(me.ceo) + ' <span class="in">(인)</span>' + stampImg(me) + '</td></tr>' +
+    '<tr><th>연락처</th><td class="num rv">' + esc(c.tel) + '</td><th>주소</th><td colspan="3">' + esc(me.addr) + '</td></tr>' +
+    '<tr><th>거래일자</th><td class="rv">' + dateKo(doc.tradeDate || doc.date) + '</td><th>업태</th><td>' + esc(me.bizType) + '</td><th>종목</th><td>' + esc(me.bizItem) + '</td></tr>' +
     '</tbody></table>' +
     '<div class="s-sum"><span class="lbl">합계금액</span><b class="num">₩' + won(t.total) + '</b><em>일금 ' + hangul(t.total) + ' 원정 · 공급가액 ' + won(t.supply) + ' + 세액 ' + won(t.tax) + '</em></div>' +
     '<table class="d-items s-items">' + COLS + THEAD + '<tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +

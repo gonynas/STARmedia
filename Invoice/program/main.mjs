@@ -553,8 +553,10 @@ function applyBigText() { document.documentElement.classList.toggle('big', !!(S.
 function setBigText(on) { S.data.settings.bigText = !!on; applyBigText(); changed(); }
 
 /* ── 움직임 ── */
+let downOnBackdrop = false;   // 확인 창 바깥(어두운 곳)에서 눌렀는지 — 칸 안에서 끌다 바깥에서 떼면 닫지 않는다
+document.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target.id === 'modal'; }, true);
 document.addEventListener('click', async (e) => {
-  if (e.target.id === 'modal') { if (!e.target.dataset.sticky) closeModal(); return; }
+  if (e.target.id === 'modal') { if (!e.target.dataset.sticky && downOnBackdrop) closeModal(); return; }
   if (e.target.id === 'moreSheet') { e.target.classList.remove('on'); return; }
   if (e.target.closest('#moreSheet a')) $('#moreSheet').classList.remove('on');
   const mb = e.target.closest('[data-modal]');

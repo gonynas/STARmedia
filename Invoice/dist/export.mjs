@@ -2,13 +2,13 @@
 // 문서 그림은 미리보기와 똑같은 A4 화면을 그대로 찍는다(같은 renderPages · 같은 스타일 · 같은 글꼴).
 // PDF · 엑셀 파일은 core/pdf.mjs · core/xlsx.mjs 가 외부 라이브러리 없이 만든다.
 // 휴대폰 · 태블릿(손가락 화면)은 공유 창으로, PC 는 내려받기 · 클립보드 · Gmail 쓰기 창으로.
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwj79qfo';
-import { docMoney } from './core/events.mjs?v=mwj79qfo';
-import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwj79qfo';
-import { imagesToPdf } from './core/pdf.mjs?v=mwj79qfo';
-import { buildXlsx } from './core/xlsx.mjs?v=mwj79qfo';
-import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwj79qfo';
-import { logProblem } from './errors.mjs?v=mwj79qfo';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwmwhfll';
+import { docMoney } from './core/events.mjs?v=mwmwhfll';
+import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwmwhfll';
+import { imagesToPdf } from './core/pdf.mjs?v=mwmwhfll';
+import { buildXlsx } from './core/xlsx.mjs?v=mwmwhfll';
+import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwmwhfll';
+import { logProblem } from './errors.mjs?v=mwmwhfll';
 
 let C;
 export function initExport(ctx) { C = ctx; }
@@ -129,8 +129,19 @@ async function pageCanvas(html, scale) {
   const outer = document.createElementNS(XHTML, 'div');
   outer.setAttribute('style', 'width:' + W + 'px;height:' + H + 'px;margin:0;padding:0;overflow:hidden;background:#fff');
   outer.appendChild(wrap);
-  const xml = new XMLSerializer().serializeToString(outer);
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '"><foreignObject x="0" y="0" width="' + W + '" height="' + H + '">' + xml + '</foreignObject></svg>';
+  const cv = await drawSvg(new XMLSerializer().serializeToString(outer), W, H, W, H);
+  if (!fillsPage(cv)) {
+    // 안전장치: 문서가 왼쪽 위에 작게 찍혔으면(일부 아이폰 브라우저가 zoom 을 무시) 확대 없이 A4 크기로 그린 뒤 캔버스에서 늘린다
+    wrap.style.zoom = '';
+    const cv2 = await drawSvg(new XMLSerializer().serializeToString(wrap), A4W, A4H, W, H);
+    logProblemOnce('문서 그림: 확대가 안 돼서 다른 방법으로 그림(아이폰 안전장치)');
+    return cv2;
+  }
+  return cv;
+}
+/** SVG(안에 HTML) → 캔버스. 그림은 sw×sh 로 만들고 캔버스에는 W×H 로 그린다 */
+async function drawSvg(xml, sw, sh, W, H) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + sw + '" height="' + sh + '"><foreignObject x="0" y="0" width="' + sw + '" height="' + sh + '">' + xml + '</foreignObject></svg>';
   const img = new Image();
   await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('문서 그림을 만들지 못했어요')); img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); });
   if (img.decode) await img.decode().catch(() => {});
@@ -139,6 +150,24 @@ async function pageCanvas(html, scale) {
   const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.drawImage(img, 0, 0, W, H);
   return cv;
 }
+/** 문서가 쪽을 채웠나: 작게 줄여 그려서 흰색이 아닌 곳의 범위를 잰다.
+ *  글자 · 선이 왼쪽 위 60% 안에만 있으면 「작게 찍힘」(A4 문서는 표 · 머리 줄이 오른쪽 끝까지 간다). 빈 쪽이거나 잴 수 없으면 채운 것으로 본다 */
+function fillsPage(cv) {
+  try {
+    const w = 120, h = 170, s = document.createElement('canvas'); s.width = w; s.height = h;
+    const g = s.getContext('2d'); g.drawImage(cv, 0, 0, w, h);
+    const d = g.getImageData(0, 0, w, h).data;
+    let mx = -1, my = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const k = (y * w + x) * 4;
+      if (d[k] < 248 || d[k + 1] < 248 || d[k + 2] < 248) { if (x > mx) mx = x; if (y > my) my = y; }
+    }
+    if (mx < 0) return true;
+    return !(mx < w * 0.6 && my < h * 0.6);
+  } catch (e) { return true; }
+}
+let warnedFill = false;
+function logProblemOnce(msg) { if (!warnedFill) { warnedFill = true; try { logProblem('문서 그림 안전장치', msg); } catch (e) {} } }
 const toBlob = (cv, type, q) => new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('그림 파일을 만들지 못했어요'))), type, q));
 
 const pagesOf = (doc) => renderPages(doc, C.S.data.me, docMoney(doc, C.S.data));

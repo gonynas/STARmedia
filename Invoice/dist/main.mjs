@@ -2,31 +2,31 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwj79qfo';
-import { emptyData, load } from './core/datafile.mjs?v=mwj79qfo';
-import { ic } from './icons.mjs?v=mwj79qfo';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwj79qfo';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwj79qfo';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwj79qfo';
-import { processStamp } from './stamp.mjs?v=mwj79qfo';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwj79qfo';
-import { stampImg } from './docview.mjs?v=mwj79qfo';
-import { initExport, exportClick } from './export.mjs?v=mwj79qfo';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwj79qfo';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwj79qfo';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwj79qfo';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwj79qfo';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwj79qfo';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwj79qfo';
-import { logProblem } from './errors.mjs?v=mwj79qfo';
-import { initInputs } from './inputs.mjs?v=mwj79qfo';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwj79qfo';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwj79qfo';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwj79qfo';
-import { purgeTrash } from './core/reports.mjs?v=mwj79qfo';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwmwhfll';
+import { emptyData, load } from './core/datafile.mjs?v=mwmwhfll';
+import { ic } from './icons.mjs?v=mwmwhfll';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwmwhfll';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwmwhfll';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwmwhfll';
+import { processStamp } from './stamp.mjs?v=mwmwhfll';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwmwhfll';
+import { stampImg } from './docview.mjs?v=mwmwhfll';
+import { initExport, exportClick } from './export.mjs?v=mwmwhfll';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwmwhfll';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwmwhfll';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwmwhfll';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwmwhfll';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwmwhfll';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwmwhfll';
+import { logProblem } from './errors.mjs?v=mwmwhfll';
+import { initInputs } from './inputs.mjs?v=mwmwhfll';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwmwhfll';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwmwhfll';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwmwhfll';
+import { purgeTrash } from './core/reports.mjs?v=mwmwhfll';
 
-const APP_VERSION = '1.3.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwj79qfo';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.3.1';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwmwhfll';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
@@ -553,8 +553,10 @@ function applyBigText() { document.documentElement.classList.toggle('big', !!(S.
 function setBigText(on) { S.data.settings.bigText = !!on; applyBigText(); changed(); }
 
 /* ── 움직임 ── */
+let downOnBackdrop = false;   // 확인 창 바깥(어두운 곳)에서 눌렀는지 — 칸 안에서 끌다 바깥에서 떼면 닫지 않는다
+document.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target.id === 'modal'; }, true);
 document.addEventListener('click', async (e) => {
-  if (e.target.id === 'modal') { if (!e.target.dataset.sticky) closeModal(); return; }
+  if (e.target.id === 'modal') { if (!e.target.dataset.sticky && downOnBackdrop) closeModal(); return; }
   if (e.target.id === 'moreSheet') { e.target.classList.remove('on'); return; }
   if (e.target.closest('#moreSheet a')) $('#moreSheet').classList.remove('on');
   const mb = e.target.closest('[data-modal]');
