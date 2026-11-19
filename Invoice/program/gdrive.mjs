@@ -66,9 +66,14 @@ export async function syncNow() {
   if (!token()) { G.status = 'login'; paint(); return; }
   G.busy = true; G.status = 'busy'; paint();
   try {
-    const r = await syncOnce(drive(), G.st, C.S.data, { appVersion: C.appInfo.version, day: today() });
+    const r = await syncOnce(drive(), G.st, C.savable ? C.savable(C.S.data) : C.S.data, { appVersion: C.appInfo.version, day: today() });
     G.st = { ...r.state, connected: true }; await saveSt();
-    if (r.localChanged) { C.replaceData(r.data); await C.saveNow(); renderIfIdle(); }
+    if (r.localChanged) {
+      const pend = C.S.data.docs.filter((d) => d.pending);   // 아직 아무것도 안 넣은 새 문서는 그대로 남긴다
+      C.replaceData(r.data);
+      for (const p of pend) if (!C.S.data.docs.some((d) => d.id === p.id)) C.S.data.docs.push(p);
+      await C.saveNow(); renderIfIdle();
+    }
     G.status = 'ok'; G.msg = '';
   } catch (e) {
     if (e instanceof DriveError && e.code === 'auth') G.status = 'login';

@@ -1,7 +1,7 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 규칙 (1단계)
 // 화면과 상관없는 순수 규칙만 둔다. 품목: { id, cat, name, spec, price, days, taxFree, memo, createdAt, updatedAt }
 // 세트: { id, name, memo, lines:[{ itemId, qty, days, name, spec, price, taxFree }] (name · spec · price 는 지운 품목 대비 사본) }
-import { lineAmount } from './money.mjs?v=mwmxoxka';
+import { lineAmount } from './money.mjs?v=mwmznjx6';
 
 export const NO_CAT = '분류 없음';
 const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase();
@@ -34,15 +34,41 @@ export function filterItems(items, { cat = '', q = '' } = {}) {
 }
 
 /** 같은 품목(이름 + 규격, 띄어쓰기 · 대소문자 무시)이 이미 있으면 그 품목 */
-/** 품목 칸에 쓴 글자로 등록한 품목 찾기(실시간 목록): 이름 · 규격 · 분류에 그 글자가 들어 있으면 나온다(띄어쓰기 · 대소문자 무시).
- *  이름이 그 글자로 시작하는 것 → 이름에 들어 있는 것 → 규격 · 분류에만 있는 것 순, 같은 순위는 이름 · 규격 가나다순. 예: 「텐」 → 몽골텐트, 천막텐트 */
+/** 품목 칸에 쓴 글자로 등록한 품목 찾기(실시간 목록): 품목 이름(또는 규격)에 그 글자가 들어 있으면 나온다(띄어쓰기 · 대소문자 무시).
+ *  분류 이름으로는 찾지 않는다(「천막」을 쓰면 이름에 천막이 든 품목만). 이름이 그 글자로 시작하는 것 → 이름에 들어 있는 것 → 규격에만 있는 것 순,
+ *  같은 순위는 이름 · 규격 가나다순. 예: 「텐」 → 몽골텐트, 천막텐트 */
 export function searchItems(items, q, limit = 8) {
   const n = (s) => String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '');
   const k = n(q); if (!k) return [];
   const rank = (it) => (n(it.name).startsWith(k) ? 0 : n(it.name).includes(k) ? 1 : 2);
-  return items.filter((it) => n(it.name).includes(k) || n(it.spec).includes(k) || n(it.cat).includes(k))
+  return items.filter((it) => n(it.name).includes(k) || n(it.spec).includes(k))
     .sort((a, b) => rank(a) - rank(b) || String(a.name || '').localeCompare(String(b.name || ''), 'ko') || String(a.spec || '').localeCompare(String(b.spec || ''), 'ko'))
     .slice(0, limit);
+}
+/** 칸이 밀려 들어간 것 같은 품목: 규격이 비었고, 품목 칸에 크기 · 모양 같은 값(숫자가 있거나 「~형 · ~식 · ~용 · ~급」으로 끝남)이 있고, 분류가 따로 있는 것.
+ *  예: 분류 「천막텐트」 · 품목 「3mx6m」 · 규격 없음 → 품목 「천막텐트」 · 규격 「3mx6m」 이 맞을 가능성이 크다 (사용자가 확인한 뒤에만 바꾼다) */
+export function misplacedItems(items) {
+  const looksSpec = (s) => /\d/.test(s) || /(형|식|용|급)$/.test(s);
+  return items.filter((it) => {
+    const nm = String(it.name || '').trim(), cat = String(it.cat || '').trim();
+    return !String(it.spec || '').trim() && cat && nm && squash(cat) !== squash(nm) && looksSpec(nm);
+  });
+}
+/** 고른 품목을 바로잡기: 분류 → 품목 이름, 품목 이름 → 규격 (분류는 그대로). 그 품목을 쓰는 세트 사본과 「작성 중」 문서 줄도 같이 고친다.
+ *  돌려주는 값: { items, sets, lines } 고친 개수 */
+export function fixMisplaced(data, ids, now = new Date().toISOString()) {
+  const out = { items: 0, sets: 0, lines: 0 };
+  for (const it of data.items) {
+    if (!ids.includes(it.id)) continue;
+    const oldName = it.name, cat = String(it.cat || '').trim();
+    it.spec = String(oldName || '').trim(); it.name = cat; it.updatedAt = now; out.items++;
+    for (const s of data.sets || []) for (const l of s.lines || []) if (l.itemId === it.id) { l.name = it.name; l.spec = it.spec; out.sets++; }
+    for (const d of data.docs || []) {
+      if (d.status && d.status !== 'draft') continue;   // 다 만든 · 보낸 문서는 그대로 둔다
+      for (const l of d.lines || []) if (l.itemId === it.id && l.name === oldName && !String(l.spec || '').trim()) { l.name = it.name; l.spec = it.spec; out.lines++; d.updatedAt = now; }
+    }
+  }
+  return out;
 }
 export function findDuplicate(items, { name, spec }, exceptId = null) {
   return items.find((it) => it.id !== exceptId && squash(it.name) === squash(name) && squash(it.spec) === squash(spec)) || null;
@@ -111,7 +137,12 @@ export function parsePaste(text) {
     let r;
     if (cols) {
       r = {}; cols.forEach((k, i) => { if (k && c[i] !== undefined) r[k] = c[i]; });
-    } else if (c.length >= 4) r = { cat: c[0], name: c[1], spec: c[2], price: c[3], days: c[4], memo: c[5] };
+    } else if (c.length >= 4) {
+      // 숫자(단가)가 셋째 칸이면 「품목 · 규격 · 단가 (· 일수/비고)」, 아니면 「분류 · 품목 · 규격 · 단가 …」 (분류 칸에 품목이 들어가지 않게)
+      if (toNum(c[2]) !== null && toNum(c[3]) === null) r = { name: c[0], spec: c[1], price: c[2], memo: c[3] };
+      else if (toNum(c[2]) !== null && toNum(c[3]) !== null && toNum(c[1]) === null && c.length <= 5 && toNum(c[4] ?? '') === null) r = { name: c[0], spec: c[1], price: c[2], days: c[3], memo: c[4] };
+      else r = { cat: c[0], name: c[1], spec: c[2], price: c[3], days: c[4], memo: c[5] };
+    }
     else if (c.length === 3) r = { name: c[0], spec: c[1], price: c[2] };
     else if (c.length === 2) r = { name: c[0], price: c[1] };
     else r = { name: c[0] };

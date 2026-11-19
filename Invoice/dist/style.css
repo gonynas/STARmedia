@@ -1794,3 +1794,10 @@ input[type="date"].in::-webkit-date-and-time-value{min-height:1.4em;line-height:
   .line-nums{grid-column:2;grid-row:2}
   .line>.line-amt{grid-column:3;grid-row:2;align-self:end}
 }
+
+/* ══ v1.4.1 칸이 밀린 품목 안내 ══ */
+.mis-note{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border-radius:var(--radius-s);background:var(--hl-soft);color:var(--hl-ink);border:1px solid var(--line);font-size:.92rem;line-height:1.45}
+.mis-note>span{flex:1 1 260px;min-width:0}
+.mis-note svg{flex:none}
+.mis-list{display:grid;gap:6px;margin-top:10px;max-height:46vh;overflow:auto}
+.fld span small.dim{font-weight:500;color:var(--muted)}

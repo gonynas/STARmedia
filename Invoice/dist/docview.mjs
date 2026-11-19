@@ -1,9 +1,9 @@
 // A4 문서 그리기 (미리보기와 인쇄 · PDF가 똑같은 그림을 쓴다) — 시안 A 블루 모던
 // 견적서 · 납품ㆍ청구서(입금 기한 · 입금 계좌 상자 · 이번에 청구하는 금액) · 거래명세서(A4에 2부 또는 1부) · 영수증(무효 표시)
 // money: 행사에 묶인 문서면 { linked, received, remaining, valid } — 받은 금액 · 남은 금액은 이 행사 것만 보여 준다
-import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwmxoxka';
-import { lineTax } from './core/money.mjs?v=mwmxoxka';
-import { hangul } from './core/money.mjs?v=mwmxoxka';
+import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwmznjx6';
+import { lineTax } from './core/money.mjs?v=mwmznjx6';
+import { hangul } from './core/money.mjs?v=mwmznjx6';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nl2br = (s) => esc(s).replace(/\n/g, '<br>');

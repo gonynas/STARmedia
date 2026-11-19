@@ -4,11 +4,11 @@
 //  · 휴대폰 처음 화면: 「구글 드라이브에서 불러오기」 → 사업자 정보를 다시 넣지 않고 바로 쓴다.
 //  · 로그인은 구글 공식 로그인 창(Google Identity Services). 토큰은 1시간쯤 가고, 끝나면 「다시 연결」 단추가 나온다.
 //  · 연결 상태(폴더 · 파일 id · 지난번 맞춘 자료)는 이 기기 저장소(IndexedDB 'gdrive')에 둔다. 화면 잠금 같은 기기 설정은 맞추지 않는다.
-import { GOOGLE_CLIENT_ID, GOOGLE_SCOPE } from './config.mjs?v=mwmxoxka';
-import { createDrive, syncOnce, peekRemote, DriveError, FOLDER_NAME } from './core/drive.mjs?v=mwmxoxka';
-import { countData } from './core/sync.mjs?v=mwmxoxka';
-import { logProblem } from './errors.mjs?v=mwmxoxka';
-import { isLocked } from './lockscreen.mjs?v=mwmxoxka';
+import { GOOGLE_CLIENT_ID, GOOGLE_SCOPE } from './config.mjs?v=mwmznjx6';
+import { createDrive, syncOnce, peekRemote, DriveError, FOLDER_NAME } from './core/drive.mjs?v=mwmznjx6';
+import { countData } from './core/sync.mjs?v=mwmznjx6';
+import { logProblem } from './errors.mjs?v=mwmznjx6';
+import { isLocked } from './lockscreen.mjs?v=mwmznjx6';
 
 let C;
 const TOKEN_KEY = 'starmedia-quote:gtoken';
@@ -66,9 +66,14 @@ export async function syncNow() {
   if (!token()) { G.status = 'login'; paint(); return; }
   G.busy = true; G.status = 'busy'; paint();
   try {
-    const r = await syncOnce(drive(), G.st, C.S.data, { appVersion: C.appInfo.version, day: today() });
+    const r = await syncOnce(drive(), G.st, C.savable ? C.savable(C.S.data) : C.S.data, { appVersion: C.appInfo.version, day: today() });
     G.st = { ...r.state, connected: true }; await saveSt();
-    if (r.localChanged) { C.replaceData(r.data); await C.saveNow(); renderIfIdle(); }
+    if (r.localChanged) {
+      const pend = C.S.data.docs.filter((d) => d.pending);   // 아직 아무것도 안 넣은 새 문서는 그대로 남긴다
+      C.replaceData(r.data);
+      for (const p of pend) if (!C.S.data.docs.some((d) => d.id === p.id)) C.S.data.docs.push(p);
+      await C.saveNow(); renderIfIdle();
+    }
     G.status = 'ok'; G.msg = '';
   } catch (e) {
     if (e instanceof DriveError && e.code === 'auth') G.status = 'login';

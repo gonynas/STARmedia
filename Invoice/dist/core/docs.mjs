@@ -4,8 +4,8 @@
 //         event:{name,date,place}, lines:[줄], vat, deposit:{on,amount}, agreed, notes:{valid,bank,phrases:[],text},
 //         fillRows, eventId, device, lastDevice, createdAt, updatedAt }
 // 줄: { id, itemId, name, spec, days, qty, price, memo, taxFree }
-import { settle } from './money.mjs?v=mwmxoxka';
-import { toNum } from './catalog.mjs?v=mwmxoxka';
+import { settle } from './money.mjs?v=mwmznjx6';
+import { toNum } from './catalog.mjs?v=mwmznjx6';
 
 export const DOC_TYPES = {
   quote: { label: '견적서', short: '견적', title: '견 적 서', en: 'QUOTATION' },
@@ -200,7 +200,7 @@ const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase
 /** 발행 목록 거르기: 종류 · 검색어(받는 곳 · 담당자 · 행사명 · 번호 · 품목) · 최근 고친 순 */
 export function filterDocs(docs, { type = '', q = '' } = {}) {
   const k = squash(q);
-  return docs.filter((d) => (!type || d.type === type) &&
+  return docs.filter((d) => !d.pending && (!type || d.type === type) &&
     (!k || squash([docNo(d), d.client && d.client.name, d.client && d.client.person, d.event && d.event.name, (d.lines || []).map((l) => l.name).join(' ')].join(' ')).includes(k)))
     .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
 }

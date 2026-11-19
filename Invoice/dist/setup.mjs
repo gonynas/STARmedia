@@ -4,9 +4,9 @@
 //  휴대폰 · 태블릿 : ① 「구글 드라이브에서 불러오기」만 (PC에서 먼저 설정해야 쓸 수 있음). 2차 저장소 없음.
 //  구글 드라이브에 이미 설정된 자료가 있으면(PC 포맷 뒤 · 다른 사무실 PC · 휴대폰) ③ ④ 는 저절로 건너뛴다.
 //  어느 단계인지는 자료를 보고 정한다(needsSetup) — 따로 저장하는 「설정 끝」 표시가 없어서 기기를 바꿔도 맞게 나온다.
-import { driveConfigured, driveConnected, setupDriveHtml } from './gdrive.mjs?v=mwmxoxka';
-import { hasLock, setPin, showCodeModal } from './lockscreen.mjs?v=mwmxoxka';
-import { validPin, onlyDigits, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwmxoxka';
+import { driveConfigured, driveConnected, setupDriveHtml } from './gdrive.mjs?v=mwmznjx6';
+import { hasLock, setPin, showCodeModal } from './lockscreen.mjs?v=mwmznjx6';
+import { validPin, onlyDigits, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwmznjx6';
 
 let C;
 const FOLDER_DONE = 'starmedia-quote:folderStepDone';

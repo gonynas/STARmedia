@@ -1,5 +1,5 @@
 // 품목 · 세트 규칙 시험 (실행: npm test · 빌드할 때도 먼저 실행된다)
-import { searchItems, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
+import { searchItems, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
 
 let pass = 0, fail = 0;
 function eq(name, got, want) {
@@ -54,11 +54,38 @@ eq('빈 글자는 0줄', parsePaste('  \n ').rows.length, 0);
 console.log('품목 칸 실시간 찾기');
 const sx = [...mk(), { id: 'i5', cat: '천막', name: '천막텐트', spec: '3×6m', price: 120000, days: 1 }];
 eq('「텐」 → 몽골텐트 두 개 · 천막텐트', searchItems(sx, '텐').map((i) => i.id), ['i2', 'i1', 'i5']);
-eq('「천막」 → 이름이 천막으로 시작하는 것 먼저, 그다음 분류가 천막인 것', searchItems(sx, '천막').map((i) => i.id), ['i5', 'i2', 'i1']);
+eq('「천막」 → 이름에 천막이 든 품목만 (분류 이름으로는 안 찾음)', searchItems(sx, '천막').map((i) => i.id), ['i5']);
 eq('띄어쓰기 · 대소문자 무시, 규격으로도 찾음', searchItems(sx, '5 ×5M').map((i) => i.id), ['i1']);
 eq('빈 글자는 목록 없음', searchItems(sx, '  ').length, 0);
 eq('없는 글자는 목록 없음', searchItems(sx, '발전차').length, 0);
 eq('최대 개수', searchItems(sx, '텐', 2).length, 2);
+
+console.log('칸이 밀린 품목 바로잡기');
+const mis = () => ({
+  items: [
+    { id: 'm1', cat: '천막텐트', name: '3mx6m', spec: '', price: 30000 },
+    { id: 'm2', cat: '의자', name: '등받이형', spec: '', price: 1000 },
+    { id: 'm3', cat: '테이블', name: '1800×750', spec: '', price: 10000 },
+    { id: 'm4', cat: '진행용품', name: '무전기', spec: '', price: 20000 },
+    { id: 'm5', cat: '몽골텐트', name: '몽골텐트-3M', spec: '3×3M', price: 150000 }
+  ],
+  sets: [{ id: 's1', name: '천막세트', lines: [{ itemId: 'm1', name: '3mx6m', spec: '', qty: 1 }, { itemId: 'm5', name: '몽골텐트-3M', spec: '3×3M', qty: 1 }] }],
+  docs: [
+    { id: 'd1', status: 'draft', lines: [{ itemId: 'm1', name: '3mx6m', spec: '' }, { itemId: 'm2', name: '등받이형', spec: '' }] },
+    { id: 'd2', status: 'sent', lines: [{ itemId: 'm1', name: '3mx6m', spec: '' }] }
+  ]
+});
+eq('찾기: 천막텐트/3mx6m · 의자/등받이형 · 테이블/1800×750 (무전기 · 몽골텐트는 아님)', misplacedItems(mis().items).map((i) => i.id), ['m1', 'm2', 'm3']);
+const md = mis(); const mr = fixMisplaced(md, ['m1', 'm2', 'm3'], 'T');
+eq('바로잡기: 품목 ← 분류, 규격 ← 품목', md.items.slice(0, 3).map((i) => [i.cat, i.name, i.spec]), [['천막텐트', '천막텐트', '3mx6m'], ['의자', '의자', '등받이형'], ['테이블', '테이블', '1800×750']]);
+eq('세트 사본 · 작성 중 문서 줄도 같이 (보낸 문서는 그대로)', [md.sets[0].lines[0].name + '/' + md.sets[0].lines[0].spec, md.docs[0].lines.map((l) => l.name + '/' + l.spec).join(','), md.docs[1].lines[0].name], ['천막텐트/3mx6m', '천막텐트/3mx6m,의자/등받이형', '3mx6m']);
+eq('고친 개수', mr, { items: 3, sets: 1, lines: 2 });
+eq('바로잡은 뒤에는 더 안 나옴', misplacedItems(md.items).length, 0);
+eq('세트 펼치기: 품목 · 규격 칸이 맞게', expandSet(md.sets[0], md.items).map((l) => l.name + '/' + l.spec), ['천막텐트/3mx6m', '몽골텐트-3M/3×3M']);
+console.log('엑셀 붙여넣기: 머리글 없는 4칸');
+eq('품목 · 규격 · 단가 · 비고', parsePaste('천막텐트\t3m×6m\t30000\t기사 포함').rows.map((r) => [r.cat, r.name, r.spec, r.price, r.memo]), [['', '천막텐트', '3m×6m', 30000, '기사 포함']]);
+eq('품목 · 규격 · 단가 · 일수', parsePaste('천막텐트\t3m×6m\t30000\t2').rows.map((r) => [r.cat, r.name, r.spec, r.price, r.days]), [['', '천막텐트', '3m×6m', 30000, 2]]);
+eq('분류 · 품목 · 규격 · 단가 (그대로)', parsePaste('천막\t천막텐트\t3m×6m\t30000').rows.map((r) => [r.cat, r.name, r.spec, r.price]), [['천막', '천막텐트', '3m×6m', 30000]]);
 
 console.log(`\n결과: 통과 ${pass} / 실패 ${fail}`);
 if (fail) process.exit(1);

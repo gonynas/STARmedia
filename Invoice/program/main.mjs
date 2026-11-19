@@ -102,12 +102,19 @@ function changed() {
   paintStatus('busy');
   syncSoon();   // 구글 드라이브를 연결했으면 몇 초 뒤 맞추기
 }
+/** 저장할 자료: 아직 아무것도 넣지 않은 새 문서(pending)는 빼고 */
+function savable(d) { return d && d.docs && d.docs.some((x) => x.pending) ? { ...d, docs: d.docs.filter((x) => !x.pending) } : d; }
+/** 다른 화면으로 가면 아무것도 안 넣은 새 문서는 지운다 (지금 보고 있는 문서는 둔다) */
+function dropPendingDocs() {
+  if (!S.data || !S.data.docs) return;
+  for (let i = S.data.docs.length - 1; i >= 0; i--) { const d = S.data.docs[i]; if (d.pending && !(S.route === 'doc' && d.id === S.docId)) S.data.docs.splice(i, 1); }
+}
 async function saveNow() {
   clearTimeout(S.timer);
   if (!S.data) return;
   if (S.saving) { S.dirty = true; return; }
   S.saving = true; S.dirty = false;
-  try { await S.store.save(S.data); }
+  try { await S.store.save(savable(S.data)); }
   catch (e) { S.lastError = String(e && e.message || e); logProblem('저장 실패', e); }
   S.saving = false;
   paintStatus();
@@ -116,6 +123,7 @@ async function saveNow() {
 
 /** 문서 작성 화면 「저장」 단추: 바로 저장하고 「저장됨 ○○:○○」을 보여 준다 (자동 저장은 그대로) */
 async function saveDocNow(btn) {
+  const cd = curDoc(); if (cd && cd.pending) { delete cd.pending; cd.updatedAt = new Date().toISOString(); }   // 「저장」을 누르면 빈 새 문서도 목록에 넣는다
   await saveNow();
   const ok = Object.values(S.store.status).every((x) => !x || x.ok);
   const t = hhmm(new Date().toISOString());
@@ -535,6 +543,7 @@ function render() {
   if (step === 'legacy') { root.innerHTML = setupScreen() + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; return; }
   if (step) { root.innerHTML = setupWizardHtml(step) + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; preloadGis(); document.title = '처음 설정 · 스타미디어 견적서 발행기'; return; }
   S.route = hashRoute(); S.hash = location.hash;
+  dropPendingDocs();
   const PAGES = { me: mePage, clients: clientsPage, items: itemsPage, list: listPage, doc: editorPage, event: eventListPage, event1: eventPage, equip: equipPage, money: moneyPage, cal: calendarPage, trash: trashPage, set: settingsPage, home: homePage };
   let body;
   try { body = (PAGES[S.route] || homePage)(); }
@@ -656,7 +665,7 @@ initItems({ S, $, esc, ic, uid, toast, openModal, changed, render: () => render(
 initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
-const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
+const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
 initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */

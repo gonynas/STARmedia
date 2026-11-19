@@ -2,31 +2,31 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwmxoxka';
-import { emptyData, load } from './core/datafile.mjs?v=mwmxoxka';
-import { ic } from './icons.mjs?v=mwmxoxka';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwmxoxka';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwmxoxka';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwmxoxka';
-import { processStamp } from './stamp.mjs?v=mwmxoxka';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwmxoxka';
-import { stampImg } from './docview.mjs?v=mwmxoxka';
-import { initExport, exportClick } from './export.mjs?v=mwmxoxka';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwmxoxka';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwmxoxka';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwmxoxka';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwmxoxka';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwmxoxka';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwmxoxka';
-import { logProblem } from './errors.mjs?v=mwmxoxka';
-import { initInputs } from './inputs.mjs?v=mwmxoxka';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwmxoxka';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwmxoxka';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwmxoxka';
-import { purgeTrash } from './core/reports.mjs?v=mwmxoxka';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwmznjx6';
+import { emptyData, load } from './core/datafile.mjs?v=mwmznjx6';
+import { ic } from './icons.mjs?v=mwmznjx6';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwmznjx6';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwmznjx6';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwmznjx6';
+import { processStamp } from './stamp.mjs?v=mwmznjx6';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwmznjx6';
+import { stampImg } from './docview.mjs?v=mwmznjx6';
+import { initExport, exportClick } from './export.mjs?v=mwmznjx6';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwmznjx6';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwmznjx6';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwmznjx6';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwmznjx6';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwmznjx6';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwmznjx6';
+import { logProblem } from './errors.mjs?v=mwmznjx6';
+import { initInputs } from './inputs.mjs?v=mwmznjx6';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwmznjx6';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwmznjx6';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwmznjx6';
+import { purgeTrash } from './core/reports.mjs?v=mwmznjx6';
 
-const APP_VERSION = '1.4.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwmxoxka';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.4.1';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwmznjx6';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
@@ -102,12 +102,19 @@ function changed() {
   paintStatus('busy');
   syncSoon();   // 구글 드라이브를 연결했으면 몇 초 뒤 맞추기
 }
+/** 저장할 자료: 아직 아무것도 넣지 않은 새 문서(pending)는 빼고 */
+function savable(d) { return d && d.docs && d.docs.some((x) => x.pending) ? { ...d, docs: d.docs.filter((x) => !x.pending) } : d; }
+/** 다른 화면으로 가면 아무것도 안 넣은 새 문서는 지운다 (지금 보고 있는 문서는 둔다) */
+function dropPendingDocs() {
+  if (!S.data || !S.data.docs) return;
+  for (let i = S.data.docs.length - 1; i >= 0; i--) { const d = S.data.docs[i]; if (d.pending && !(S.route === 'doc' && d.id === S.docId)) S.data.docs.splice(i, 1); }
+}
 async function saveNow() {
   clearTimeout(S.timer);
   if (!S.data) return;
   if (S.saving) { S.dirty = true; return; }
   S.saving = true; S.dirty = false;
-  try { await S.store.save(S.data); }
+  try { await S.store.save(savable(S.data)); }
   catch (e) { S.lastError = String(e && e.message || e); logProblem('저장 실패', e); }
   S.saving = false;
   paintStatus();
@@ -116,6 +123,7 @@ async function saveNow() {
 
 /** 문서 작성 화면 「저장」 단추: 바로 저장하고 「저장됨 ○○:○○」을 보여 준다 (자동 저장은 그대로) */
 async function saveDocNow(btn) {
+  const cd = curDoc(); if (cd && cd.pending) { delete cd.pending; cd.updatedAt = new Date().toISOString(); }   // 「저장」을 누르면 빈 새 문서도 목록에 넣는다
   await saveNow();
   const ok = Object.values(S.store.status).every((x) => !x || x.ok);
   const t = hhmm(new Date().toISOString());
@@ -535,6 +543,7 @@ function render() {
   if (step === 'legacy') { root.innerHTML = setupScreen() + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; return; }
   if (step) { root.innerHTML = setupWizardHtml(step) + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; preloadGis(); document.title = '처음 설정 · 스타미디어 견적서 발행기'; return; }
   S.route = hashRoute(); S.hash = location.hash;
+  dropPendingDocs();
   const PAGES = { me: mePage, clients: clientsPage, items: itemsPage, list: listPage, doc: editorPage, event: eventListPage, event1: eventPage, equip: equipPage, money: moneyPage, cal: calendarPage, trash: trashPage, set: settingsPage, home: homePage };
   let body;
   try { body = (PAGES[S.route] || homePage)(); }
@@ -656,7 +665,7 @@ initItems({ S, $, esc, ic, uid, toast, openModal, changed, render: () => render(
 initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
-const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
+const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
 initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */

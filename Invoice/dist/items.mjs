@@ -1,7 +1,7 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 화면 (1단계 둘째 묶음)
 // 규칙(분류 · 중복 · 세트 펼치기 · 엑셀 붙여넣기)은 core/catalog.mjs (node 시험 통과한 것)를 쓴다.
-import { categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwmxoxka';
-import { lineAmount } from './core/money.mjs?v=mwmxoxka';
+import { misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwmznjx6';
+import { lineAmount } from './core/money.mjs?v=mwmznjx6';
 
 let C = null;   // main.mjs 가 넘겨주는 도구 { S, $, esc, ic, uid, toast, openModal, changed, render }
 export function initItems(ctx) { C = ctx; }
@@ -64,6 +64,7 @@ export function itemsPage() {
     '<aside class="card catcard"><div class="card-h"><h2>' + ic('grid') + '분류</h2></div><div class="catlist" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
     '<section class="card itemcard"><div class="card-h"><h2>' + ic('layers') + '품목 목록</h2><span class="hint">' + S.data.items.length + '개</span>' +
     '<div class="tools">' + (S.data.items.length ? '<button class="btn" data-act="x-items-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn" data-act="item-paste">' + ic('table') + '엑셀에서 붙여넣기</button><button class="btn primary" data-act="item-add">' + ic('plus') + '품목 추가</button></div></div>' +
+    misHtml() +
     '<div class="searchrow"><input class="in" type="search" id="iq" placeholder="품목 · 규격 · 분류 · 비고로 찾기" value="' + esc(S.itemQuery) + '" aria-label="품목 찾기"></div>' +
     '<div class="iwrap" id="ilist">' + itemRowsHtml() + '</div>' +
     '<p class="note" style="margin:12px 0 0">' + C.ic('check') + '<span>여기 단가는 <b>기본값</b>이에요. 문서마다 단가 · 일수 · 수량을 따로 고칠 수 있어요.</span></p></section>' +
@@ -82,14 +83,36 @@ function repaint() {
 }
 
 /* ── 품목 추가 · 수정 ── */
+/** 칸이 밀린 것 같은 품목 안내 (분류에 품목 이름, 품목에 크기가 들어간 것) */
+function misHtml() {
+  const list = misplacedItems(C.S.data.items); if (!list.length) return '';
+  const ex = list[0];
+  return '<div class="mis-note">' + C.ic('alert') + '<span><b>칸이 밀린 것 같은 품목 ' + list.length + '개</b> — 예: 분류 「' + C.esc(ex.cat) + '」 · 품목 「' + C.esc(ex.name) + '」 · 규격 없음. 문서에는 <b>품목</b> 칸 = 「' + C.esc(ex.name) + '」, <b>규격</b> 칸 = 빈칸으로 들어가요.</span><button type="button" class="btn sm primary" data-act="item-fixmis">확인하고 바로잡기</button></div>';
+}
+function openFixMis() {
+  const { S, esc, openModal, toast, changed } = C;
+  const list = misplacedItems(S.data.items); if (!list.length) return;
+  openModal({
+    icon: 'layers', title: '칸이 밀린 품목 바로잡기', ok: '바로잡기', cancel: '그대로 두기',
+    body: '<p>아래 품목은 <b>분류</b> 칸에 품목 이름이, <b>품목</b> 칸에 크기 · 모양이 들어간 것 같아요. 체크한 품목을 <b>품목 ← 분류</b>, <b>규격 ← 품목</b>으로 옮겨요. (분류는 그대로, 세트 · 작성 중 문서의 그 품목 줄도 같이 고쳐요)</p>' +
+      '<div class="mis-list">' + list.map((it) => '<label class="pk-row"><input type="checkbox" data-mis="' + it.id + '" checked><span class="pk-nm"><b>' + esc(it.cat) + ' / ' + esc(it.name) + '</b><small>→ 품목 「' + esc(it.cat) + '」 · 규격 「' + esc(it.name) + '」</small></span></label>').join('') + '</div>',
+    onOk: () => {
+      const ids = [...document.querySelectorAll('[data-mis]:checked')].map((x) => x.dataset.mis);
+      if (!ids.length) return;
+      const r = fixMisplaced(S.data, ids);
+      changed(); C.render();
+      toast('품목 ' + r.items + '개를 바로잡았어요' + (r.sets ? ' · 세트 줄 ' + r.sets + '개' : '') + (r.lines ? ' · 작성 중 문서 줄 ' + r.lines + '개' : ''));
+    }
+  });
+}
 function itemForm(it) {
   const { S, esc } = C;
   const cats = categories(S.data.items).filter((c) => c.name !== NO_CAT).map((c) => '<option value="' + esc(c.name) + '">').join('');
   const f = (k, label, v, extra = '', cls = '') => '<label class="fld ' + cls + '"><span>' + label + '</span><input class="in" data-if="' + k + '" value="' + esc(v) + '"' + extra + '></label>';
   return '<div class="fgrid">' +
-    f('cat', '분류', it.cat || '', ' list="catOpts" placeholder="예: 천막"') + '<datalist id="catOpts">' + cats + '</datalist>' +
-    f('name', '품목 <em class="req">*</em>', it.name || '', ' placeholder="예: 몽골텐트"') +
-    f('spec', '규격', it.spec || '', ' placeholder="예: 5×5m"') +
+    f('cat', '분류 <small class="dim">(묶음 이름)</small>', it.cat || '', ' list="catOpts" placeholder="예: 천막"') + '<datalist id="catOpts">' + cats + '</datalist>' +
+    f('name', '품목 <em class="req">*</em> <small class="dim">(문서 「품목」 칸)</small>', it.name || '', ' placeholder="예: 천막텐트"') +
+    f('spec', '규격 <small class="dim">(문서 「규격」 칸)</small>', it.spec || '', ' placeholder="예: 3m×6m"') +
     f('price', '기본 단가 (원)', it.price != null ? won(it.price) : '', ' inputmode="numeric" placeholder="0" data-money') +
     f('days', '기본 일수', it.days != null ? it.days : 1, ' inputmode="decimal"') +
     f('memo', '비고', it.memo || '', ' placeholder="예: 기사 포함"') +
@@ -334,6 +357,7 @@ export function itemsClick(act, a) {
     case 'cat-rename': renameCat(); return true;
     case 'cat-del': deleteCat(); return true;
     case 'item-add': openItem(null); return true;
+    case 'item-fixmis': openFixMis(); return true;
     case 'item-edit': openItem(a.dataset.id); return true;
     case 'item-del': deleteItem(a.dataset.id); return true;
     case 'item-paste': openPaste(); return true;

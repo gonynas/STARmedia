@@ -1,11 +1,11 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwmxoxka';
-import { lineTax } from './core/money.mjs?v=mwmxoxka';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs?v=mwmxoxka';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwmxoxka';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwmxoxka';
-import { serialFor } from './core/docs.mjs?v=mwmxoxka';
+import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwmznjx6';
+import { lineTax } from './core/money.mjs?v=mwmznjx6';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs?v=mwmznjx6';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwmznjx6';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwmznjx6';
+import { serialFor } from './core/docs.mjs?v=mwmznjx6';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -17,9 +17,9 @@ const device = () => (matchMedia('(max-width:767px)').matches ? 'phone' : matchM
 const DEV_ICON = { pc: 'monitor', phone: 'phone', tablet: 'tablet' };
 
 export function curDoc() { return C.S.data && C.S.data.docs.find((d) => d.id === C.S.docId) || null; }
-function touch(doc) { doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); if (doc.status === 'done' || doc.status === 'sent') doc.editedAfter = true; C.changed(); }
+function touch(doc) { if (doc.pending) delete doc.pending; doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); if (doc.status === 'done' || doc.status === 'sent') doc.editedAfter = true; C.changed(); }
 /** 진행 상태 바꾸기 (드롭다운 · 「작성 완료」 단추 · 보내기) — 바꾸면 「수정됨」 표시는 지운다 */
-export function setDocStatus(doc, st) { doc.status = st; doc.editedAfter = false; if (st === 'sent') doc.sentAt = new Date().toISOString(); if (st === 'done') doc.doneAt = new Date().toISOString(); doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); C.changed(); document.querySelectorAll('select[data-d="status"]').forEach((s) => { s.value = st; s.className = 'in st-sel st-' + st; }); document.querySelectorAll('[data-act="doc-done"]').forEach((b) => { b.hidden = st !== 'draft'; }); }
+export function setDocStatus(doc, st) { if (doc.pending) delete doc.pending; doc.status = st; doc.editedAfter = false; if (st === 'sent') doc.sentAt = new Date().toISOString(); if (st === 'done') doc.doneAt = new Date().toISOString(); doc.updatedAt = new Date().toISOString(); doc.lastDevice = device(); C.changed(); document.querySelectorAll('select[data-d="status"]').forEach((s) => { s.value = st; s.className = 'in st-sel st-' + st; }); document.querySelectorAll('[data-act="doc-done"]').forEach((b) => { b.hidden = st !== 'draft'; }); }
 const phrasesAll = () => (C.S.data.settings.phrases && C.S.data.settings.phrases.length ? C.S.data.settings.phrases : DEFAULT_PHRASES);
 
 /* ── 새 문서 · 복사 · 지우기 ── */
@@ -27,7 +27,10 @@ export function createDoc(type = 'quote') {
   if (!READY_TYPES.includes(type)) { C.toast('영수증은 완납한 행사에서 만들어요. 행사 · 입금에서 「완납 영수증 만들기」를 눌러 주세요'); location.hash = '#event'; return; }
   const d = newDoc(type, C.S.data, { today: ymd(), device: device() });
   applyTypeDefaults(d, C.S.data);
-  C.S.data.docs.push(d); C.changed();
+  // 아직 저장하지 않은 새 문서(pending): 거래처 · 품목 등 무언가를 넣거나 「저장」을 누르면 그때 목록에 들어간다.
+  // 아무것도 안 넣고 다른 화면으로 가면 지워진다(main.mjs render · 저장할 때 pending 문서는 빼고 저장).
+  d.pending = true;
+  C.S.data.docs.push(d);
   C.S.edStep = 1;
   location.hash = '#doc/' + d.id;
 }

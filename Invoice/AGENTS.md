@@ -80,6 +80,7 @@ app/
 - **그리기**: 화면은 문자열 HTML을 만들어 `#root`에 통째로 넣는다(`render()`). 각 화면 파일은 `xxxPage()`가 HTML을 돌려주고, `xxxClick(act, a)` · `xxxInput(t)` · `xxxChange(t)`가 처리했으면 `true`를 돌려준다.
 - **누르기**: 버튼에 `data-act="이름"`을 달면 `main.mjs`가 화면 파일들에 차례로 넘긴다. 새 기능은 새 `data-act` 이름(파일별 접두어: `eq-`, `gear-`, `set-`, `trash-`, `cal-`, `money-` …)으로.
 - **공용 도구(ctx)**: `init(ctx)`로 받는다 — `S`(상태, `S.data`가 자료), `esc`, `ic`, `uid`, `toast`, `openModal`, `changed()`(바꿨으면 꼭 부름 → 0.7초 뒤 자동 저장), `render()`, `saveNow()`.
+- **새 문서**: `createDoc()`은 `pending: true` 로 만든다. 무언가 넣으면(`touch`) · 「저장」 · 상태 바꾸기 때 pending 을 지워 목록에 들어간다. pending 문서는 저장 · 드라이브에 올리지 않고(`savable`), 다른 화면으로 가면 지운다(`dropPendingDocs`).
 - **저장**: `changed()` → 이 기기(IndexedDB `starmedia-quote`) + 연결했으면 PC 폴더(`견적서발행기.json`, `견적서발행기_하루전.json`, `백업/`). 저장 위치마다 성공/실패를 따로 보여 준다.
 - **오류**: 화면 그리기 실패는 `render()`가 잡아 안내 화면 + 문제 기록. 저장 실패 · 파일 만들기 실패도 `logProblem()`으로 기록.
 
