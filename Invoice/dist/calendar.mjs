@@ -1,8 +1,8 @@
 // 화면: 행사 달력 (#cal) — 행사 날짜(시작~끝)를 달력에, 그날 나가는 장비 수와 부족 표시
 // 계산은 core/reports.mjs 의 monthGrid · undatedEvents · equipmentOn (node 시험 통과)
-import { monthGrid, undatedEvents, equipmentOn, isContracted, equipState } from './core/reports.mjs?v=mwmwhfll';
-import { eventDateText } from './core/events.mjs?v=mwmwhfll';
-import { ymd, dateKo } from './core/docs.mjs?v=mwmwhfll';
+import { monthGrid, undatedEvents, equipmentOn, isContracted, equipState } from './core/reports.mjs?v=mwmxoxka';
+import { eventDateText } from './core/events.mjs?v=mwmxoxka';
+import { ymd, dateKo } from './core/docs.mjs?v=mwmxoxka';
 
 let C;
 export function initCalendar(ctx) { C = ctx; }

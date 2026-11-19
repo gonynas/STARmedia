@@ -35,7 +35,7 @@ app/
 │  ├─ index.html       첫 페이지. 맨 위 <script>가 오류를 잡아 기록(문제 기록기)
 │  ├─ main.mjs         ★ 중심: 자료 불러오기 · 자동 저장 · 메뉴 · 주소(#home 등)별 화면 · 누르기/입력 나눠 주기
 │  │                   직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처
-│  ├─ editor.mjs       문서 작성(#doc/ID) · 발행 목록(#list)
+│  ├─ editor.mjs       문서 작성(#doc/ID) · 발행 목록(#list). 품목 줄 = 품목 · 규격 / 일수 · 수량 · 단가 · 비고, 품목 칸 실시간 찾기(showAc · pickAc, 규칙 core/catalog.mjs searchItems)
 │  ├─ docview.mjs      A4 문서 그리기(미리보기 = 인쇄 = PDF 같은 그림)
 │  ├─ export.mjs       파일로 저장(PDF · 이미지 · 엑셀) · 보내기(카톡 · 메일)
 │  ├─ events.mjs       행사 · 입금(#event, #event/ID)

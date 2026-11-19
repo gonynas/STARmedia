@@ -1,11 +1,11 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwmwhfll';
-import { lineTax } from './core/money.mjs?v=mwmwhfll';
-import { toNum, filterItems, expandSet, categories, NO_CAT } from './core/catalog.mjs?v=mwmwhfll';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwmwhfll';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwmwhfll';
-import { serialFor } from './core/docs.mjs?v=mwmwhfll';
+import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwmxoxka';
+import { lineTax } from './core/money.mjs?v=mwmxoxka';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs?v=mwmxoxka';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwmxoxka';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwmxoxka';
+import { serialFor } from './core/docs.mjs?v=mwmxoxka';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -78,13 +78,13 @@ function lineCard(doc, l, i) {
     '<button type="button" class="grip" aria-label="' + (i + 1) + '번 줄 순서 바꾸기 (끌거나 위 · 아래 화살표)" title="꾹 눌러 끌어서 순서 바꾸기">' + ic('grip') + '</button>' +
     '<div class="line-main">' +
     '<div class="line-top"><span class="line-no">' + (i + 1) + '</span>' +
-    '<input class="in nm" data-lf="name" list="itemList" value="' + esc(l.name) + '" placeholder="품목 (등록한 품목은 골라 쓰기)" aria-label="품목">' +
-    '<input class="in sp" data-lf="spec" value="' + esc(l.spec) + '" placeholder="규격" aria-label="규격">' +
-    '<input class="in mm" data-lf="memo" value="' + esc(l.memo) + '" placeholder="비고" aria-label="비고"></div>' +
+    '<label class="lf nmf"><span>품목</span><input class="in nm" data-lf="name" value="' + esc(l.name) + '" placeholder="글자를 쓰면 등록한 품목이 나와요" autocomplete="off" aria-autocomplete="list"></label>' +
+    '<label class="lf spf"><span>규격</span><input class="in sp" data-lf="spec" value="' + esc(l.spec) + '" placeholder="예: 3m×6m" autocomplete="off"></label></div>' +
     '<div class="line-nums">' +
     '<label class="nb"><span>일수</span><input class="in num" data-lf="days" inputmode="decimal" value="' + numTxt(l.days) + '"></label><span class="op">×</span>' +
     '<label class="nb"><span>수량</span><input class="in num" data-lf="qty" inputmode="decimal" value="' + numTxt(l.qty) + '"></label><span class="op">×</span>' +
     '<label class="nb w"><span>단가</span><input class="in num" data-lf="price" inputmode="numeric" value="' + won(l.price) + '"></label>' +
+    '<label class="nb mmf"><span>비고</span><input class="in mm" data-lf="memo" value="' + esc(l.memo) + '" placeholder="필요할 때만" autocomplete="off"></label>' +
     '</div></div>' +
     '<div class="line-amt"><span>공급가액</span><b class="num">' + won(r.supply) + '</b><small>세액 <span class="num">' + won(r.tax) + '</span>' + (l.taxFree ? ' · 면세' : '') + '</small></div>' +
     '<button type="button" class="del" data-act="line-del" data-id="' + l.id + '" aria-label="' + (i + 1) + '번 줄 지우기">' + ic('x') + '</button>' +
@@ -161,7 +161,6 @@ export function editorPage() {
   const isBase = ev && baseDoc(ev, S.data.docs) && baseDoc(ev, S.data.docs).id === d.id;
   const statusOpts = Object.keys(DOC_STATUS).map((k) => '<option value="' + k + '"' + (k === d.status ? ' selected' : '') + '>' + DOC_STATUS[k] + '</option>').join('');
   const clientOpts = S.data.clients.map((c) => '<option value="' + esc(c.name) + '">').join('');
-  const itemOpts = S.data.items.map((it) => '<option value="' + esc(it.name + (it.spec ? ' · ' + it.spec : '')) + '">').join('');
   const phr = phrasesAll().map((p) => { const on = (d.notes.phrases || []).includes(p); return '<button type="button" class="pchip' + (on ? ' on' : '') + '" data-act="phrase" data-p="' + esc(p) + '" aria-pressed="' + on + '">' + ic(on ? 'check' : 'plus') + esc(p) + '</button>'; }).join('');
   const t = docTotals(d);
   const meMissing = !(S.data.me.name && S.data.me.bizNo);
@@ -206,7 +205,7 @@ export function editorPage() {
     '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn">2</span>품목</h2><div class="tools">' +
     '<button type="button" class="btn sm" data-act="pick-items">' + ic('list') + '목록에서 고르기</button><button type="button" class="btn sm" data-act="pick-set">' + ic('layers') + '세트 넣기</button><button type="button" class="btn sm" data-act="paste-lines">' + ic('table') + '엑셀 붙여넣기</button></div></div>' +
     '<p class="note">' + ic('grip') + '<span>왼쪽 손잡이를 꾹 누른 채 끌면 순서가 바뀌어요. 공급가액 = 일수 × 수량 × 단가</span></p>' +
-    '<div class="lines" id="lines">' + linesHtml(d) + '</div><datalist id="itemList">' + itemOpts + '</datalist>' +
+    '<div class="lines" id="lines">' + linesHtml(d) + '</div>' +
     '<button type="button" class="addline" data-act="line-add">' + ic('plus') + '품목 추가</button>' +
     '<div class="ed-sum" id="edSum">' + sumHtml(d) + '</div></section>' +
     '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn won">₩</span>부가세 · 선금 · 끝자리</h2></div>' +
@@ -441,13 +440,8 @@ export function editorInput(t) {
     const f = t.dataset.lf;
     if (f === 'name') {
       l.name = t.value;
-      const it = C.S.data.items.find((i) => (i.name + (i.spec ? ' · ' + i.spec : '')) === t.value);
-      if (it) {
-        Object.assign(l, { itemId: it.id, name: it.name, spec: it.spec || '', price: toNum(it.price) ?? 0, days: toNum(it.days) ?? 1, taxFree: !!it.taxFree, memo: it.memo || l.memo });
-        t.value = l.name;
-        el.querySelector('[data-lf="spec"]').value = l.spec; el.querySelector('[data-lf="price"]').value = won(l.price);
-        el.querySelector('[data-lf="days"]').value = numTxt(l.days); el.querySelector('[data-lf="memo"]').value = l.memo;
-      }
+      if (l.itemId) l.itemId = null;   // 글자를 고치면 등록한 품목과의 연결은 끊는다(목록에서 다시 고르면 다시 연결)
+      showAc(t);
     } else if (f === 'spec' || f === 'memo') l[f] = t.value;
     else l[f] = toNum(t.value) ?? 0;
     refreshLineAmt(el, d, l); refreshSum(); touch(d); pvSoon();
@@ -561,7 +555,57 @@ function reorderFromDom() {
   box.querySelectorAll('.line').forEach((el, i) => { el.querySelector('.line-no').textContent = i + 1; });
   touch(d); pvSoon();
 }
+/* ── 품목 칸 실시간 찾기: 글자를 쓰면 등록한 품목이 아래에 나오고, 누르거나 ↑↓ + Enter 로 고른다 ── */
+let acIdx = -1;
+function hideAc() { document.querySelectorAll('#lines .ac').forEach((b) => b.remove()); acIdx = -1; }
+function markHit(text, q) {
+  const s = String(text || ''), k = String(q || '').trim(), esc = C.esc;
+  const i = k ? s.toLowerCase().indexOf(k.toLowerCase()) : -1;
+  return i < 0 ? esc(s) : esc(s.slice(0, i)) + '<mark>' + esc(s.slice(i, i + k.length)) + '</mark>' + esc(s.slice(i + k.length));
+}
+function showAc(t) {
+  hideAc();
+  const wrap = t.closest('.lf'); if (!wrap || !t.value.trim()) return;
+  const list = searchItems(C.S.data.items, t.value);
+  const box = document.createElement('div'); box.className = 'ac'; box.setAttribute('role', 'listbox');
+  box.innerHTML = list.length
+    ? list.map((it) => '<button type="button" class="ac-item" role="option" tabindex="-1" data-ac="' + it.id + '"><span class="ac-nm"><b>' + markHit(it.name, t.value) + '</b>' + (it.spec ? '<small>' + markHit(it.spec, t.value) + '</small>' : '') + '</span><em class="num">' + won(it.price) + '원</em></button>').join('')
+    : '<div class="ac-empty">등록한 품목에 「' + C.esc(t.value.trim()) + '」이(가) 없어요. 그대로 쓰면 이 문서에만 들어가요.</div>';
+  wrap.appendChild(box);
+  acIdx = list.length ? 0 : -1; paintAc(box);
+}
+function paintAc(box) { box.querySelectorAll('.ac-item').forEach((b, i) => { b.classList.toggle('on', i === acIdx); if (i === acIdx) b.scrollIntoView({ block: 'nearest' }); }); }
+function pickAc(btn) {
+  const el = btn.closest('.line'), d = curDoc(); if (!el || !d) return;
+  const l = d.lines.find((x) => x.id === el.dataset.id), it = C.S.data.items.find((i) => i.id === btn.dataset.ac);
+  hideAc(); if (!l || !it) return;
+  Object.assign(l, { itemId: it.id, name: it.name, spec: it.spec || '', price: toNum(it.price) ?? 0, days: toNum(it.days) ?? 1, taxFree: !!it.taxFree, memo: it.memo || l.memo });
+  el.querySelector('[data-lf="name"]').value = l.name; el.querySelector('[data-lf="spec"]').value = l.spec;
+  el.querySelector('[data-lf="price"]').value = won(l.price); el.querySelector('[data-lf="days"]').value = numTxt(l.days);
+  el.querySelector('[data-lf="memo"]').value = l.memo || '';
+  refreshLineAmt(el, d, l); refreshSum(); touch(d); pvSoon();
+  const q = el.querySelector('[data-lf="qty"]'); if (q) { q.focus(); q.select(); }   // 고른 뒤 바로 수량을 쓸 수 있게
+}
+function bindAc() {
+  // 목록을 누를 때 품목 칸이 포커스를 잃지 않게(누르기 전에 목록이 닫히지 않도록)
+  document.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('#lines .ac')) e.preventDefault(); }, true);
+  document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#lines .ac-item'); if (b) { e.preventDefault(); pickAc(b); } });
+  document.addEventListener('focusin', (e) => { if (e.target.matches && e.target.matches('#lines input.nm') && e.target.value.trim()) showAc(e.target); });
+  document.addEventListener('focusout', (e) => { if (e.target.matches && e.target.matches('#lines input.nm')) setTimeout(() => { if (document.activeElement !== e.target) hideAc(); }, 200); });
+  document.addEventListener('keydown', (e) => {
+    if (!e.target.matches || !e.target.matches('#lines input.nm')) return;
+    const box = e.target.closest('.lf').querySelector('.ac'); if (!box) return;
+    if (e.isComposing || e.keyCode === 229) return;   // 한글을 조합하는 중의 Enter · 화살표는 글자 입력용
+    const items = box.querySelectorAll('.ac-item');
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); hideAc(); return; }
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); acIdx = (acIdx + 1) % items.length; paintAc(box); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); acIdx = (acIdx - 1 + items.length) % items.length; paintAc(box); }
+    else if (e.key === 'Enter' && acIdx >= 0) { e.preventDefault(); pickAc(items[acIdx]); }
+  });
+}
 function bindOnce() {
+  bindAc();
   document.addEventListener('pointerdown', (e) => {
     const g = e.target.closest && e.target.closest('#lines .grip'); if (!g) return;
     const line = g.closest('.line'), box = line.parentElement;

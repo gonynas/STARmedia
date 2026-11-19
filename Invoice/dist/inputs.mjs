@@ -3,7 +3,7 @@
 //  · 다 친 뒤(칸을 떠날 때): 10자리가 아니거나 국세청 검증 숫자가 안 맞으면 다시 확인하게 한다.
 //    내 정보: 확인 창(「지우고 다시 입력」 · 「이대로 둘게요」). 거래처 창 안: 창 아래 안내 글(창이 하나뿐이라).
 // 규칙은 core/lock.mjs 의 formatBizNo · bizNoState (node 시험 통과).
-import { formatBizNo, bizNoState } from './core/lock.mjs?v=mwmwhfll';
+import { formatBizNo, bizNoState } from './core/lock.mjs?v=mwmxoxka';
 
 let C;
 const isBiz = (t) => t && t.tagName === 'INPUT' && (t.dataset.me === 'bizNo' || t.dataset.cf === 'bizNo');

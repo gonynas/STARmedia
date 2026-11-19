@@ -1,5 +1,5 @@
 // 품목 · 세트 규칙 시험 (실행: npm test · 빌드할 때도 먼저 실행된다)
-import { categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
+import { searchItems, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
 
 let pass = 0, fail = 0;
 function eq(name, got, want) {
@@ -50,6 +50,15 @@ eq('머리글 없는 3칸 = 품목 · 규격 · 단가', p3.rows.map((r) => [r.n
 eq('합계 줄 · 숫자만 있는 줄은 건너뜀', p3.skipped, 2);
 eq('4칸 이상 = 분류 · 품목 · 규격 · 단가 · 일수', parsePaste('냉난방\t난로\t등유식\t50000\t0.5').rows[0].days, 0.5);
 eq('빈 글자는 0줄', parsePaste('  \n ').rows.length, 0);
+
+console.log('품목 칸 실시간 찾기');
+const sx = [...mk(), { id: 'i5', cat: '천막', name: '천막텐트', spec: '3×6m', price: 120000, days: 1 }];
+eq('「텐」 → 몽골텐트 두 개 · 천막텐트', searchItems(sx, '텐').map((i) => i.id), ['i2', 'i1', 'i5']);
+eq('「천막」 → 이름이 천막으로 시작하는 것 먼저, 그다음 분류가 천막인 것', searchItems(sx, '천막').map((i) => i.id), ['i5', 'i2', 'i1']);
+eq('띄어쓰기 · 대소문자 무시, 규격으로도 찾음', searchItems(sx, '5 ×5M').map((i) => i.id), ['i1']);
+eq('빈 글자는 목록 없음', searchItems(sx, '  ').length, 0);
+eq('없는 글자는 목록 없음', searchItems(sx, '발전차').length, 0);
+eq('최대 개수', searchItems(sx, '텐', 2).length, 2);
 
 console.log(`\n결과: 통과 ${pass} / 실패 ${fail}`);
 if (fail) process.exit(1);

@@ -34,6 +34,16 @@ export function filterItems(items, { cat = '', q = '' } = {}) {
 }
 
 /** 같은 품목(이름 + 규격, 띄어쓰기 · 대소문자 무시)이 이미 있으면 그 품목 */
+/** 품목 칸에 쓴 글자로 등록한 품목 찾기(실시간 목록): 이름 · 규격 · 분류에 그 글자가 들어 있으면 나온다(띄어쓰기 · 대소문자 무시).
+ *  이름이 그 글자로 시작하는 것 → 이름에 들어 있는 것 → 규격 · 분류에만 있는 것 순, 같은 순위는 이름 · 규격 가나다순. 예: 「텐」 → 몽골텐트, 천막텐트 */
+export function searchItems(items, q, limit = 8) {
+  const n = (s) => String(s == null ? '' : s).toLowerCase().replace(/\s+/g, '');
+  const k = n(q); if (!k) return [];
+  const rank = (it) => (n(it.name).startsWith(k) ? 0 : n(it.name).includes(k) ? 1 : 2);
+  return items.filter((it) => n(it.name).includes(k) || n(it.spec).includes(k) || n(it.cat).includes(k))
+    .sort((a, b) => rank(a) - rank(b) || String(a.name || '').localeCompare(String(b.name || ''), 'ko') || String(a.spec || '').localeCompare(String(b.spec || ''), 'ko'))
+    .slice(0, limit);
+}
 export function findDuplicate(items, { name, spec }, exceptId = null) {
   return items.find((it) => it.id !== exceptId && squash(it.name) === squash(name) && squash(it.spec) === squash(spec)) || null;
 }

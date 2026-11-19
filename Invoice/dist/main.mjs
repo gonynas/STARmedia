@@ -2,31 +2,31 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwmwhfll';
-import { emptyData, load } from './core/datafile.mjs?v=mwmwhfll';
-import { ic } from './icons.mjs?v=mwmwhfll';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwmwhfll';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwmwhfll';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwmwhfll';
-import { processStamp } from './stamp.mjs?v=mwmwhfll';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwmwhfll';
-import { stampImg } from './docview.mjs?v=mwmwhfll';
-import { initExport, exportClick } from './export.mjs?v=mwmwhfll';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwmwhfll';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwmwhfll';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwmwhfll';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwmwhfll';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwmwhfll';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwmwhfll';
-import { logProblem } from './errors.mjs?v=mwmwhfll';
-import { initInputs } from './inputs.mjs?v=mwmwhfll';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwmwhfll';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwmwhfll';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwmwhfll';
-import { purgeTrash } from './core/reports.mjs?v=mwmwhfll';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwmxoxka';
+import { emptyData, load } from './core/datafile.mjs?v=mwmxoxka';
+import { ic } from './icons.mjs?v=mwmxoxka';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwmxoxka';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwmxoxka';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwmxoxka';
+import { processStamp } from './stamp.mjs?v=mwmxoxka';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwmxoxka';
+import { stampImg } from './docview.mjs?v=mwmxoxka';
+import { initExport, exportClick } from './export.mjs?v=mwmxoxka';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwmxoxka';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwmxoxka';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwmxoxka';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwmxoxka';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwmxoxka';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwmxoxka';
+import { logProblem } from './errors.mjs?v=mwmxoxka';
+import { initInputs } from './inputs.mjs?v=mwmxoxka';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwmxoxka';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwmxoxka';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwmxoxka';
+import { purgeTrash } from './core/reports.mjs?v=mwmxoxka';
 
-const APP_VERSION = '1.3.1';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwmwhfll';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.4.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwmxoxka';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
