@@ -317,11 +317,11 @@ function openPickItems() {
   const picked = new Set();
   let cat = '', q = '';
   const listHtml = () => {
-    const list = filterItems(S.data.items, { cat, q });
+    const list = filterItems(S.data.items, { cat, q, order: S.data.settings.catOrder || [] });
     if (!list.length) return '<div class="empty">맞는 품목이 없어요.</div>';
     return list.map((it) => '<label class="pk-row"><input type="checkbox" data-pk="' + it.id + '"' + (picked.has(it.id) ? ' checked' : '') + '><span class="pk-nm"><b>' + esc(it.name) + '</b>' + (it.spec ? ' <small>' + esc(it.spec) + '</small>' : '') + '<em>' + esc((it.cat || '').trim() || NO_CAT) + '</em></span><span class="pk-pr num">' + won(it.price) + '원</span></label>').join('');
   };
-  const cats = categories(S.data.items);
+  const cats = categories(S.data.items, S.data.settings.catOrder || []);
   C.openModal({
     icon: 'list', title: '품목 목록에서 고르기', wide: true,
     body: '<div class="pk-top"><input class="in" type="search" id="pkQ" placeholder="품목 · 규격 · 분류로 찾기" aria-label="품목 찾기">' +

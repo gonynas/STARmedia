@@ -1,7 +1,7 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 규칙 (1단계)
 // 화면과 상관없는 순수 규칙만 둔다. 품목: { id, cat, name, spec, price, days, taxFree, memo, createdAt, updatedAt }
 // 세트: { id, name, memo, lines:[{ itemId, qty, days, name, spec, price, taxFree }] (name · spec · price 는 지운 품목 대비 사본) }
-import { lineAmount } from './money.mjs?v=mwn5py8q';
+import { lineAmount } from './money.mjs?v=mwnja3le';
 
 export const NO_CAT = '분류 없음';
 const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase();
@@ -14,22 +14,35 @@ export function toNum(v) {
   return Number(s);
 }
 
-/** 분류 목록과 품목 수. 이름순, 「분류 없음」은 맨 끝 */
-export function categories(items) {
-  const m = new Map();
+/** 분류 순서 정하기: 사용자가 정한 순서(order = settings.catOrder, 분류 이름 목록)대로, 거기 없는 분류는 그 뒤에 가나다순, 「분류 없음」은 맨 끝 */
+export function catRank(order) {
+  const m = new Map((Array.isArray(order) ? order : []).map((n, i) => [n, i]));
+  return (name) => (name === NO_CAT ? 1e9 : m.has(name) ? m.get(name) : 1e6);
+}
+/** 분류 목록과 품목 수. 정한 순서(order) → 나머지 가나다순, 「분류 없음」은 맨 끝 */
+export function categories(items, order = []) {
+  const m = new Map(), r = catRank(order);
   for (const it of items) { const c = (it.cat || '').trim() || NO_CAT; m.set(c, (m.get(c) || 0) + 1); }
   return [...m.entries()].map(([name, count]) => ({ name, count }))
-    .sort((a, b) => (a.name === NO_CAT) - (b.name === NO_CAT) || a.name.localeCompare(b.name, 'ko'));
+    .sort((a, b) => r(a.name) - r(b.name) || a.name.localeCompare(b.name, 'ko'));
+}
+/** 분류 이름을 바꾸거나 지울 때 정한 순서도 같이 고친다 (to 가 없으면 지움, 이미 있는 이름이면 합침) */
+export function renameInOrder(order, from, to) {
+  if (!Array.isArray(order)) return order;
+  const i = order.indexOf(from); if (i < 0) return order;
+  const out = order.slice();
+  if (!to || out.includes(to)) out.splice(i, 1); else out[i] = to;
+  return out;
 }
 
 /** 분류 · 검색어로 거르기 (검색: 분류 · 품목 · 규격 · 비고). 분류 → 품목 → 규격 순 정렬 */
-export function filterItems(items, { cat = '', q = '' } = {}) {
-  const k = squash(q);
+export function filterItems(items, { cat = '', q = '', order = [] } = {}) {
+  const k = squash(q), r = catRank(order), cn = (it) => (it.cat || '').trim() || NO_CAT;
   return items.filter((it) => {
-    const c = (it.cat || '').trim() || NO_CAT;
+    const c = cn(it);
     if (cat && c !== cat) return false;
     return !k || squash([it.cat, it.name, it.spec, it.memo].join(' ')).includes(k);
-  }).sort((a, b) => ((a.cat || '').trim() || '힣').localeCompare((b.cat || '').trim() || '힣', 'ko') ||
+  }).sort((a, b) => r(cn(a)) - r(cn(b)) || ((a.cat || '').trim() || '힣').localeCompare((b.cat || '').trim() || '힣', 'ko') ||
     a.name.localeCompare(b.name, 'ko') || String(a.spec || '').localeCompare(String(b.spec || ''), 'ko'));
 }
 

@@ -1,5 +1,5 @@
 // 품목 · 세트 규칙 시험 (실행: npm test · 빌드할 때도 먼저 실행된다)
-import { searchItems, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
+import { renameInOrder, searchItems, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
 
 let pass = 0, fail = 0;
 function eq(name, got, want) {
@@ -60,6 +60,12 @@ eq('빈 글자는 목록 없음', searchItems(sx, '  ').length, 0);
 eq('없는 글자는 목록 없음', searchItems(sx, '발전차').length, 0);
 eq('최대 개수', searchItems(sx, '텐', 2).length, 2);
 
+console.log('분류 순서 (사용자가 정함)');
+const co = [...mk(), { id: 'i6', cat: '음향', name: '음향세트', spec: '기본', price: 1500000, days: 1 }];
+eq('정한 순서 없으면 가나다순 · 분류 없음 맨 끝', categories(co).map((c) => c.name), ['음향', '천막', '테이블 · 의자', NO_CAT]);
+eq('정한 순서대로, 순서에 없는 분류는 그 뒤 가나다순', categories(co, ['테이블 · 의자', '천막']).map((c) => c.name), ['테이블 · 의자', '천막', '음향', NO_CAT]);
+eq('품목 목록도 분류 순서대로', filterItems(co, { order: ['테이블 · 의자', '음향'] }).map((i) => i.id), ['i3', 'i6', 'i2', 'i1', 'i4']);
+eq('분류 이름 바꾸기 · 합치기 · 지우기 때 순서도', [renameInOrder(['a', 'b', 'c'], 'b', 'x'), renameInOrder(['a', 'b', 'c'], 'b', 'c'), renameInOrder(['a', 'b'], 'a', ''), renameInOrder(undefined, 'a', 'b')], [['a', 'x', 'c'], ['a', 'c'], ['b'], undefined]);
 console.log('칸이 밀린 품목 바로잡기');
 const mis = () => ({
   items: [

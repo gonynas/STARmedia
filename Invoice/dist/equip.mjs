@@ -3,10 +3,10 @@
 // 행사에 넣은 장비: event.gear = [{ equipId, qty }], 반출 event.out · 반납 event.back, 부족 사유 event.gearNote
 // 3차 시안 요구: 수정 · 삭제 버튼, 체크해서 여러 개 한꺼번에 삭제, − + 로 바꾼 총 수량은 「변경 저장」을 눌러야 반영, 할 때마다 확인 창.
 // 부족은 숨기지 않고 「N개 부족」으로 보여 준다. 계산은 core/reports.mjs (node 시험 통과).
-import { equipmentOn, equipState, gearShortage, gearRange, usageOn } from './core/reports.mjs?v=mwn5py8q';
-import { toNum } from './core/catalog.mjs?v=mwn5py8q';
-import { ymd, dateKo, dateShort } from './core/docs.mjs?v=mwn5py8q';
-import { won } from './docview.mjs?v=mwn5py8q';
+import { equipmentOn, equipState, gearShortage, gearRange, usageOn } from './core/reports.mjs?v=mwnja3le';
+import { toNum } from './core/catalog.mjs?v=mwnja3le';
+import { ymd, dateKo, dateShort } from './core/docs.mjs?v=mwnja3le';
+import { won } from './docview.mjs?v=mwnja3le';
 
 let C;
 export function initEquip(ctx) { C = ctx; }

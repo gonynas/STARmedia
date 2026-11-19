@@ -4,8 +4,8 @@
 //                                       예전 이름(01_스타미디어 견적서) 폴더가 있으면 새 이름으로 바꿔서 그대로 쓴다
 //     견적서발행기.json                  (자료 한 파일: PC · 휴대폰이 같이 씀)
 //     백업/견적서발행기_YYYY-MM-DD.json   (하루 한 번, 최근 10개)
-import { wrap, load } from './datafile.mjs?v=mwn5py8q';
-import { mergeData, sameData } from './sync.mjs?v=mwn5py8q';
+import { wrap, load } from './datafile.mjs?v=mwnja3le';
+import { mergeData, sameData } from './sync.mjs?v=mwnja3le';
 
 export const FOLDER_NAME = '01_견적서 발행기';
 export const OLD_FOLDER_NAMES = ['01_스타미디어 견적서'];   // v1.2.x 에서 쓰던 이름

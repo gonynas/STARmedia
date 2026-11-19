@@ -98,7 +98,7 @@ docs      [{ id, type('quote'|'stmt'|'inv'|'rcpt'), serial, version, showNo, dat
              agreed, deposit{on,amount}, notes{...}, fillRows, eventId, tradeDate, copies, dueDate, paidDate, payMethod, device, createdAt, updatedAt }]
 payments  [{ id, eventId, date, amount(환불은 음수), method, memo, cancelled, createdAt }]
 trash     [{ kind('doc'|'client'|'item'|'set'|'equip'), item, deletedAt, gearOf? }]   30일 뒤 자동으로 비움
-settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)
+settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], catOrder[](분류 순서, 없으면 가나다순), lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)
 ```
 날짜는 모두 `YYYY-MM-DD` 글자, 시각은 ISO 문자열. 금액은 원 단위 정수.
 

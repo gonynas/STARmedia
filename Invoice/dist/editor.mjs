@@ -1,11 +1,11 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwn5py8q';
-import { lineTax } from './core/money.mjs?v=mwn5py8q';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs?v=mwn5py8q';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwn5py8q';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwn5py8q';
-import { serialFor } from './core/docs.mjs?v=mwn5py8q';
+import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwnja3le';
+import { lineTax } from './core/money.mjs?v=mwnja3le';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs?v=mwnja3le';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwnja3le';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwnja3le';
+import { serialFor } from './core/docs.mjs?v=mwnja3le';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -317,11 +317,11 @@ function openPickItems() {
   const picked = new Set();
   let cat = '', q = '';
   const listHtml = () => {
-    const list = filterItems(S.data.items, { cat, q });
+    const list = filterItems(S.data.items, { cat, q, order: S.data.settings.catOrder || [] });
     if (!list.length) return '<div class="empty">맞는 품목이 없어요.</div>';
     return list.map((it) => '<label class="pk-row"><input type="checkbox" data-pk="' + it.id + '"' + (picked.has(it.id) ? ' checked' : '') + '><span class="pk-nm"><b>' + esc(it.name) + '</b>' + (it.spec ? ' <small>' + esc(it.spec) + '</small>' : '') + '<em>' + esc((it.cat || '').trim() || NO_CAT) + '</em></span><span class="pk-pr num">' + won(it.price) + '원</span></label>').join('');
   };
-  const cats = categories(S.data.items);
+  const cats = categories(S.data.items, S.data.settings.catOrder || []);
   C.openModal({
     icon: 'list', title: '품목 목록에서 고르기', wide: true,
     body: '<div class="pk-top"><input class="in" type="search" id="pkQ" placeholder="품목 · 규격 · 분류로 찾기" aria-label="품목 찾기">' +

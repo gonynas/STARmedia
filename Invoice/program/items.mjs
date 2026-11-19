@@ -1,23 +1,32 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 화면 (1단계 둘째 묶음)
 // 규칙(분류 · 중복 · 세트 펼치기 · 엑셀 붙여넣기)은 core/catalog.mjs (node 시험 통과한 것)를 쓴다.
-import { misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs';
+import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs';
 import { lineAmount } from './core/money.mjs';
 
 let C = null;   // main.mjs 가 넘겨주는 도구 { S, $, esc, ic, uid, toast, openModal, changed, render }
-export function initItems(ctx) { C = ctx; }
+export function initItems(ctx) { C = ctx; bindCatSort(); }
+const catOrder = () => (C.S.data.settings.catOrder || []);
 
 const won = (n) => (Math.round(Number(n) || 0)).toLocaleString('ko-KR');
 const dayTxt = (d) => (d === 1 ? '1일' : String(d).replace(/\.0+$/, '') + '일');
 
 /* ── 화면 ── */
 function catListHtml() {
-  const { S, esc } = C;
-  const cats = categories(S.data.items);
+  const { S, esc, ic } = C;
+  const cats = categories(S.data.items, catOrder());
+  if (S.catSort) {
+    // 순서 바꾸기: 꾹 눌러(마우스는 눌러서) 끌기 · 손잡이는 바로 끌기 · 키보드 ↑↓
+    return '<div class="cat-sort" id="catSort" role="list">' + cats.filter((c) => c.name !== NO_CAT).map((c) =>
+      '<div class="csrow" role="listitem" tabindex="0" data-cat="' + esc(c.name) + '" aria-label="' + esc(c.name) + ' — 끌거나 위 · 아래 화살표로 순서 바꾸기"><span class="csgrip" aria-hidden="true">' + ic('grip') + '</span><span class="csname">' + esc(c.name) + '</span><em>' + c.count + '</em></div>').join('') +
+      (cats.some((c) => c.name === NO_CAT) ? '<div class="csrow fixed" aria-disabled="true"><span class="csname">' + NO_CAT + '</span><em>맨 끝 고정</em></div>' : '') + '</div>';
+  }
   const btn = (key, label, n) => '<button class="catb' + (S.itemCat === key ? ' on' : '') + '" data-act="cat-pick" data-cat="' + esc(key) + '"' + (S.itemCat === key ? ' aria-pressed="true"' : '') + '><span>' + esc(label) + '</span><em>' + n + '</em></button>';
   return btn('', '전체', S.data.items.length) + cats.map((c) => btn(c.name, c.name, c.count)).join('');
 }
 function catToolsHtml() {
   const { S, esc, ic } = C;
+  if (S.catSort) return '<p class="cat-help">분류를 <b>꾹 눌러</b>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <b>저장</b>을 누르세요. 품목 목록 · 문서의 품목 고르기도 이 순서로 보여요.</p>' +
+    '<div class="cat-tools cs-tools"><button class="btn primary" data-act="cat-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="cat-sort-cancel">취소</button></div>';
   if (!S.itemCat || S.itemCat === NO_CAT || !S.data.items.some((i) => (i.cat || '').trim() === S.itemCat)) {
     return '<p class="cat-help">분류는 품목을 넣을 때 「분류」 칸에 이름을 쓰면 저절로 생겨요.</p>';
   }
@@ -28,7 +37,7 @@ function catToolsHtml() {
 function itemRowsHtml() {
   const { S, esc, ic } = C;
   if (!S.data.items.length) return '<div class="empty">아직 등록한 품목이 없어요.<br><b>품목 추가</b>를 누르거나, 지금 쓰는 엑셀 견적서의 품목 칸을 복사해 <b>엑셀에서 붙여넣기</b>로 한 번에 넣어 보세요.</div>';
-  const list = filterItems(S.data.items, { cat: S.itemCat, q: S.itemQuery });
+  const list = filterItems(S.data.items, { cat: S.itemCat, q: S.itemQuery, order: catOrder() });
   if (!list.length) return '<div class="empty">' + (S.itemQuery ? '「' + esc(S.itemQuery) + '」에 맞는 품목이 없어요.' : '이 분류에는 품목이 없어요.') + '</div>';
   const rows = list.map((it) =>
     '<tr data-id="' + it.id + '">' +
@@ -61,7 +70,7 @@ function setCardsHtml() {
 export function itemsPage() {
   const { S, esc, ic } = C;
   return '<div class="itempage">' +
-    '<aside class="card catcard"><div class="card-h"><h2>' + ic('grid') + '분류</h2></div><div class="catlist" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
+    '<aside class="card catcard"><div class="card-h"><h2>' + ic('grid') + '분류</h2>' + (!S.catSort && categories(S.data.items).filter((c) => c.name !== NO_CAT).length > 1 ? '<button class="btn sm cs-open" data-act="cat-sort">' + ic('grip') + '순서 바꾸기</button>' : '') + '</div><div class="catlist" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
     '<section class="card itemcard"><div class="card-h"><h2>' + ic('layers') + '품목 목록</h2><span class="hint">' + S.data.items.length + '개</span>' +
     '<div class="tools">' + (S.data.items.length ? '<button class="btn" data-act="x-items-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn" data-act="item-paste">' + ic('table') + '엑셀에서 붙여넣기</button><button class="btn primary" data-act="item-add">' + ic('plus') + '품목 추가</button></div></div>' +
     misHtml() +
@@ -80,6 +89,50 @@ function repaint() {
   if (a) a.innerHTML = catListHtml();
   if (b) b.innerHTML = catToolsHtml();
   if (c) c.innerHTML = itemRowsHtml();
+}
+
+/* ── 분류 순서 끌기 (PC: 마우스로 눌러 끌기 · 휴대폰/태블릿: 꾹 눌러(0.35초) 끌기 · 손잡이는 바로) ── */
+function bindCatSort() {
+  let drag = null, timer = null, sx = 0, sy = 0;
+  const box = () => document.getElementById('catSort');
+  const moveTo = (y) => {
+    const b = box(); if (!b || !drag) return;
+    let before = b.querySelector('.csrow.fixed');
+    for (const s of b.querySelectorAll('.csrow[data-cat]')) { if (s === drag) continue; const r = s.getBoundingClientRect(); if (y < r.top + r.height / 2) { before = s; break; } }
+    if (drag.nextSibling !== before) b.insertBefore(drag, before);
+  };
+  const start = (row) => { drag = row; row.classList.add('dragging'); document.body.classList.add('cs-dragging'); if (navigator.vibrate) try { navigator.vibrate(12); } catch (e) { /* 무시 */ } };
+  const end = () => { clearTimeout(timer); timer = null; if (drag) { drag.classList.remove('dragging'); drag = null; } document.body.classList.remove('cs-dragging'); };
+  // 마우스
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    const row = e.target.closest && e.target.closest('#catSort .csrow[data-cat]'); if (!row) return;
+    e.preventDefault(); start(row);
+    const mv = (ev) => moveTo(ev.clientY);
+    const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); end(); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  });
+  // 손가락: 꾹 누르면 끌기 시작, 그 전에 움직이면(화면 넘기기) 취소
+  document.addEventListener('touchstart', (e) => {
+    const row = e.target.closest && e.target.closest('#catSort .csrow[data-cat]'); if (!row || e.touches.length > 1) return;
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+    if (e.target.closest('.csgrip')) { start(row); return; }
+    clearTimeout(timer); timer = setTimeout(() => start(row), 350);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (drag) { e.preventDefault(); moveTo(e.touches[0].clientY); return; }
+    if (timer && (Math.abs(e.touches[0].clientX - sx) > 8 || Math.abs(e.touches[0].clientY - sy) > 8)) { clearTimeout(timer); timer = null; }
+  }, { passive: false });
+  document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
+  document.addEventListener('contextmenu', (e) => { if (e.target.closest && e.target.closest('#catSort')) e.preventDefault(); });
+  // 키보드
+  document.addEventListener('keydown', (e) => {
+    const row = e.target.closest && e.target.closest('#catSort .csrow[data-cat]'); if (!row || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+    e.preventDefault(); const b = row.parentElement;
+    if (e.key === 'ArrowUp' && row.previousElementSibling) b.insertBefore(row, row.previousElementSibling);
+    else if (e.key === 'ArrowDown' && row.nextElementSibling && row.nextElementSibling.dataset.cat) b.insertBefore(row.nextElementSibling, row);
+    row.focus();
+  });
 }
 
 /* ── 품목 추가 · 수정 ── */
@@ -107,7 +160,7 @@ function openFixMis() {
 }
 function itemForm(it) {
   const { S, esc } = C;
-  const cats = categories(S.data.items).filter((c) => c.name !== NO_CAT).map((c) => '<option value="' + esc(c.name) + '">').join('');
+  const cats = categories(S.data.items, catOrder()).filter((c) => c.name !== NO_CAT).map((c) => '<option value="' + esc(c.name) + '">').join('');
   const f = (k, label, v, extra = '', cls = '') => '<label class="fld ' + cls + '"><span>' + label + '</span><input class="in" data-if="' + k + '" value="' + esc(v) + '"' + extra + '></label>';
   return '<div class="fgrid">' +
     f('cat', '분류 <small class="dim">(묶음 이름)</small>', it.cat || '', ' list="catOpts" placeholder="예: 천막"') + '<datalist id="catOpts">' + cats + '</datalist>' +
@@ -187,6 +240,7 @@ function renameCat() {
       if (!to) { const m = $('#cnMsg'); m.style.display = 'flex'; m.innerHTML = ic('alert') + '<span>이름을 넣어 주세요.</span>'; return false; }
       if (to === from) return;
       const n = renameCategory(S.data.items, from, to);
+      if (S.data.settings.catOrder) S.data.settings.catOrder = renameInOrder(S.data.settings.catOrder, from, to === NO_CAT ? '' : to);
       S.itemCat = to === NO_CAT ? NO_CAT : to; changed(); C.render();
       toast('품목 ' + n + '개의 분류를 「' + to + '」로 바꿨어요');
     }
@@ -256,8 +310,8 @@ function openPaste() {
 /* ── 세트 만들기 · 수정 ── */
 function itemOptions(selId) {
   const { S, esc } = C;
-  const groups = categories(S.data.items).map((c) => {
-    const its = filterItems(S.data.items, { cat: c.name });
+  const groups = categories(S.data.items, catOrder()).map((c) => {
+    const its = filterItems(S.data.items, { cat: c.name, order: catOrder() });
     return '<optgroup label="' + esc(c.name) + '">' + its.map((i) => '<option value="' + i.id + '"' + (i.id === selId ? ' selected' : '') + '>' + esc(i.name) + (i.spec ? ' · ' + esc(i.spec) : '') + ' (' + won(i.price) + '원)</option>').join('') + '</optgroup>';
   }).join('');
   return '<option value="">품목 고르기</option>' + groups;
@@ -358,6 +412,13 @@ export function itemsClick(act, a) {
     case 'cat-del': deleteCat(); return true;
     case 'item-add': openItem(null); return true;
     case 'item-fixmis': openFixMis(); return true;
+    case 'cat-sort': S.catSort = true; S.itemCat = ''; C.render(); return true;
+    case 'cat-sort-cancel': S.catSort = false; C.render(); return true;
+    case 'cat-sort-save': {
+      const order = [...document.querySelectorAll('#catSort .csrow[data-cat]')].map((r) => r.dataset.cat);
+      S.data.settings.catOrder = order; S.catSort = false; C.changed(); C.render();
+      C.toast('분류 순서를 저장했어요'); return true;
+    }
     case 'item-edit': openItem(a.dataset.id); return true;
     case 'item-del': deleteItem(a.dataset.id); return true;
     case 'item-paste': openPaste(); return true;
