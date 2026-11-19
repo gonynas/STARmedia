@@ -1,15 +1,15 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwmznjx6';
-import { toNum } from './core/catalog.mjs?v=mwmznjx6';
-import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwmznjx6';
-import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwmznjx6';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwmznjx6';
-import { wrap } from './core/datafile.mjs?v=mwmznjx6';
-import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwmznjx6';
-import { openInstall, isStandalone } from './install.mjs?v=mwmznjx6';
-import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwmznjx6';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwn5py8q';
+import { toNum } from './core/catalog.mjs?v=mwn5py8q';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwn5py8q';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwn5py8q';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwn5py8q';
+import { wrap } from './core/datafile.mjs?v=mwn5py8q';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwn5py8q';
+import { openInstall, isStandalone } from './install.mjs?v=mwn5py8q';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwn5py8q';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
