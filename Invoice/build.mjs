@@ -64,5 +64,10 @@ for (const f of readdirSync(join(sian, 'assets'))) copyFileSync(join(sian, 'asse
 mkdirSync(join(so, 'ux'), { recursive: true });
 for (const f of readdirSync(join(sian, 'ux'))) copyFileSync(join(sian, 'ux', f), join(so, 'ux', f));
 writeFileSync(join(so, 'ux', 'index.html'), readFileSync(join(sian, 'ux', 'index.html'), 'utf8').replace('href="ux.css"', `href="ux.css?v=${v}"`).replace('src="ux.js"', `src="ux.js?v=${v}"`));
+// 메뉴 분류 · 앱 아이콘 시안 (v1.6.2 후보, 2026-11-20): sian/nav/ (+ icons/) → dist/sian/nav/
+mkdirSync(join(so, 'nav', 'icons'), { recursive: true });
+for (const f of readdirSync(join(sian, 'nav'))) if (f !== 'icons') copyFileSync(join(sian, 'nav', f), join(so, 'nav', f));
+for (const f of readdirSync(join(sian, 'nav', 'icons'))) copyFileSync(join(sian, 'nav', 'icons', f), join(so, 'nav', 'icons', f));
+writeFileSync(join(so, 'nav', 'index.html'), readFileSync(join(sian, 'nav', 'index.html'), 'utf8').replace('href="nav.css"', `href="nav.css?v=${v}"`).replace('src="nav.js"', `src="nav.js?v=${v}"`));
 
 console.log(`built dist/: 프로그램 v${pkg.version} (빌드 ${v}) · style.css ${css.length}자 · 시안은 dist/sian/`);

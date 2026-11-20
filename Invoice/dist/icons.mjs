@@ -40,6 +40,7 @@ var ICONS = {
   fileText: 'M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5 M9 13h6 M9 17h6',
   clipboard: 'M9 3h6v3H9z M7 5H5v16h14V5h-2 M9 12h6 M9 16h6',
   more: 'M5 12h.01 M12 12h.01 M19 12h.01',
+  flag: 'M5 21V4 M5 4h11l-2 4 2 4H5',
   info: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 11v6 M12 7.5h.01',
   edit: 'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z',
   sort: 'M8 4v16 M4 8l4-4 4 4 M16 20V4 M12 16l4 4 4-4',

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>메뉴 분류 · 앱 아이콘 시안 (v1.6.2 후보) · 스타미디어 견적서 발행기</title>
+<link rel="icon" href="icons/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<!-- 시안 고르기 막대: 프로그램이 아니라 시안을 비교하는 도구예요 -->
+<div class="pick" role="toolbar" aria-label="시안 고르기">
+  <div class="pick-g" aria-label="화면">
+    <button type="button" data-s="items" class="on">품목·세트</button>
+    <button type="button" data-s="list">발행 목록</button>
+    <button type="button" data-s="rule">메뉴 규칙</button>
+    <button type="button" data-s="icon">앱 아이콘</button>
+  </div>
+  <div class="pick-g" aria-label="보기">
+    <button type="button" data-view="new" class="on">새 규칙</button>
+    <button type="button" data-view="old">지금(v1.6.1)</button>
+  </div>
+  <div class="pick-g" aria-label="작은 항목 표시">
+    <button type="button" data-mk="tree" class="on">└ 줄</button>
+    <button type="button" data-mk="dot">· 점</button>
+  </div>
+</div>
+<div id="app"></div>
+<script src="nav.js"></script>
+</body>
+</html>

@@ -2013,3 +2013,46 @@ body.cs-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
   .set-ux .seg button{padding:0 6px;font-size:.86rem;line-height:1.25;white-space:normal}
 }
 .client-sort .csrow em{background:none;padding:0;font-weight:600}
+
+/* ══ v1.6.2 메뉴 분류 규칙: 대분류(상자) · 중분류(꺾쇠) · 소분류(한 글자 들여쓰기 + └) ══ */
+.uxsub2{display:grid;gap:12px;position:sticky;top:16px;align-self:start;min-width:0}
+.uxg{padding:6px 6px 8px!important}
+.uxg-h{display:flex;align-items:center;gap:10px;margin:0 0 6px;padding:10px 10px;font-size:1rem;font-weight:800;letter-spacing:-.01em;border-bottom:1px solid var(--line)}
+.uxg-i{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--primary-soft);color:var(--primary-ink);flex:none}
+.uxg-i .ic{width:16px;height:16px}
+.uxmid{display:flex;align-items:center;gap:8px;width:100%;min-height:42px;padding:0 10px 0 6px;border-radius:9px;font-weight:700;font-size:.97rem;color:var(--text);text-align:left}
+.uxmid:hover{background:var(--surface2)}
+.uxmid-c{display:grid;place-items:center;width:22px;height:22px;color:var(--muted);transition:transform .18s ease;flex:none}
+.uxmid-c .ic{width:16px;height:16px}
+.uxmid[aria-expanded="true"] .uxmid-c{transform:rotate(90deg)}
+.uxmid-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uxmid-n{font-style:normal;font-size:.8rem;font-weight:700;color:var(--sub);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:1.6}
+.uxmid.on{background:var(--primary-soft);color:var(--primary-ink)}
+.uxmid.on .uxmid-n{background:#fff;color:var(--primary-ink);border-color:#CFE0FB}
+.uxkids{display:grid;gap:1px;margin:2px 0 4px;padding-left:24px}   /* 소분류 글자가 중분류 글자보다 한 글자(약 16px) 안쪽 */
+.uxkids[hidden]{display:none}
+.uxkids-empty{margin:4px 6px 6px;color:var(--muted);font-size:.86rem}
+.uxleaf{display:flex;align-items:center;gap:6px;width:100%;min-height:38px;padding:0 10px 0 6px;border-radius:8px;font-size:.93rem;font-weight:500;color:var(--text);text-align:left}
+.uxleaf::before{content:"└";width:16px;flex:none;color:#B3BCCB;font-weight:400;text-align:center}
+.uxleaf-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uxleaf em{font-style:normal;font-size:.8rem;font-weight:600;color:var(--muted)}
+.uxleaf:hover{background:var(--surface2)}
+.uxleaf.on{background:var(--primary-soft);color:var(--primary-ink);font-weight:700}
+.uxleaf.on::before,.uxleaf.on em{color:var(--primary-ink)}
+.uxleaf .uxnav-go{display:none}
+.uxtoolrow{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;margin-top:6px;padding:8px 10px 2px;border-top:1px dashed var(--line);color:var(--primary-ink);font-weight:700;font-size:.9rem;text-align:left}
+.uxtoolrow .ic{width:16px;height:16px}
+.uxg .cat-sort{padding:4px 2px}
+.uxg #cattools .cat-tools,.uxg #cattools .cat-help{margin:8px 6px 2px}
+/* 기본 모양 품목 분류 칸 */
+.catcard.uxg .catlist.uxtree{display:block}
+@media (max-width:1100px){ .catcard.uxg .catlist.uxtree{display:block;overflow:visible} }
+@media (max-width:767px){
+  .ux-b.lvl1 .uxlist,.ux-b.lvl2 .uxsub2{display:none}
+  .uxsub2{position:static}
+  .uxmid{min-height:50px;font-size:1.02rem}
+  .uxleaf{min-height:46px;font-size:.98rem}
+  .ux-b .uxleaf .uxnav-go{display:grid;color:#B8C1CF}
+  .ux-b .uxleaf .uxnav-go .ic{width:16px;height:16px}
+}
+@media (prefers-reduced-motion:reduce){ .uxmid-c{transition:none} }

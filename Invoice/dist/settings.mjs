@@ -1,16 +1,16 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwoc7ot1';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml } from './ux.mjs?v=mwoc7ot1';
-import { toNum } from './core/catalog.mjs?v=mwoc7ot1';
-import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwoc7ot1';
-import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwoc7ot1';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwoc7ot1';
-import { wrap } from './core/datafile.mjs?v=mwoc7ot1';
-import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwoc7ot1';
-import { openInstall, isStandalone } from './install.mjs?v=mwoc7ot1';
-import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwoc7ot1';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwokxb4o';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwokxb4o';
+import { toNum } from './core/catalog.mjs?v=mwokxb4o';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwokxb4o';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwokxb4o';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwokxb4o';
+import { wrap } from './core/datafile.mjs?v=mwokxb4o';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwokxb4o';
+import { openInstall, isStandalone } from './install.mjs?v=mwokxb4o';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwokxb4o';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
@@ -118,7 +118,12 @@ export function settingsClick(act, a) {
   if (!/^(set-|bk-|prob-)/.test(act) || !C.S.data) return false;   // 다른 화면의 누르기는 건드리지 않는다
   const S = C.S, s = st();
   switch (act) {
-    case 'set-ux-g': S.setGroup = a.dataset.v; if (uxMode() === 'b') setLvl(2); C.render(); window.scrollTo(0, 0); return true;
+    case 'set-ux-g': {
+      S.setGroup = a.dataset.v; S.setSec = Number(a.dataset.sec || 0); if (uxMode() === 'b') setLvl(2); C.render();
+      const secs = [...document.querySelectorAll('.setpage section[data-sg="' + S.setGroup + '"]')];
+      if (S.setSec && secs[S.setSec]) secs[S.setSec].scrollIntoView({ block: 'start' }); else window.scrollTo(0, 0);
+      return true;
+    }
     case 'set-vat': s.vat = a.dataset.v; C.changed(); C.render(); C.toast('새 문서의 부가세 기본값을 바꿨어요'); return true;
     case 'set-autolock': s.autoLockMin = Number(a.dataset.v); C.changed(); C.render(); C.toast(Number(a.dataset.v) ? a.dataset.v + '분 동안 손대지 않으면 잠가요' : '자동 잠금을 껐어요'); return true;
     case 'set-lock-now': lockNow(); return true;
@@ -189,7 +194,8 @@ export function settingsChange(t) {
 }
 
 /* ── 설정 시안 A · B (v1.6.0 시험): 7개 영역을 4개 묶음으로 나눠 한 번에 하나만 ── */
-const SET_GROUPS = ['doc', 'screen', 'screen', 'save', 'save', 'info', 'info'];   // 영역 순서: 기본값 · 화면 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 정보
+const SET_GROUPS = ['doc', 'screen', 'screen', 'save', 'save', 'info', 'info'];
+const SET_SECS = { doc: ['문서 기본값'], screen: ['화면', '화면 잠금'], save: ['저장 위치', '백업 · 자료 파일'], info: ['문제 기록', '프로그램 정보'] };   // 영역 순서: 기본값 · 화면 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 정보
 function uxSettings(html) {
   const m = uxMode(); if (!m) return html;
   let i = 0; html = html.replace(/<section class="card/g, () => '<section data-sg="' + (SET_GROUPS[i++] || 'info') + '" class="card');
@@ -198,6 +204,10 @@ function uxSettings(html) {
   const groups = [['doc', '문서 기본값', vat + ' · ' + (s.validDays || 15) + '일'], ['screen', '화면 · 잠금', hasLock() ? (Number(s.autoLockMin) ? s.autoLockMin + '분 잠금' : '잠금 켬') : '잠금 없음'],
     ['save', '저장 · 백업', '자동 저장'], ['info', '문제 · 정보', probs.length ? '기록 ' + probs.length + '개' : 'v' + C.appInfo.version]];
   const nav = m === 'a' ? uxTabs(groups.map(([k, l]) => [k, l]), g, 'set-ux-g')
-    : '<aside class="card uxsub" aria-label="설정 하위 메뉴"><div class="uxnav-list">' + groups.map(([k, l, sm]) => uxNavBtn('data-act="set-ux-g" data-v="' + k + '"', !isPhone() && k === g, l, '<small>' + sm + '</small>')).join('') + '</div></aside>';
+    : '<aside class="uxsub2" aria-label="설정 하위 메뉴">' + uxGroup('sliders', '설정', groups.map(([k, l]) => {
+        const ph = isPhone(), on = !ph && k === g, secs = SET_SECS[k];
+        return uxMid('sg:' + k, l, '', on && secs.length < 2, on) +
+          uxKids('sg:' + k, (ph ? uxLeaf('data-act="set-ux-g" data-v="' + k + '"', false, '전체 보기', '') : '') + secs.map((nm, i) => uxLeaf('data-act="set-ux-g" data-v="' + k + '" data-sec="' + i + '"', on && (S.setSec || 0) === i && secs.length > 1, nm, '')).join(''), on);
+      }).join('')) + '</aside>';
   return '<div class="uxp ux-' + m + ' ux-set sg-' + g + ' lvl' + uxLvl() + '">' + nav + '<div class="uxsetbody">' + (m === 'b' ? uxBackHtml('설정 · 백업') : '') + html + '</div></div>';
 }

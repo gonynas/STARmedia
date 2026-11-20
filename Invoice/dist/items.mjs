@@ -1,8 +1,8 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 화면 (1단계 둘째 묶음)
 // 규칙(분류 · 중복 · 세트 펼치기 · 엑셀 붙여넣기)은 core/catalog.mjs (node 시험 통과한 것)를 쓴다.
-import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwoc7ot1';
-import { lineAmount } from './core/money.mjs?v=mwoc7ot1';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml } from './ux.mjs?v=mwoc7ot1';
+import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwokxb4o';
+import { lineAmount } from './core/money.mjs?v=mwokxb4o';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwokxb4o';
 
 let C = null;   // main.mjs 가 넘겨주는 도구 { S, $, esc, ic, uid, toast, openModal, changed, render }
 export function initItems(ctx) { C = ctx; bindCatSort(); }
@@ -27,12 +27,12 @@ function catListHtml() {
     return '<div class="uxchips" role="group" aria-label="분류">' + chip('', '전체', S.data.items.length) + cats.map((c) => chip(c.name, c.name, c.count)).join('') +
       (sortable ? '<button type="button" class="uxchip sort" data-act="cat-sort">' + ic('sort') + '순서</button>' : '') + '</div>';
   }
-  if (m === 'b') {   // 시안 B: 왼쪽 하위 메뉴 목록
-    const onItem = S.itemTab !== 'set' && !isPhone();
-    return '<div class="uxnav-list">' + uxNavBtn('data-act="cat-pick" data-cat=""', onItem && !S.itemCat, '전체 품목', '<em>' + S.data.items.length + '</em>') +
-      cats.map((c) => uxNavBtn('data-act="cat-pick" data-cat="' + esc(c.name) + '"', onItem && S.itemCat === c.name, esc(c.name), '<em>' + c.count + '</em>')).join('') +
-      '<hr>' + uxNavBtn('data-act="item-tab" data-v="set"', S.itemTab === 'set' && !isPhone(), '품목 세트', '<em>' + S.data.sets.length + '</em>') +
-      (sortable ? '<hr><button type="button" class="uxnav add" data-act="cat-sort">' + ic('sort') + '분류 순서 바꾸기</button>' : '') + '</div>';
+  {   // 시안 B · 기본: 「품목」 상자 안 — 중분류 「전체 품목」(처음 접힘) + 소분류(분류, 한 글자 들여쓰기 + └) + 도구 줄 (v1.6.2 메뉴 분류 규칙)
+    const ph = isPhone() && m === 'b', onItem = S.itemTab !== 'set' && !ph, forced = onItem && !!S.itemCat;
+    return uxMid('items', '전체 품목', S.data.items.length, onItem && !S.itemCat, forced) +
+      uxKids('items', (ph ? uxLeaf('data-act="cat-pick" data-cat=""', false, '전체 보기', '<em class="num">' + S.data.items.length + '</em>') : '') +
+        cats.map((c) => uxLeaf('data-act="cat-pick" data-cat="' + esc(c.name) + '"', onItem && S.itemCat === c.name, esc(c.name), '<em class="num">' + c.count + '</em>')).join(''), forced) +
+      (sortable ? '<button type="button" class="uxtoolrow" data-act="cat-sort">' + ic('sort') + '분류 순서 바꾸기</button>' : '');
   }
   const btn = (key, label, n) => '<button class="catb' + (S.itemCat === key ? ' on' : '') + '" data-act="cat-pick" data-cat="' + esc(key) + '"' + (S.itemCat === key ? ' aria-pressed="true"' : '') + '><span>' + esc(label) + '</span><em>' + n + '</em></button>';
   return btn('', '전체', S.data.items.length) + cats.map((c) => btn(c.name, c.name, c.count)).join('');
@@ -43,7 +43,7 @@ function catToolsHtml() {
     '<div class="cat-tools cs-tools"><button class="btn primary" data-act="cat-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="cat-sort-cancel">취소</button></div>';
   if (uxMode() && S.itemTab === 'set') return '';   // 시안 A · B: 세트를 볼 때는 분류 고치기 단추를 숨김
   if (!S.itemCat || S.itemCat === NO_CAT || !S.data.items.some((i) => (i.cat || '').trim() === S.itemCat)) {
-    if (uxMode()) return '';
+    if (uxMode() || S.data.items.length) return '';
     return '<p class="cat-help">분류는 품목을 넣을 때 「분류」 칸에 이름을 쓰면 저절로 생겨요.</p>';
   }
   return '<div class="cat-tools"><b>' + esc(S.itemCat) + '</b><button class="btn sm" data-act="cat-rename">' + ic('type') + '이름 바꾸기</button>' +
@@ -141,6 +141,13 @@ function setDetailHtml(s) {
     '<div class="uxacts"><button type="button" class="btn primary wide" data-act="set-edit" data-id="' + s.id + '">' + ic('edit') + '수정</button>' +
     '<button type="button" class="btn" data-act="set-copy" data-id="' + s.id + '">' + ic('copy') + '복사</button><button type="button" class="btn danger-o" data-act="set-del" data-id="' + s.id + '">' + ic('trash') + '삭제</button></div>';
 }
+/** 「세트」 상자: 중분류 「품목 세트」(처음 접힘) + 소분류(세트 이름) */
+function setNavHtml() {
+  const { S, esc } = C, ph = isPhone(), on = S.itemTab === 'set' && !ph;
+  return uxMid('sets', '품목 세트', S.data.sets.length, on && !S.setSel, on) +
+    uxKids('sets', (ph ? uxLeaf('data-act="item-tab" data-v="set"', false, '전체 보기', '<em class="num">' + S.data.sets.length + '</em>') : '') +
+      (S.data.sets.length ? S.data.sets.map((s) => uxLeaf('data-act="set-pick" data-id="' + s.id + '"', on && S.setSel === s.id, esc(s.name), '')).join('') : '<p class="uxkids-empty">아직 만든 세트가 없어요</p>'), on);
+}
 function uxItemsPage(m) {
   const { S, esc, ic } = C;
   const tab = S.itemTab === 'set' ? 'set' : 'item', nI = S.data.items.length, nS = S.data.sets.length;
@@ -158,7 +165,7 @@ function uxItemsPage(m) {
   }
   const title = tab === 'set' ? '품목 세트' : (S.itemCat || '전체 품목');
   return '<div class="uxp ux-b ux-items lvl' + uxLvl() + '">' +
-    '<aside class="card uxsub" aria-label="품목 하위 메뉴"><h3 class="uxsub-h">분류</h3><div id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
+    '<aside class="uxsub2" aria-label="품목 하위 메뉴">' + uxGroup('layers', '품목', '<div id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div>') + uxGroup('grid', '세트', setNavHtml()) + '</aside>' +
     '<section class="card uxlist">' + uxBackHtml('품목 · 세트') + '<div class="uxtool"><h2 class="uxlist-h">' + esc(title) + '</h2><div class="uxtools">' + tools + '</div></div>' +
     (tab === 'item' ? '<div class="uxtool">' + search + '</div>' : '') + body + '</section>' +
     '<aside class="card uxdet" aria-label="자세히">' + (tab === 'set' ? setDetailHtml(curSet()) : itemDetailHtml(curItem())) + '</aside>' + uxSheetHtml() + '</div>';
@@ -168,7 +175,7 @@ export function itemsPage() {
   const { S, esc, ic } = C;
   if (uxMode()) return uxItemsPage(uxMode());
   return '<div class="itempage">' +
-    '<aside class="card catcard"><div class="card-h"><h2>' + ic('grid') + '분류</h2>' + (!S.catSort && categories(S.data.items).filter((c) => c.name !== NO_CAT).length > 1 ? '<button class="btn sm cs-open" data-act="cat-sort">' + ic('grip') + '순서 바꾸기</button>' : '') + '</div><div class="catlist" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
+    '<aside class="card catcard uxg"><h3 class="uxg-h"><span class="uxg-i">' + ic('layers') + '</span>품목</h3><div class="catlist uxtree" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
     '<section class="card itemcard"><div class="card-h"><h2>' + ic('layers') + '품목 목록</h2><span class="hint">' + S.data.items.length + '개</span>' +
     '<div class="tools">' + (S.data.items.length ? '<button class="btn" data-act="x-items-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn" data-act="item-paste">' + ic('table') + '엑셀에서 붙여넣기</button><button class="btn primary" data-act="item-add">' + ic('plus') + '품목 추가</button></div></div>' +
     misHtml() +
@@ -508,7 +515,7 @@ export function itemsClick(act, a) {
     case 'cat-pick': S.itemCat = a.dataset.cat; if (uxMode()) { S.itemTab = 'item'; if (uxMode() === 'b') setLvl(2); C.render(); } else repaint(); return true;
     case 'item-tab': S.itemTab = a.dataset.v; S.catSort = false; if (uxMode() === 'b') setLvl(2); C.render(); return true;
     case 'item-pick': { S.itemSel = a.dataset.id; const it = S.data.items.find((i) => i.id === S.itemSel); if (isPhone() && it && openSheet(itemDetailHtml(it))) return true; C.render(); return true; }
-    case 'set-pick': { S.setSel = a.dataset.id; const st = S.data.sets.find((x) => x.id === S.setSel); if (isPhone() && st && openSheet(setDetailHtml(st))) return true; C.render(); return true; }
+    case 'set-pick': { S.setSel = a.dataset.id; if (!isPhone()) S.itemTab = 'set'; const st = S.data.sets.find((x) => x.id === S.setSel); if (isPhone() && st && openSheet(setDetailHtml(st))) return true; C.render(); return true; }
     case 'cat-rename': renameCat(); return true;
     case 'cat-del': deleteCat(); return true;
     case 'item-add': openItem(null); return true;

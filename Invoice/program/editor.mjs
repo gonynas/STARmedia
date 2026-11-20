@@ -6,7 +6,7 @@ import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByO
 import { renderPages, won, fileTitle } from './docview.mjs';
 import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs';
 import { serialFor } from './core/docs.mjs';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml } from './ux.mjs';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -710,8 +710,11 @@ function uxListPage(m) {
   const ph = isPhone();
   const title = [type ? DOC_TYPES[type].label : '전체 문서', st ? DOC_STATUS[st] : ''].filter(Boolean).join(' · ');
   return '<div class="uxp ux-b ux-list lvl' + uxLvl() + '">' +
-    '<aside class="card uxsub" aria-label="발행 목록 하위 메뉴"><h3 class="uxsub-h">문서 종류</h3><div class="uxnav-list">' + types.map(([k, l, n]) => uxNavBtn('data-act="list-type" data-v="' + k + '"', !ph && k === type, l, '<em>' + n + '</em>')).join('') + '</div>' +
-    '<h3 class="uxsub-h">상태</h3><div class="uxnav-list">' + uxNavBtn('data-act="list-status" data-v=""', !ph && !st, '모든 상태', '') + sts.map(([k, l, n]) => uxNavBtn('data-act="list-status" data-v="' + k + '"', !ph && st === k, l, '<em>' + n + '</em>')).join('') + '</div></aside>' +
+    '<aside class="uxsub2" aria-label="발행 목록 하위 메뉴">' +
+    uxGroup('fileText', '문서 종류', uxMid('types', '전체', types[0][2], !ph && !type, !ph && !!type) +
+      uxKids('types', (ph ? uxLeaf('data-act="list-type" data-v=""', false, '전체 보기', '<em class="num">' + types[0][2] + '</em>') : '') + types.slice(1).map(([k, l, n]) => uxLeaf('data-act="list-type" data-v="' + k + '"', !ph && k === type, l, '<em class="num">' + n + '</em>')).join(''), !ph && !!type)) +
+    uxGroup('flag', '상태', uxMid('sts', '모든 상태', types[0][2], !ph && !st, !ph && !!st) +
+      uxKids('sts', (ph ? uxLeaf('data-act="list-status" data-v=""', false, '전체 보기', '') : '') + sts.map(([k, l, n]) => uxLeaf('data-act="list-status" data-v="' + k + '"', !ph && st === k, l, '<em class="num">' + n + '</em>')).join(''), !ph && !!st)) + '</aside>' +
     '<section class="card uxlist">' + uxBackHtml('발행 목록') + '<div class="uxtool"><h2 class="uxlist-h">' + title + '</h2><div class="uxtools">' + tools + '</div></div><div class="uxtool">' + search + '</div>' + body + '</section>' +
     '<aside class="card uxdet" aria-label="자세히">' + docDetailHtml(list.find((d) => d.id === S.listSel) || list[0]) + '</aside>' + uxSheetHtml() + '</div>';
 }

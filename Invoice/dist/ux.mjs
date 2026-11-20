@@ -36,6 +36,35 @@ export function uxMore(label, items) {
   return '<div class="menu ux-more"><button type="button" class="icbtn" data-act="menu" aria-haspopup="menu" aria-label="' + C.esc(label) + ' 더보기">' + C.ic('more') + '</button><div class="menu-pop right" role="menu">' +
     items.map(([act, id, l, icon, danger]) => '<button type="button" role="menuitem" class="' + (danger ? 'danger-i' : '') + '" data-act="' + act + '" data-id="' + id + '">' + C.ic(icon) + l + '</button>').join('') + '</div></div>';
 }
+/* ── 메뉴 분류 규칙 (v1.6.2): 대분류 = 상자(선 아이콘 + 굵은 제목) · 중분류 = 꺾쇠 › / ⌄ + 굵게 + 개수 ·
+      소분류 = 한 글자 들여쓰기 + └ + 보통 굵기. 처음 펼침: 사용자가 늘리는 목록(분류 · 세트)은 접힘, 정해진 짧은 목록(문서 종류 · 상태 · 설정)은 펼침,
+      고른 항목이 든 묶음은 늘 펼침. 접힘 상태는 이 화면을 쓰는 동안만 기억(S.navOpen). 규칙 문서: D:\…\v1.6.2_메뉴 분류 · 앱 아이콘 시안 ── */
+const FOLD_DEF = { items: false, sets: false, types: true, sts: true, sg: true };
+export function isOpen(k, forced) {
+  if (forced) return true;
+  const o = C.S.navOpen || {};
+  return k in o ? o[k] : (FOLD_DEF[k.split(':')[0]] ?? true);
+}
+export function uxGroup(icon, title, inner) {
+  return '<section class="card uxg"><h3 class="uxg-h"><span class="uxg-i">' + C.ic(icon) + '</span>' + title + '</h3>' + inner + '</section>';
+}
+export function uxMid(k, label, count, on, forced) {
+  const op = isOpen(k, forced);
+  return '<button type="button" class="uxmid' + (on ? ' on' : '') + '" data-act="ux-fold" data-k="' + k + '" aria-expanded="' + op + '"><span class="uxmid-c">' + C.ic('right') + '</span><span class="uxmid-l">' + label + '</span>' +
+    (count !== undefined && count !== '' ? '<em class="uxmid-n num">' + count + '</em>' : '') + '</button>';
+}
+export function uxKids(k, inner, forced) { return '<div class="uxkids"' + (isOpen(k, forced) ? '' : ' hidden') + ' role="group">' + inner + '</div>'; }
+export function uxLeaf(attrs, on, label, right) {
+  return '<button type="button" class="uxleaf' + (on ? ' on' : '') + '" ' + attrs + '><span class="uxleaf-l">' + label + '</span>' + (right || '') + '<span class="uxnav-go">' + C.ic('right') + '</span></button>';
+}
+/** 중분류를 누르면 펼침/접힘 + (휴대폰 시안 B 가 아니면) 그 묶음 전체 보기 */
+const FOLD_SELECT = {
+  items: (S) => { S.itemTab = 'item'; S.itemCat = ''; },
+  sets: (S) => { S.itemTab = 'set'; },
+  types: (S) => { S.listType = ''; },
+  sts: (S) => { S.listStatus = ''; },
+  sg: (S, k) => { S.setGroup = k.split(':')[1]; S.setSec = 0; }
+};
 /** 휴대폰에서 아래에서 올라오는 「자세히」 창 */
 export function uxSheetHtml() { return '<div class="uxscrim" data-act="ux-sheet-close"></div><div class="uxsheet" id="uxSheet" role="dialog" aria-label="자세히"><div class="uxgrab"></div><div id="uxSheetBody"></div></div>'; }
 export function openSheet(html) {
@@ -59,6 +88,12 @@ export function uxClick(act, a) {
     case 'ux-tip': { const h = a.closest('.top'); if (h) h.classList.toggle('tip'); return true; }
     case 'ux-back': lvl = 1; C.render(); window.scrollTo(0, 0); return true;
     case 'ux-sheet-close': closeSheet(); return true;
+    case 'ux-fold': {
+      const k = a.dataset.k, o = C.S.navOpen || (C.S.navOpen = {});
+      o[k] = a.getAttribute('aria-expanded') !== 'true';
+      if (!(isPhone() && uxMode() === 'b')) { const f = FOLD_SELECT[k.split(':')[0]]; if (f) f(C.S, k); }
+      C.render(); return true;
+    }
   }
   return false;
 }

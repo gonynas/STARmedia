@@ -2,7 +2,7 @@
 // 저장 위치마다 따로 성공/실패를 기록한다(최종확정 v1.0 8절): '이 기기' · 'PC 폴더' (· 2단계 '구글 드라이브')
 // 백업: 최근 10개 + 하루 전 사본. 되돌리기 전에는 항상 지금 자료를 자동 백업(P07), 실패하면 원상복구.
 // 저장소는 '어댑터'로 갈아 끼운다: 시험은 메모리, 브라우저는 IndexedDB · PC 폴더(File System Access).
-import { wrap, load, APP_ID } from './datafile.mjs?v=mwoc7ot1';
+import { wrap, load, APP_ID } from './datafile.mjs?v=mwokxb4o';
 
 export const BACKUP_KEEP = 10;
 const MAIN = 'main';           // 현재 자료
