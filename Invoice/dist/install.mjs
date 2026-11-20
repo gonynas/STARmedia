@@ -57,7 +57,7 @@ function bodyHtml() {
 export function openInstall() {
   let el = document.getElementById('installScreen');
   if (!el) { el = document.createElement('div'); el.id = 'installScreen'; el.className = 'installscreen'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', '바탕화면 아이콘 만들기'); document.body.appendChild(el); }
-  el.innerHTML = '<div class="in-card"><img class="in-icon" src="assets/icon-192.png" alt="" width="72" height="72"><span class="in-app">스타미디어 견적서 발행기</span>' + bodyHtml() +
+  el.innerHTML = '<div class="in-card"><img class="in-icon" src="assets/starmedia-192.png" alt="" width="72" height="72"><span class="in-app">스타미디어 견적서 발행기</span>' + bodyHtml() +
     '<button type="button" class="in-later" data-inst="later">나중에 할게요 · 브라우저에서 계속</button></div>';
 }
 function close() { const el = document.getElementById('installScreen'); if (el) el.remove(); }

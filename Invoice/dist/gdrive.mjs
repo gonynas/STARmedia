@@ -4,11 +4,11 @@
 //  · 휴대폰 처음 화면: 「구글 드라이브에서 불러오기」 → 사업자 정보를 다시 넣지 않고 바로 쓴다.
 //  · 로그인은 구글 공식 로그인 창(Google Identity Services). 토큰은 1시간쯤 가고, 끝나면 「다시 연결」 단추가 나온다.
 //  · 연결 상태(폴더 · 파일 id · 지난번 맞춘 자료)는 이 기기 저장소(IndexedDB 'gdrive')에 둔다. 화면 잠금 같은 기기 설정은 맞추지 않는다.
-import { GOOGLE_CLIENT_ID, GOOGLE_SCOPE } from './config.mjs?v=mwokxb4o';
-import { createDrive, syncOnce, peekRemote, DriveError, FOLDER_NAME } from './core/drive.mjs?v=mwokxb4o';
-import { countData } from './core/sync.mjs?v=mwokxb4o';
-import { logProblem } from './errors.mjs?v=mwokxb4o';
-import { isLocked } from './lockscreen.mjs?v=mwokxb4o';
+import { GOOGLE_CLIENT_ID, GOOGLE_SCOPE } from './config.mjs?v=mwouo7hy';
+import { createDrive, syncOnce, peekRemote, DriveError, FOLDER_NAME } from './core/drive.mjs?v=mwouo7hy';
+import { countData } from './core/sync.mjs?v=mwouo7hy';
+import { logProblem } from './errors.mjs?v=mwouo7hy';
+import { isLocked } from './lockscreen.mjs?v=mwouo7hy';
 
 let C;
 const TOKEN_KEY = 'starmedia-quote:gtoken';
