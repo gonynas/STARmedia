@@ -2,6 +2,7 @@
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
 import { DEFAULT_PHRASES } from './core/docs.mjs';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml } from './ux.mjs';
 import { toNum } from './core/catalog.mjs';
 import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs';
 import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs';
@@ -23,7 +24,8 @@ const fmtBk = (n) => { const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})_?
 // 백업 이름의 시각은 세계 표준시(UTC)로 적혀 있어 한국 시각으로 바꿔 보여 준다
 const localWhen = (n) => { const m = /^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/.exec(n); if (!m) return fmtBk(n).when; const d = new Date(Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6])); return d.toLocaleString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); };
 
-export function settingsPage() {
+export function settingsPage() { return uxSettings(settingsBody()); }
+function settingsBody() {
   const s = st(), S = C.S;
   const phrases = (s.phrases && s.phrases.length ? s.phrases : DEFAULT_PHRASES).join('\n');
   const probs = problems();
@@ -42,6 +44,8 @@ export function settingsPage() {
     '<section class="card"><div class="card-h"><h2>' + C.ic('type') + '화면</h2></div><div class="set-rows">' +
     '<div class="set-row"><span class="sl"><b>글자 크게</b><small>기본 16px → 18px · 화면만 커지고 문서(A4)는 그대로</small></span><label class="switch"><input type="checkbox" id="setBig"' + (s.bigText ? ' checked' : '') + '><i></i><span>' + (s.bigText ? '켜짐' : '꺼짐') + '</span></label></div>' +
     '<div class="set-row"><span class="sl"><b>바탕화면 아이콘</b><small>' + (isStandalone() ? '지금 아이콘(앱)으로 열려 있어요' : '휴대폰 · 태블릿 · PC 바탕화면에 앱처럼 아이콘 만들기') + '</small></span><button type="button" class="btn" data-act="set-install">' + C.ic('phone') + '만드는 방법 보기</button></div>' +
+    '<div class="set-row set-ux"><span class="sl"><b>화면 디자인 (UI · UX)</b><small>이 기기에만 적용돼요 · 품목 · 세트, 발행 목록, 설정 · 백업 화면 모양</small></span>' +
+    seg('ux-set', [['', '기본'], ['a', 'A · 탭 정리형'], ['b', 'B · 목록 · 상세형']], uxMode()) + '</div>' +
     '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +
@@ -71,7 +75,7 @@ export function settingsPage() {
     // 7. 정보
     '<section class="card"><div class="card-h"><h2>' + C.ic('star') + '프로그램 정보</h2></div><div class="set-rows">' +
     '<div class="set-row"><span class="sl"><b>버전</b><small>v' + C.esc(C.appInfo.version) + ' · ' + C.esc((RELEASES.find((r) => r.version === C.appInfo.version) || {}).date || '') + ' · 빌드 ' + C.esc(C.appInfo.build) + '</small></span><span class="set-btns"><button type="button" class="btn" data-act="set-releases">' + C.ic('list') + '릴리즈 노트</button><button type="button" class="btn" data-act="set-update">' + C.ic('download') + '업데이트 확인</button></span></div>' +
-    '<div class="set-row"><span class="sl"><b>디자인 시안</b><small>처음에 고른 시안 A 블루 모던 (참고용)</small></span><a class="btn" href="sian/" target="_blank" rel="noopener">' + C.ic('eye') + '시안 보기</a></div>' +
+    '<div class="set-row"><span class="sl"><b>디자인 시안</b><small>처음에 고른 시안 A 블루 모던 · 하위 메뉴 시안 A · B (참고용)</small></span><span class="set-btns"><a class="btn" href="sian/ux/" target="_blank" rel="noopener">하위 메뉴 시안</a></span><a class="btn" href="sian/" target="_blank" rel="noopener">' + C.ic('eye') + '시안 보기</a></div>' +
     '</div><p id="updMsg" class="note" style="display:none"></p></section>' +
     '</div>';
 }
@@ -114,6 +118,7 @@ export function settingsClick(act, a) {
   if (!/^(set-|bk-|prob-)/.test(act) || !C.S.data) return false;   // 다른 화면의 누르기는 건드리지 않는다
   const S = C.S, s = st();
   switch (act) {
+    case 'set-ux-g': S.setGroup = a.dataset.v; if (uxMode() === 'b') setLvl(2); C.render(); window.scrollTo(0, 0); return true;
     case 'set-vat': s.vat = a.dataset.v; C.changed(); C.render(); C.toast('새 문서의 부가세 기본값을 바꿨어요'); return true;
     case 'set-autolock': s.autoLockMin = Number(a.dataset.v); C.changed(); C.render(); C.toast(Number(a.dataset.v) ? a.dataset.v + '분 동안 손대지 않으면 잠가요' : '자동 잠금을 껐어요'); return true;
     case 'set-lock-now': lockNow(); return true;
@@ -181,4 +186,18 @@ export function settingsChange(t) {
   if (t.dataset.setchk) { s[t.dataset.setchk] = t.checked; C.changed(); C.render(); return true; }
   if (t.id === 'setBig') { C.setBigText(t.checked); C.render(); return true; }
   return false;
+}
+
+/* ── 설정 시안 A · B (v1.6.0 시험): 7개 영역을 4개 묶음으로 나눠 한 번에 하나만 ── */
+const SET_GROUPS = ['doc', 'screen', 'screen', 'save', 'save', 'info', 'info'];   // 영역 순서: 기본값 · 화면 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 정보
+function uxSettings(html) {
+  const m = uxMode(); if (!m) return html;
+  let i = 0; html = html.replace(/<section class="card/g, () => '<section data-sg="' + (SET_GROUPS[i++] || 'info') + '" class="card');
+  const s = st(), S = C.S, g = S.setGroup || 'doc', probs = problems();
+  const vat = { excl: '별도', incl: '포함', none: '없음' }[s.vat] || '별도';
+  const groups = [['doc', '문서 기본값', vat + ' · ' + (s.validDays || 15) + '일'], ['screen', '화면 · 잠금', hasLock() ? (Number(s.autoLockMin) ? s.autoLockMin + '분 잠금' : '잠금 켬') : '잠금 없음'],
+    ['save', '저장 · 백업', '자동 저장'], ['info', '문제 · 정보', probs.length ? '기록 ' + probs.length + '개' : 'v' + C.appInfo.version]];
+  const nav = m === 'a' ? uxTabs(groups.map(([k, l]) => [k, l]), g, 'set-ux-g')
+    : '<aside class="card uxsub" aria-label="설정 하위 메뉴"><div class="uxnav-list">' + groups.map(([k, l, sm]) => uxNavBtn('data-act="set-ux-g" data-v="' + k + '"', !isPhone() && k === g, l, '<small>' + sm + '</small>')).join('') + '</div></aside>';
+  return '<div class="uxp ux-' + m + ' ux-set sg-' + g + ' lvl' + uxLvl() + '">' + nav + '<div class="uxsetbody">' + (m === 'b' ? uxBackHtml('설정 · 백업') : '') + html + '</div></div>';
 }

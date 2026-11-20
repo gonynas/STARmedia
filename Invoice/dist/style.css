@@ -1741,7 +1741,7 @@ input[type="date"].in::-webkit-date-and-time-value{min-height:1.4em;line-height:
 .wz-sticky{position:sticky;bottom:0;padding:12px 0;background:linear-gradient(transparent,var(--bg) 30%)}
 @media (max-width:767px){ .wz-steps li b{display:none} .wz-steps li.on b{display:inline} .wz-btns .btn{flex:1} }
 /* 발행 목록 상태 칸: 「발송 완료 + 수정됨」이 들어가게 넓힘 */
-.d-main{grid-template-columns:118px 120px minmax(0,1fr) 64px 118px 140px 52px}
+@media (min-width:1281px){ .d-main{grid-template-columns:118px 120px minmax(0,1fr) 64px 118px 140px 52px} }   /* 넓은 PC만 (v1.5.1: 조건 없이 두어 휴대폰 목록이 화면 밖으로 넘치던 것 고침) */
 .d-main .schip{white-space:nowrap}
 @media (max-width:1280px) and (min-width:768px){ .d-main{grid-template-columns:110px minmax(0,1fr) 110px 140px 52px} }
 
@@ -1822,3 +1822,193 @@ body.cs-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .cs-tools .btn{flex:1 1 120px;justify-content:center}
 @media (max-width:1100px){ .cat-sort{display:grid} }
 .catlist .cat-sort{flex:1 1 100%;width:100%;min-width:0}
+
+/* ══ v1.5.1 휴대폰 목록 넘침 고침: 한 줄은 카드 폭을 넘지 않게 ══ */
+.drow{min-width:0;max-width:100%}
+.dlist{min-width:0}
+@media (max-width:767px){ .d-main{grid-template-columns:minmax(0,1fr) auto auto} }
+
+/* ── 09-ux-ab.css ── */
+/* ══ v1.6.0 하위 메뉴 디자인 시험: 시안 A(탭 정리형) · 시안 B(목록 · 상세형) ══
+   품목 · 세트 / 발행 목록 / 설정 · 백업 에서만. 고르기는 페이지 머리 「디자인 기본 · A · B」(program/ux.mjs). */
+
+/* 페이지 머리: 디자인 고르기 + 설명 ⓘ */
+.ux-sw{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);flex:none}
+.ux-sw span{padding:0 8px 0 6px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.ux-sw button{min-height:30px;min-width:38px;padding:0 10px;border-radius:7px;font-size:.84rem;font-weight:800;color:var(--sub)}
+.ux-sw button.on{background:var(--primary);color:#fff}
+.ux-info{color:var(--muted)}
+.ux-top .top-title p{display:none}
+.ux-top.tip .top-title p{display:block}
+
+/* 공통 */
+.uxp .card-h .hint,.uxp .note{display:none}
+.uxp .card{padding:0;overflow:visible}
+.uxtool{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.uxtool-t{color:var(--sub);font-weight:600;flex:1;min-width:0}
+.uxtools{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.uxsearch{flex:1 1 240px;min-width:0;min-height:42px}
+.uxchips{display:flex;gap:6px;padding:12px 16px 4px;overflow-x:auto;scrollbar-width:none}
+.uxchips::-webkit-scrollbar{display:none}
+.uxchip{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.9rem;font-weight:700;color:var(--sub);white-space:nowrap;flex:none}
+.uxchip em{font-style:normal;font-size:.78rem;color:var(--muted)}
+.uxchip.on{background:var(--text);border-color:var(--text);color:#fff}
+.uxchip.on em{color:#C9D4E5}
+.uxchip.sort{border-style:dashed;color:var(--primary-ink)}
+.uxchip .ic{width:16px;height:16px}
+.uxcatbar .cat-sort{padding:12px 16px}
+#cattools:empty{display:none}
+.uxp #cattools .cat-tools,.uxp #cattools .cat-help{margin:8px 16px 4px}
+.uxp .mis-note{margin:12px 16px 0}
+.uxrows{display:grid}
+.uxrow{display:grid;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);min-width:0;text-align:left;width:100%;background:none;color:inherit;font:inherit}
+.uxrows>.uxrow:first-child{border-top:0}
+.uxrow .uxt{min-width:0;display:grid}
+.uxrow .uxt b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uxrow .uxt small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem;min-width:0;overflow:hidden;white-space:nowrap}
+.uxrow .tf{margin-left:6px;font-size:.72rem;font-weight:800;padding:1px 6px;border-radius:999px;background:#FFF4DE;color:#A86400}
+.uxcat{display:inline-flex;padding:1px 9px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);font-size:.8rem;font-weight:700;color:var(--sub);white-space:nowrap}
+.uxcat.in{display:none}
+.uxpr,.uxd,.uxv{text-align:right;white-space:nowrap}
+.uxpr{font-weight:800}.uxpr small{font-weight:600;color:var(--muted);margin-left:1px}
+.uxd{color:var(--sub)}
+.uxv{font-weight:800}.uxv small{display:block;font-weight:600;color:var(--muted);font-size:.8rem;margin-top:2px}
+.uxrow .r{text-align:right}
+.uxhead{padding-top:10px;padding-bottom:10px;font-size:.8rem;font-weight:700;color:var(--muted)}
+.uxfoot{margin:0;padding:12px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:.86rem}
+.ux-more .icbtn{width:36px;height:36px}
+.ux-more .menu-pop{min-width:170px;z-index:30}
+.ux-more .menu-pop button{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 10px;border-radius:8px;font-weight:600;text-align:left}
+.ux-more .menu-pop button:hover{background:var(--surface2)}
+.ux-more .menu-pop .danger-i{color:#C7332B}
+.uxp .empty{margin:16px}
+
+/* ══ 시안 A ══ */
+.uxtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 16px;overflow-x:auto;scrollbar-width:none}
+.uxtabs::-webkit-scrollbar{display:none}
+.uxtabs button{position:relative;display:inline-flex;align-items:center;gap:6px;padding:12px 14px;font-weight:700;color:var(--sub);white-space:nowrap;flex:none}
+.uxtabs button em{font-style:normal;font-size:.78rem;padding:0 7px;border-radius:999px;background:var(--surface2);color:var(--sub)}
+.uxtabs button.on{color:var(--primary-ink)}
+.uxtabs button.on::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--primary)}
+.uxtabs button.on em{background:var(--primary-soft);color:var(--primary-ink)}
+.ux-a .uxrow.item{grid-template-columns:minmax(0,1fr) 130px 130px 64px 40px}
+.ux-a .uxrow.set{grid-template-columns:minmax(0,1fr) auto 40px}
+.ux-a .uxrow.uxhead{grid-template-columns:minmax(0,1fr) 130px 130px 64px 40px}
+.ux-a .uxrow.doc{grid-template-columns:minmax(0,1fr) 40px;padding:0 12px 0 0;gap:4px}
+.ux-a .uxrow-main{display:grid;grid-template-columns:170px minmax(0,1fr) 70px 120px 130px;align-items:center;gap:12px;padding:12px 16px;color:inherit;text-decoration:none;min-width:0}
+.ux-a .uxrow.doc:hover{background:#FAFCFF}
+.ux-a .uxrow.doc.uxhead{padding:0 12px 0 0}
+.ux-a .uxrow.doc.uxhead .uxrow-main{padding:10px 16px}
+.uxdt{display:grid;min-width:0}
+.uxdt b{display:flex;align-items:center;gap:6px;font-weight:700}
+.uxdt b .ic{width:16px;height:16px;color:var(--primary)}
+.uxdt small{color:var(--muted);font-size:.84rem}
+.uxdate{color:var(--sub)}
+.ux-a .uxpanel{overflow:visible}
+
+/* ══ 시안 B ══ */
+.ux-b{display:grid;grid-template-columns:230px minmax(0,1fr) 320px;gap:16px;align-items:start}
+.ux-b.ux-set{grid-template-columns:250px minmax(0,1fr)}
+.uxsub{padding:8px!important;position:sticky;top:16px}
+.uxsub-h{margin:10px 10px 6px;font-size:.8rem;font-weight:700;color:var(--muted)}
+.uxnav-list{display:grid;gap:2px}
+.uxnav-list hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
+.uxnav{display:flex;align-items:center;gap:8px;width:100%;min-height:42px;padding:0 10px;border-radius:9px;font-weight:700;color:var(--text);text-align:left}
+.uxnav:hover{background:var(--surface2)}
+.uxnav.on{background:var(--primary-soft);color:var(--primary-ink)}
+.uxnav-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uxnav em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--muted)}
+.uxnav small{font-size:.8rem;font-weight:600;color:var(--muted);white-space:nowrap}
+.uxnav.on em,.uxnav.on small{color:var(--primary-ink)}
+.uxnav-go{display:none;color:#B8C1CF}
+.uxnav.add{color:var(--primary-ink)}
+.uxnav.add .ic{width:16px;height:16px}
+.uxlist{min-width:0;overflow:hidden}
+.uxlist-h{margin:0;font-size:1.1rem;flex:1;min-width:0}
+.ux-back{display:none}
+.ux-b .uxrow.pick{grid-template-columns:minmax(0,1fr) auto 18px;cursor:pointer;border-radius:0}
+.ux-b .uxrow.pick.doc{grid-template-columns:22px minmax(0,1fr) auto 18px}
+.ux-b .uxrow.pick:hover{background:#FAFCFF}
+.ux-b .uxrow.pick.on{background:var(--primary-soft)}
+.uxi{color:var(--primary);display:grid}.uxi .ic{width:18px;height:18px}
+.uxgo{color:#B8C1CF;display:grid}.uxgo .ic{width:16px;height:16px}
+.uxdet{padding:20px!important;position:sticky;top:16px;min-width:0}
+.uxdet-h{margin:0;font-size:1.25rem;letter-spacing:-.01em;word-break:keep-all}
+.uxk{margin:2px 0 14px;color:var(--muted)}
+.uxdl{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px 12px;margin:0 0 18px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.uxdl dt{color:var(--muted);font-size:.88rem}
+.uxdl dd{margin:0;font-weight:700;min-width:0;overflow-wrap:anywhere}
+.uxacts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.uxacts .wide{grid-column:1 / -1}
+.uxacts .btn{justify-content:center}
+.uxsetl{list-style:none;margin:0 0 12px;padding:12px 0;border-top:1px solid var(--line);display:grid;gap:8px}
+.uxsetl li{display:flex;justify-content:space-between;gap:10px}
+.uxsetl li small{color:var(--muted)}
+.uxsetl li.miss{color:var(--muted);text-decoration:line-through}
+.uxsum{display:flex;justify-content:space-between;margin:0 0 16px;padding:12px 0;border-top:1px solid var(--line);color:var(--sub)}
+.uxsum b{color:var(--text)}
+.uxscrim,.uxsheet{display:none}
+
+/* 설정: 4개 묶음 중 하나만 */
+.ux-set .uxsetbody{min-width:0}
+.ux-set .setpage{max-width:none}
+.sg-doc [data-sg]:not([data-sg="doc"]),.sg-screen [data-sg]:not([data-sg="screen"]),.sg-save [data-sg]:not([data-sg="save"]),.sg-info [data-sg]:not([data-sg="info"]){display:none}
+.ux-set .setpage .card{padding:20px}
+
+/* 넓은 태블릿 · 작은 PC: 시안 B 자세히 칸은 아래로 */
+@media (max-width:1280px) and (min-width:768px){
+  .ux-b{grid-template-columns:210px minmax(0,1fr)}
+  .ux-b .uxdet{grid-column:2;position:static}
+  .ux-a .uxrow.item,.ux-a .uxrow.uxhead{grid-template-columns:minmax(0,1fr) 110px 120px 56px 40px}
+  .ux-a .uxrow-main{grid-template-columns:140px minmax(0,1fr) 120px 120px}
+  .ux-a .uxrow-main .uxdate{display:none}
+}
+
+/* ══ 휴대폰 ══ */
+@media (max-width:767px){
+  .ux-sw{order:3;margin-left:auto}
+  .ux-info{order:3}
+  .uxtools .btn span{display:none}
+  .uxtools .btn{width:42px;padding:0}
+  .uxtool{padding:10px 12px}
+  .uxchips{padding:10px 12px 2px}
+  .uxtabs{margin:0 -2px 12px}
+  .uxtabs button{padding:11px 10px}
+  .uxrow{padding:12px}
+  .uxhead{display:none!important}
+  .uxcat.in{display:inline-flex}
+  .ux-a .uxrow.item{grid-template-columns:minmax(0,1fr) auto 36px;grid-template-areas:"t p m" "t d m";row-gap:2px}
+  .ux-a .uxrow.item .uxt{grid-area:t}.ux-a .uxrow.item .uxpr{grid-area:p}.ux-a .uxrow.item .uxd{grid-area:d;font-size:.82rem;color:var(--muted)}.ux-a .uxrow.item .ux-more{grid-area:m}
+  .ux-a .uxrow.item .uxc{display:none}
+  .ux-a .uxrow.doc{padding:0 6px 0 0}
+  .ux-a .uxrow-main{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t p" "dt s";gap:4px 10px;padding:12px}
+  .ux-a .uxrow-main .uxt{grid-area:t}.ux-a .uxrow-main .uxpr{grid-area:p;text-align:right}.ux-a .uxrow-main .uxdt{grid-area:dt}.ux-a .uxrow-main .uxs{grid-area:s;justify-self:end}
+  .ux-a .uxrow-main .uxdate{display:none}
+  .ux-a .uxrow-main .uxdt b{font-size:.84rem;font-weight:600;color:var(--sub)}
+  .ux-a .uxrow-main .uxdt small{display:none}
+  /* 시안 B: 1 = 하위 메뉴 목록, 2 = 들어간 화면, 자세히는 아래에서 올라오는 창 */
+  .ux-b,.ux-b.ux-set{display:block}
+  .ux-b.lvl1 .uxlist,.ux-b.lvl1 .uxsetbody,.ux-b .uxdet{display:none}
+  .ux-b.lvl2 .uxsub{display:none}
+  .uxsub{position:static;padding:4px!important}
+  .uxnav{min-height:52px;font-size:1rem}
+  .uxnav-go{display:grid}
+  .uxnav-go .ic{width:18px;height:18px}
+  .ux-back{display:inline-flex;align-items:center;gap:4px;margin:10px 0 0 6px;padding:6px;font-weight:700;color:var(--primary-ink)}
+  .ux-b.ux-set .ux-back{margin:0 0 10px -6px}
+  .uxscrim{display:block;position:fixed;inset:0;z-index:60;background:rgba(15,30,51,.35);opacity:0;pointer-events:none;transition:opacity .2s}
+  .uxscrim.on{opacity:1;pointer-events:auto}
+  .uxsheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:61;max-height:86vh;overflow:auto;background:var(--surface);border-radius:18px 18px 0 0;padding:10px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -12px 32px -16px rgba(23,43,70,.45);transform:translateY(105%);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+  .uxsheet.on{transform:none}
+  .uxgrab{width:40px;height:5px;border-radius:9px;background:#D7DEE9;margin:0 auto 14px}
+  .ux-set .setpage .card{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){ .uxsheet,.uxscrim{transition:none} }
+
+/* v1.6.1 설정 → 화면 → 「화면 디자인 (UI · UX)」 고르기 */
+.set-ux .seg{flex-wrap:wrap}
+@media (max-width:767px){
+  .set-ux{flex-wrap:wrap}
+  .set-ux .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  .set-ux .seg button{padding:0 6px;font-size:.86rem;line-height:1.25;white-space:normal}
+}

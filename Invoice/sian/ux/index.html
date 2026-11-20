@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>하위 메뉴 디자인 시안 (v1.6 후보) · 스타미디어 견적서 발행기</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="ux.css">
+</head>
+<body>
+<!-- 시안 고르기 막대: 프로그램이 아니라 시안을 비교하는 도구예요 -->
+<div class="pick" role="toolbar" aria-label="시안 고르기">
+  <div class="pick-g" role="radiogroup" aria-label="시안">
+    <button type="button" data-v="A" class="on">시안 A · 탭 정리형</button>
+    <button type="button" data-v="B">시안 B · 목록·상세형</button>
+  </div>
+  <div class="pick-g" role="radiogroup" aria-label="화면">
+    <button type="button" data-s="items" class="on">품목·세트</button>
+    <button type="button" data-s="list">발행 목록</button>
+    <button type="button" data-s="set">설정·백업</button>
+  </div>
+</div>
+<div id="app"></div>
+<script src="ux.js"></script>
+</body>
+</html>

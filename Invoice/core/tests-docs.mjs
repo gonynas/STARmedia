@@ -83,6 +83,7 @@ eq('최근 고친 순', filterDocs(list).map((x) => x.id), [2, 1]);
 eq('담당자 이름으로 찾기', filterDocs(list, { q: '김주무관' }).map((x) => x.id), [1]);
 eq('품목 이름으로 찾기', filterDocs(list, { q: '몽골' }).map((x) => x.id), [1]);
 eq('종류로 거르기', filterDocs(list, { type: 'inv' }).map((x) => x.id), [2]);
+eq('상태로 거르기 (상태 없으면 작성 중)', [filterDocs([{ ...list[0], status: 'sent' }, list[1]], { status: 'sent' }).map((x) => x.id), filterDocs(list, { status: 'draft' }).map((x) => x.id)], [[1], [2, 1]]);
 
 console.log(`\n결과: 통과 ${pass} / 실패 ${fail}`);
 if (fail) process.exit(1);

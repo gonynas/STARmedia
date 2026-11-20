@@ -6,6 +6,7 @@ import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from '
 import { renderPages, won, fileTitle } from './docview.mjs';
 import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs';
 import { serialFor } from './core/docs.mjs';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml } from './ux.mjs';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -484,7 +485,9 @@ export function editorClick(act, a) {
     case 'doc-new': createDoc(a.dataset.type || 'quote'); return true;
     case 'doc-copy': copyCurrent(a.dataset.id); return true;
     case 'doc-del': deleteDoc(a.dataset.id); return true;
-    case 'list-type': C.S.listType = a.dataset.type; C.render(); return true;
+    case 'list-type': C.S.listType = a.dataset.v !== undefined ? a.dataset.v : a.dataset.type; if (uxMode() === 'b') setLvl(2); C.render(); return true;
+    case 'list-status': C.S.listStatus = a.dataset.v; if (uxMode() === 'b') setLvl(2); C.render(); return true;
+    case 'list-pick': { C.S.listSel = a.dataset.id; const dd = C.S.data.docs.find((x) => x.id === C.S.listSel); if (isPhone() && dd && openSheet(docDetailHtml(dd))) return true; C.render(); return true; }
   }
   if (C.S.route !== 'doc' || !d) return false;
   switch (act) {
@@ -665,8 +668,57 @@ export function homeRecentHtml() {
     (C.S.data.docs.length ? '<a class="btn sm more" href="#list">전체 보기 (' + C.S.data.docs.length + ')</a>' : '') + '</div>' +
     (list.length ? '<div class="dlist">' + list.map(docRow).join('') + '</div>' : '<div class="empty">아직 만든 문서가 없어요. 위에서 <b>견적서</b>를 눌러 첫 문서를 만들어 보세요.</div>') + '</section>';
 }
+/* ── 발행 목록 시안 A · B (v1.6.0 시험) ── */
+function uxStatus(d) { return '<span class="schip s-' + d.status + '">' + (DOC_STATUS[d.status] || DOC_STATUS.draft) + (d.editedAfter ? '<i class="ed-mark">수정됨</i>' : '') + '</span>'; }
+function uxDocList(list, m) {
+  const { S, esc, ic } = C;
+  if (!S.data.docs.length) return '<div class="empty">아직 만든 문서가 없어요.<br><button type="button" class="btn primary" data-act="doc-new" data-type="quote" style="margin-top:12px">' + ic('plus') + '견적서 만들기</button></div>';
+  if (!list.length) return '<div class="empty">' + (S.listQuery ? '「' + esc(S.listQuery) + '」에 맞는 문서가 없어요.' : '이 조건에 맞는 문서가 없어요.') + '</div>';
+  const sel = list.find((d) => d.id === S.listSel) || list[0];
+  return '<div class="uxrows">' + (m === 'a' ? '<div class="uxrow doc uxhead" aria-hidden="true"><span class="uxrow-main"><span>문서</span><span>받는 곳 · 행사</span><span class="uxdate">날짜</span><span class="r">금액</span><span>상태</span></span><span></span></div>' : '') + list.map((d) => {
+    const t = docTotals(d), cl = d.client.name ? esc(d.client.name) : '<span class="dim">받는 곳 없음</span>', ev = esc(d.event.name || '');
+    if (m === 'b') return '<button type="button" class="uxrow pick doc' + (!isPhone() && d.id === sel.id ? ' on' : '') + '" data-act="list-pick" data-id="' + d.id + '"><span class="uxi">' + ic(TYPE_ICON[d.type]) + '</span>' +
+      '<span class="uxt"><b>' + cl + (ev ? ' · ' + ev : '') + '</b><small class="num">' + esc(docNo(d)) + ' · ' + dateShort(d.date) + '</small></span><span class="uxv num">₩' + won(t.total) + '<small>' + uxStatus(d) + '</small></span><span class="uxgo">' + ic('right') + '</span></button>';
+    return '<div class="uxrow doc"><a class="uxrow-main" href="#doc/' + d.id + '"><span class="uxdt"><b>' + ic(TYPE_ICON[d.type]) + DOC_TYPES[d.type].label + '</b><small class="num">' + esc(docNo(d)) + '</small></span>' +
+      '<span class="uxt"><b>' + cl + '</b><small>' + (ev || '<span class="dim">행사 없음</span>') + '</small></span><span class="uxdate num">' + dateShort(d.date) + '</span><span class="uxpr num">₩' + won(t.total) + '</span><span class="uxs">' + uxStatus(d) + '</span></a>' +
+      uxMore(docNo(d), [['doc-copy', d.id, '복사해서 새로', 'copy'], ['doc-del', d.id, '삭제', 'trash', true]]) + '</div>';
+  }).join('') + '</div>';
+}
+function docDetailHtml(d) {
+  const { esc, ic } = C;
+  if (!d) return '<div class="empty">문서를 고르면 여기에 자세히 보여요.</div>';
+  const t = docTotals(d);
+  return '<h2 class="uxdet-h">' + (d.client.name ? esc(d.client.name) : '받는 곳 없음') + '</h2><p class="uxk">' + DOC_TYPES[d.type].label + ' · <span class="num">' + esc(docNo(d)) + '</span></p>' +
+    '<dl class="uxdl"><dt>행사</dt><dd>' + (d.event.name ? esc(d.event.name) : '없음') + '</dd><dt>날짜</dt><dd>' + dateKo(d.date) + '</dd><dt>금액</dt><dd class="num">₩' + won(t.total) + '</dd><dt>상태</dt><dd>' + uxStatus(d) + '</dd><dt>품목</dt><dd>' + (d.lines || []).length + '줄</dd></dl>' +
+    '<div class="uxacts"><a class="btn primary wide" href="#doc/' + d.id + '">' + ic('edit') + '열어서 고치기</a><button type="button" class="btn" data-act="doc-copy" data-id="' + d.id + '">' + ic('copy') + '복사해서 새로</button><button type="button" class="btn danger-o" data-act="doc-del" data-id="' + d.id + '">' + ic('trash') + '삭제</button></div>';
+}
+function uxListPage(m) {
+  const { S, esc, ic } = C;
+  const type = S.listType || '', st = S.listStatus || '';
+  const tc = {}, sc = {}; for (const d of filterDocs(S.data.docs)) { tc[d.type] = (tc[d.type] || 0) + 1; sc[d.status || 'draft'] = (sc[d.status || 'draft'] || 0) + 1; }
+  const list = filterDocs(S.data.docs, { type, q: S.listQuery || '', status: st });
+  const tools = (S.data.docs.length ? '<button type="button" class="btn" data-act="x-list-xlsx" title="엑셀로 저장">' + ic('download') + '<span>엑셀 저장</span></button>' : '') + '<button type="button" class="btn primary" data-act="doc-new" data-type="quote">' + ic('plus') + '<span>새 견적서</span></button>';
+  const search = '<input class="in uxsearch" type="search" id="lq" placeholder="받는 곳 · 행사 · 문서번호 · 품목으로 찾기" value="' + esc(S.listQuery || '') + '" aria-label="문서 찾기">';
+  const types = [['', '전체', filterDocs(S.data.docs).length], ...Object.keys(DOC_TYPES).map((k) => [k, DOC_TYPES[k].label, tc[k] || 0])];
+  const sts = Object.keys(DOC_STATUS).map((k) => [k, DOC_STATUS[k], sc[k] || 0]);
+  const body = '<div id="dlistBox">' + uxDocList(list, m) + '</div>';
+  if (m === 'a') {
+    return '<div class="uxp ux-a ux-list">' + uxTabs(types, type, 'list-type') + '<section class="card uxpanel"><div class="uxtool">' + search + '<div class="uxtools">' + tools + '</div></div>' +
+      '<div class="uxchips" role="group" aria-label="상태"><button type="button" class="uxchip' + (!st ? ' on' : '') + '" data-act="list-status" data-v="">모든 상태</button>' +
+      sts.map(([k, l, n]) => '<button type="button" class="uxchip' + (st === k ? ' on' : '') + '" data-act="list-status" data-v="' + k + '">' + l + ' <em>' + n + '</em></button>').join('') + '</div>' + body + '</section></div>';
+  }
+  const ph = isPhone();
+  const title = [type ? DOC_TYPES[type].label : '전체 문서', st ? DOC_STATUS[st] : ''].filter(Boolean).join(' · ');
+  return '<div class="uxp ux-b ux-list lvl' + uxLvl() + '">' +
+    '<aside class="card uxsub" aria-label="발행 목록 하위 메뉴"><h3 class="uxsub-h">문서 종류</h3><div class="uxnav-list">' + types.map(([k, l, n]) => uxNavBtn('data-act="list-type" data-v="' + k + '"', !ph && k === type, l, '<em>' + n + '</em>')).join('') + '</div>' +
+    '<h3 class="uxsub-h">상태</h3><div class="uxnav-list">' + uxNavBtn('data-act="list-status" data-v=""', !ph && !st, '모든 상태', '') + sts.map(([k, l, n]) => uxNavBtn('data-act="list-status" data-v="' + k + '"', !ph && st === k, l, '<em>' + n + '</em>')).join('') + '</div></aside>' +
+    '<section class="card uxlist">' + uxBackHtml('발행 목록') + '<div class="uxtool"><h2 class="uxlist-h">' + title + '</h2><div class="uxtools">' + tools + '</div></div><div class="uxtool">' + search + '</div>' + body + '</section>' +
+    '<aside class="card uxdet" aria-label="자세히">' + docDetailHtml(list.find((d) => d.id === S.listSel) || list[0]) + '</aside>' + uxSheetHtml() + '</div>';
+}
+
 export function listPage() {
   const { S, esc, ic } = C;
+  if (uxMode()) return uxListPage(uxMode());
   const type = S.listType || '';
   const counts = {}; for (const d of S.data.docs) counts[d.type] = (counts[d.type] || 0) + 1;
   const tabs = [['', '전체', S.data.docs.length], ...Object.keys(DOC_TYPES).filter((k) => counts[k]).map((k) => [k, DOC_TYPES[k].label, counts[k]])]
@@ -683,6 +735,7 @@ export function listPage() {
 export function listInput(t) {
   if (t.id !== 'lq') return false;
   C.S.listQuery = t.value;
+  if (uxMode()) { document.getElementById('dlistBox').innerHTML = uxDocList(filterDocs(C.S.data.docs, { type: C.S.listType || '', q: t.value, status: C.S.listStatus || '' }), uxMode()); return true; }
   const list = filterDocs(C.S.data.docs, { type: C.S.listType || '', q: t.value });
   document.getElementById('dlistBox').innerHTML = list.length ? '<div class="dlist">' + list.map(docRow).join('') + '</div>' : '<div class="empty">「' + C.esc(t.value) + '」에 맞는 문서가 없어요.</div>';
   return true;

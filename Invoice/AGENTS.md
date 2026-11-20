@@ -55,6 +55,7 @@ app/
 │  ├─ errors.mjs       문제 기록(localStorage 'starmedia-quote:problems', 최근 50개) · AI에게 보낼 글
 │  ├─ stamp.mjs        도장 사진 흰 배경 지우기
 │  ├─ icons.mjs        아이콘 ic('이름')
+│  ├─ ux.mjs           하위 메뉴 디자인(v1.6.0): 설정 · 백업 → 화면 → 「화면 디자인 (UI · UX)」 기본 · A · B (이 기기 localStorage), uxMode() · 탭 · 하위 메뉴 · ⋯ 메뉴 · 휴대폰 자세히 창. 품목 · 발행 목록 · 설정 화면이 uxMode() 로 모양을 고름 (CSS: css/09-ux-ab.css)
 │  ├─ sw.js · manifest.webmanifest   홈 화면 설치(인터넷 먼저, 끊기면 저장본)
 │  ├─ assets/          로고 · 아이콘
 │  └─ css/             01 → 08 순서로 이어 붙여 style.css 가 됨 (08-v1-screens.css = 1.0에서 더한 화면)
@@ -71,7 +72,7 @@ app/
 │  ├─ datafile.mjs     ★ 자료 파일 형식 · 형식 번호(schema) · 업데이트 변환
 │  ├─ xlsx.mjs · sheets.mjs · pdf.mjs   엑셀 · PDF 파일 만들기
 │  └─ tests*.mjs       node 시험 (npm test)
-├─ sian/               디자인 시안(참고용, dist/sian/ 으로 빌드). 프로그램과 따로 논다
+├─ sian/               디자인 시안(참고용, dist/sian/ 으로 빌드). 프로그램과 따로 논다. sian/ux/ = 하위 메뉴 시안 A · B (v1.6 후보, 예시 자료만)
 ├─ docs/               설계서 · 요구사항 · 질문지 답변 (요구사항이 헷갈리면 여기 먼저)
 └─ dist/               빌드 결과(직접 고치지 않음). 이 폴더를 그대로 웹에 올리면 됨
 ```

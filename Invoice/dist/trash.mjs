@@ -1,9 +1,9 @@
 // 화면: 휴지통 (#trash) — 지운 문서 · 거래처 · 품목 · 세트 · 장비를 30일 동안 보관, 되살리기 · 완전히 지우기
 // 휴지통 한 칸: { kind: 'doc'|'client'|'item'|'set'|'equip', item, deletedAt, gearOf? }
 // 30일 지난 것은 프로그램을 열 때 비운다 (core/reports.mjs purgeTrash, node 시험 통과).
-import { daysLeft, TRASH_DAYS } from './core/reports.mjs?v=mwnja3le';
-import { docNo, DOC_TYPES, docTotals } from './core/docs.mjs?v=mwnja3le';
-import { won } from './docview.mjs?v=mwnja3le';
+import { daysLeft, TRASH_DAYS } from './core/reports.mjs?v=mwo9vfdw';
+import { docNo, DOC_TYPES, docTotals } from './core/docs.mjs?v=mwo9vfdw';
+import { won } from './docview.mjs?v=mwo9vfdw';
 
 let C;
 export function initTrash(ctx) { C = ctx; }

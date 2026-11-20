@@ -2,6 +2,7 @@
 // 규칙(분류 · 중복 · 세트 펼치기 · 엑셀 붙여넣기)은 core/catalog.mjs (node 시험 통과한 것)를 쓴다.
 import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs';
 import { lineAmount } from './core/money.mjs';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml } from './ux.mjs';
 
 let C = null;   // main.mjs 가 넘겨주는 도구 { S, $, esc, ic, uid, toast, openModal, changed, render }
 export function initItems(ctx) { C = ctx; bindCatSort(); }
@@ -20,6 +21,19 @@ function catListHtml() {
       '<div class="csrow" role="listitem" tabindex="0" data-cat="' + esc(c.name) + '" aria-label="' + esc(c.name) + ' — 끌거나 위 · 아래 화살표로 순서 바꾸기"><span class="csgrip" aria-hidden="true">' + ic('grip') + '</span><span class="csname">' + esc(c.name) + '</span><em>' + c.count + '</em></div>').join('') +
       (cats.some((c) => c.name === NO_CAT) ? '<div class="csrow fixed" aria-disabled="true"><span class="csname">' + NO_CAT + '</span><em>맨 끝 고정</em></div>' : '') + '</div>';
   }
+  const m = uxMode(), sortable = cats.filter((c) => c.name !== NO_CAT).length > 1;
+  if (m === 'a') {   // 시안 A: 분류 칩 한 줄 + 순서 단추
+    const chip = (key, label, n) => '<button type="button" class="uxchip' + (S.itemCat === key ? ' on' : '') + '" data-act="cat-pick" data-cat="' + esc(key) + '" aria-pressed="' + (S.itemCat === key) + '">' + esc(label) + ' <em>' + n + '</em></button>';
+    return '<div class="uxchips" role="group" aria-label="분류">' + chip('', '전체', S.data.items.length) + cats.map((c) => chip(c.name, c.name, c.count)).join('') +
+      (sortable ? '<button type="button" class="uxchip sort" data-act="cat-sort">' + ic('sort') + '순서</button>' : '') + '</div>';
+  }
+  if (m === 'b') {   // 시안 B: 왼쪽 하위 메뉴 목록
+    const onItem = S.itemTab !== 'set' && !isPhone();
+    return '<div class="uxnav-list">' + uxNavBtn('data-act="cat-pick" data-cat=""', onItem && !S.itemCat, '전체 품목', '<em>' + S.data.items.length + '</em>') +
+      cats.map((c) => uxNavBtn('data-act="cat-pick" data-cat="' + esc(c.name) + '"', onItem && S.itemCat === c.name, esc(c.name), '<em>' + c.count + '</em>')).join('') +
+      '<hr>' + uxNavBtn('data-act="item-tab" data-v="set"', S.itemTab === 'set' && !isPhone(), '품목 세트', '<em>' + S.data.sets.length + '</em>') +
+      (sortable ? '<hr><button type="button" class="uxnav add" data-act="cat-sort">' + ic('sort') + '분류 순서 바꾸기</button>' : '') + '</div>';
+  }
   const btn = (key, label, n) => '<button class="catb' + (S.itemCat === key ? ' on' : '') + '" data-act="cat-pick" data-cat="' + esc(key) + '"' + (S.itemCat === key ? ' aria-pressed="true"' : '') + '><span>' + esc(label) + '</span><em>' + n + '</em></button>';
   return btn('', '전체', S.data.items.length) + cats.map((c) => btn(c.name, c.name, c.count)).join('');
 }
@@ -27,7 +41,9 @@ function catToolsHtml() {
   const { S, esc, ic } = C;
   if (S.catSort) return '<p class="cat-help">분류를 <b>꾹 눌러</b>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <b>저장</b>을 누르세요. 품목 목록 · 문서의 품목 고르기도 이 순서로 보여요.</p>' +
     '<div class="cat-tools cs-tools"><button class="btn primary" data-act="cat-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="cat-sort-cancel">취소</button></div>';
+  if (uxMode() && S.itemTab === 'set') return '';   // 시안 A · B: 세트를 볼 때는 분류 고치기 단추를 숨김
   if (!S.itemCat || S.itemCat === NO_CAT || !S.data.items.some((i) => (i.cat || '').trim() === S.itemCat)) {
+    if (uxMode()) return '';
     return '<p class="cat-help">분류는 품목을 넣을 때 「분류」 칸에 이름을 쓰면 저절로 생겨요.</p>';
   }
   return '<div class="cat-tools"><b>' + esc(S.itemCat) + '</b><button class="btn sm" data-act="cat-rename">' + ic('type') + '이름 바꾸기</button>' +
@@ -35,6 +51,7 @@ function catToolsHtml() {
 }
 
 function itemRowsHtml() {
+  if (uxMode()) return uxItemRows();
   const { S, esc, ic } = C;
   if (!S.data.items.length) return '<div class="empty">아직 등록한 품목이 없어요.<br><b>품목 추가</b>를 누르거나, 지금 쓰는 엑셀 견적서의 품목 칸을 복사해 <b>엑셀에서 붙여넣기</b>로 한 번에 넣어 보세요.</div>';
   const list = filterItems(S.data.items, { cat: S.itemCat, q: S.itemQuery, order: catOrder() });
@@ -67,8 +84,89 @@ function setCardsHtml() {
   }).join('') + '</div>';
 }
 
+/* ── 시안 A · B (v1.6.0 시험): 단추 이름(data-act)은 원래 것을 그대로 쓴다 ── */
+const curList = () => filterItems(C.S.data.items, { cat: C.S.itemCat, q: C.S.itemQuery, order: catOrder() });
+function curItem() { const l = curList(); return l.find((i) => i.id === C.S.itemSel) || l[0] || null; }
+function curSet() { return C.S.data.sets.find((s) => s.id === C.S.setSel) || C.S.data.sets[0] || null; }
+function uxItemRows() {
+  const { S, esc, ic } = C, m = uxMode();
+  if (!S.data.items.length) return '<div class="empty">아직 등록한 품목이 없어요. <b>품목 추가</b>나 <b>붙여넣기</b>로 넣어 보세요.</div>';
+  const list = curList();
+  if (!list.length) return '<div class="empty">' + (S.itemQuery ? '「' + esc(S.itemQuery) + '」에 맞는 품목이 없어요.' : '이 분류에는 품목이 없어요.') + '</div>';
+  const tf = (it) => (it.taxFree ? '<span class="tf">면세</span>' : '');
+  if (m === 'b') {
+    const sel = curItem();
+    return '<div class="uxrows">' + list.map((it) => '<button type="button" class="uxrow pick' + (!isPhone() && sel && it.id === sel.id ? ' on' : '') + '" data-act="item-pick" data-id="' + it.id + '">' +
+      '<span class="uxt"><b>' + esc(it.name) + tf(it) + '</b><small>' + (it.spec ? esc(it.spec) : '규격 없음') + '</small></span>' +
+      '<span class="uxv num">' + won(it.price) + '원<small>' + dayTxt(toNum(it.days) ?? 1) + '</small></span><span class="uxgo">' + ic('right') + '</span></button>').join('') + '</div>';
+  }
+  return '<div class="uxrows"><div class="uxrow uxhead" aria-hidden="true"><span>품목 · 규격</span><span>분류</span><span class="r">기본 단가</span><span class="r">일수</span><span></span></div>' + list.map((it) => '<div class="uxrow item">' +
+    '<span class="uxt"><b>' + esc(it.name) + tf(it) + '</b><small>' + (it.spec ? esc(it.spec) : '<span class="dim">규격 없음</span>') + (it.cat ? '<span class="uxcat in">' + esc(it.cat) + '</span>' : '') + '</small></span>' +
+    '<span class="uxc">' + (it.cat ? '<span class="uxcat">' + esc(it.cat) + '</span>' : '<span class="dim">-</span>') + '</span>' +
+    '<span class="uxpr num">' + won(it.price) + '<small>원</small></span><span class="uxd num">' + dayTxt(toNum(it.days) ?? 1) + '</span>' +
+    uxMore(it.name, [['item-edit', it.id, '수정', 'edit'], ['item-del', it.id, '삭제', 'trash', true]]) + '</div>').join('') + '</div>';
+}
+function uxSetRows() {
+  const { S, esc, ic } = C, m = uxMode();
+  if (!S.data.sets.length) return '<div class="empty">아직 만든 세트가 없어요. 자주 같이 나가는 품목을 묶어 두면 문서에 한 번에 넣을 수 있어요.</div>';
+  const sel = curSet();
+  return '<div class="uxrows">' + S.data.sets.map((s) => {
+    const lines = expandSet(s, S.data.items);
+    const sum = lines.slice(0, 3).map((l) => esc(l.name)).join(' · ') + (lines.length > 3 ? ' 외 ' + (lines.length - 3) + '개' : '');
+    const amt = '<span class="uxv num">' + won(setAmount(s, S.data.items)) + '원<small>품목 ' + lines.length + '개</small></span>';
+    if (m === 'b') return '<button type="button" class="uxrow pick' + (!isPhone() && sel && sel.id === s.id ? ' on' : '') + '" data-act="set-pick" data-id="' + s.id + '"><span class="uxt"><b>' + esc(s.name) + '</b><small>' + sum + '</small></span>' + amt + '<span class="uxgo">' + ic('right') + '</span></button>';
+    return '<div class="uxrow set"><span class="uxt"><b>' + esc(s.name) + '</b><small>' + sum + '</small></span>' + amt +
+      uxMore(s.name, [['set-edit', s.id, '수정', 'edit'], ['set-copy', s.id, '복사', 'copy'], ['set-del', s.id, '삭제', 'trash', true]]) + '</div>';
+  }).join('') + '</div>';
+}
+function itemDetailHtml(it) {
+  const { S, esc, ic } = C;
+  if (!it) return '<div class="empty">품목을 고르면 여기에 자세히 보여요.</div>';
+  const used = setsUsing(S.data.sets, it.id);
+  return '<h2 class="uxdet-h">' + esc(it.name) + '</h2><p class="uxk">' + [it.cat, it.spec].filter(Boolean).map(esc).join(' · ') + '</p>' +
+    '<dl class="uxdl"><dt>분류</dt><dd>' + (it.cat ? esc(it.cat) : '분류 없음') + '</dd><dt>규격</dt><dd>' + (it.spec ? esc(it.spec) : '-') + '</dd>' +
+    '<dt>기본 단가</dt><dd class="num">' + won(it.price) + '원</dd><dt>기본 일수</dt><dd>' + dayTxt(toNum(it.days) ?? 1) + '</dd>' +
+    (it.taxFree ? '<dt>부가세</dt><dd>면세 품목</dd>' : '') + (it.memo ? '<dt>비고</dt><dd>' + esc(it.memo) + '</dd>' : '') +
+    '<dt>쓰는 세트</dt><dd>' + (used.length ? esc(used.join(', ')) : '없음') + '</dd></dl>' +
+    '<div class="uxacts"><button type="button" class="btn primary wide" data-act="item-edit" data-id="' + it.id + '">' + ic('edit') + '수정</button>' +
+    '<button type="button" class="btn danger-o wide" data-act="item-del" data-id="' + it.id + '">' + ic('trash') + '삭제</button></div>';
+}
+function setDetailHtml(s) {
+  const { S, esc, ic } = C;
+  if (!s) return '<div class="empty">세트를 고르면 여기에 자세히 보여요.</div>';
+  const lines = expandSet(s, S.data.items);
+  return '<h2 class="uxdet-h">' + esc(s.name) + '</h2><p class="uxk">품목 ' + lines.length + '개' + (s.memo ? ' · ' + esc(s.memo) : '') + '</p>' +
+    '<ul class="uxsetl">' + lines.map((l) => '<li' + (l.missing ? ' class="miss"' : '') + '><span>' + esc(l.name) + (l.spec ? ' <small>' + esc(l.spec) + '</small>' : '') + '</span><b class="num">' + (l.days !== 1 ? dayTxt(l.days) + ' × ' : '') + l.qty + '개</b></li>').join('') + '</ul>' +
+    '<p class="uxsum"><span>세트 금액 (부가세 전)</span><b class="num">' + won(setAmount(s, S.data.items)) + '원</b></p>' +
+    '<div class="uxacts"><button type="button" class="btn primary wide" data-act="set-edit" data-id="' + s.id + '">' + ic('edit') + '수정</button>' +
+    '<button type="button" class="btn" data-act="set-copy" data-id="' + s.id + '">' + ic('copy') + '복사</button><button type="button" class="btn danger-o" data-act="set-del" data-id="' + s.id + '">' + ic('trash') + '삭제</button></div>';
+}
+function uxItemsPage(m) {
+  const { S, esc, ic } = C;
+  const tab = S.itemTab === 'set' ? 'set' : 'item', nI = S.data.items.length, nS = S.data.sets.length;
+  const tools = tab === 'set' ? '<button type="button" class="btn primary" data-act="set-add">' + ic('plus') + '<span>세트 만들기</span></button>'
+    : (nI ? '<button type="button" class="btn" data-act="x-items-xlsx" title="엑셀로 저장">' + ic('download') + '<span>엑셀 저장</span></button>' : '') +
+      '<button type="button" class="btn" data-act="item-paste" title="엑셀에서 붙여넣기">' + ic('table') + '<span>붙여넣기</span></button>' +
+      '<button type="button" class="btn primary" data-act="item-add">' + ic('plus') + '<span>품목 추가</span></button>';
+  const search = '<input class="in uxsearch" type="search" id="iq" placeholder="품목 · 규격으로 찾기" value="' + esc(S.itemQuery) + '" aria-label="품목 찾기">';
+  const body = tab === 'set' ? '<div id="slist">' + uxSetRows() + '</div>' : misHtml() + '<div id="ilist">' + itemRowsHtml() + '</div>';
+  if (m === 'a') {
+    return '<div class="uxp ux-a ux-items">' + uxTabs([['item', '품목', nI], ['set', '세트', nS]], tab, 'item-tab') +
+      '<section class="card uxpanel"><div class="uxtool">' + (tab === 'item' ? search : '<span class="uxtool-t">자주 같이 나가는 품목 묶음</span>') + '<div class="uxtools">' + tools + '</div></div>' +
+      (tab === 'item' ? '<div id="catlist" class="uxcatbar">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div>' : '') + body +
+      (tab === 'item' && nI ? '<p class="uxfoot">단가는 기본값이에요. 문서마다 바꿀 수 있어요.</p>' : '') + '</section></div>';
+  }
+  const title = tab === 'set' ? '품목 세트' : (S.itemCat || '전체 품목');
+  return '<div class="uxp ux-b ux-items lvl' + uxLvl() + '">' +
+    '<aside class="card uxsub" aria-label="품목 하위 메뉴"><h3 class="uxsub-h">분류</h3><div id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
+    '<section class="card uxlist">' + uxBackHtml('품목 · 세트') + '<div class="uxtool"><h2 class="uxlist-h">' + esc(title) + '</h2><div class="uxtools">' + tools + '</div></div>' +
+    (tab === 'item' ? '<div class="uxtool">' + search + '</div>' : '') + body + '</section>' +
+    '<aside class="card uxdet" aria-label="자세히">' + (tab === 'set' ? setDetailHtml(curSet()) : itemDetailHtml(curItem())) + '</aside>' + uxSheetHtml() + '</div>';
+}
+
 export function itemsPage() {
   const { S, esc, ic } = C;
+  if (uxMode()) return uxItemsPage(uxMode());
   return '<div class="itempage">' +
     '<aside class="card catcard"><div class="card-h"><h2>' + ic('grid') + '분류</h2>' + (!S.catSort && categories(S.data.items).filter((c) => c.name !== NO_CAT).length > 1 ? '<button class="btn sm cs-open" data-act="cat-sort">' + ic('grip') + '순서 바꾸기</button>' : '') + '</div><div class="catlist" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
     '<section class="card itemcard"><div class="card-h"><h2>' + ic('layers') + '품목 목록</h2><span class="hint">' + S.data.items.length + '개</span>' +
@@ -407,7 +505,10 @@ function deleteSet(id) {
 export function itemsClick(act, a) {
   const { S } = C;
   switch (act) {
-    case 'cat-pick': S.itemCat = a.dataset.cat; repaint(); return true;
+    case 'cat-pick': S.itemCat = a.dataset.cat; if (uxMode()) { S.itemTab = 'item'; if (uxMode() === 'b') setLvl(2); C.render(); } else repaint(); return true;
+    case 'item-tab': S.itemTab = a.dataset.v; S.catSort = false; if (uxMode() === 'b') setLvl(2); C.render(); return true;
+    case 'item-pick': { S.itemSel = a.dataset.id; const it = S.data.items.find((i) => i.id === S.itemSel); if (isPhone() && it && openSheet(itemDetailHtml(it))) return true; C.render(); return true; }
+    case 'set-pick': { S.setSel = a.dataset.id; const st = S.data.sets.find((x) => x.id === S.setSel); if (isPhone() && st && openSheet(setDetailHtml(st))) return true; C.render(); return true; }
     case 'cat-rename': renameCat(); return true;
     case 'cat-del': deleteCat(); return true;
     case 'item-add': openItem(null); return true;

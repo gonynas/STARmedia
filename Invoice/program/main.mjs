@@ -6,6 +6,7 @@ import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/stora
 import { emptyData, load } from './core/datafile.mjs';
 import { ic } from './icons.mjs';
 import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs';
+import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs';
 import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs';
 import { docNo, DOC_TYPES } from './core/docs.mjs';
 import { processStamp } from './stamp.mjs';
@@ -367,7 +368,7 @@ function shell(body) {
     '<nav class="nav">' + nav + '</nav>' +
     '<div class="side-bottom"><div class="savepills" data-status aria-live="polite">' + statusHtml() + '</div>' +
     '<button type="button" class="lockbtn" data-act="lock-now">' + ic('lock') + '<span class="lbl">' + (hasLock() ? '화면 잠금' : '화면 잠금 정하기') + '</span></button></div></aside>' +
-    '<div class="main"><header class="top"><img class="top-logo" src="assets/starmedia-logo.png" alt="스타미디어 기획사"><div class="top-title">' + back + '<div><h1>' + h1 + '</h1><p>' + sub() + '</p></div></div></header>' +
+    '<div class="main"><header class="top' + (uxOn(S.route) ? ' ux-top' : '') + '"><img class="top-logo" src="assets/starmedia-logo.png" alt="스타미디어 기획사"><div class="top-title">' + back + '<div><h1>' + h1 + '</h1><p>' + sub() + '</p></div></div>' + uxHeadHtml(S.route) + '</header>' +
     '<main class="page"><div class="mstatus" data-status>' + statusHtml() + '</div>' + body + '</main>' + creditHtml() + '</div>' +
     '<nav class="bnav">' + bnav + '</nav>' + sheet + '</div>';
 }
@@ -543,6 +544,7 @@ function render() {
   if (step === 'legacy') { root.innerHTML = setupScreen() + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; return; }
   if (step) { root.innerHTML = setupWizardHtml(step) + modalHtml() + '<div class="toast" id="toast" role="status"></div>'; preloadGis(); document.title = '처음 설정 · 스타미디어 견적서 발행기'; return; }
   S.route = hashRoute(); S.hash = location.hash;
+  if (S.route !== S.prevRoute) { setLvl(1); S.prevRoute = S.route; }   // 시안 B 휴대폰: 다른 메뉴로 가면 하위 메뉴 목록부터
   dropPendingDocs();
   const PAGES = { me: mePage, clients: clientsPage, items: itemsPage, list: listPage, doc: editorPage, event: eventListPage, event1: eventPage, equip: equipPage, money: moneyPage, cal: calendarPage, trash: trashPage, set: settingsPage, home: homePage };
   let body;
@@ -581,7 +583,7 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (a.tagName === 'A') e.preventDefault();
-  if (setupClick(act) || driveClick(act)) return;
+  if (setupClick(act) || driveClick(act) || uxClick(act, a)) return;
   if (act === 'lock-now') { if (!lockNow()) { location.hash = '#set'; toast('먼저 비밀번호를 정해 주세요 (화면 잠금)'); } return; }
   if (equipClick(act, a, curEvent()) || editorClick(act, a) || eventsClick(act, a) || exportClick(act, a, curDoc()) ||
       moneyClick(act, a) || calendarClick(act, a) || trashClick(act, a) || settingsClick(act, a)) return;
@@ -666,7 +668,7 @@ initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: 
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
 const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
+initUx(ctx); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {

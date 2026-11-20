@@ -60,5 +60,9 @@ const sJs = ['icons', 'data', 'calc', 'docs', 'appui', 'equip', 'event', 'hub', 
 writeFileSync(join(so, 'app.js'), '(function () {\n"use strict";\n' + sJs + '\n})();\n');
 writeFileSync(join(so, 'index.html'), readFileSync(join(sian, 'index.html'), 'utf8').replace('href="style.css"', `href="style.css?v=${v}"`).replace('src="app.js"', `src="app.js?v=${v}"`));
 for (const f of readdirSync(join(sian, 'assets'))) copyFileSync(join(sian, 'assets', f), join(so, 'assets', f));
+// 하위 메뉴 디자인 시안 (v1.6 후보, 2026-11-20): sian/ux/ → dist/sian/ux/ (보여 주기용, 프로그램과 따로 논다)
+mkdirSync(join(so, 'ux'), { recursive: true });
+for (const f of readdirSync(join(sian, 'ux'))) copyFileSync(join(sian, 'ux', f), join(so, 'ux', f));
+writeFileSync(join(so, 'ux', 'index.html'), readFileSync(join(sian, 'ux', 'index.html'), 'utf8').replace('href="ux.css"', `href="ux.css?v=${v}"`).replace('src="ux.js"', `src="ux.js?v=${v}"`));
 
 console.log(`built dist/: 프로그램 v${pkg.version} (빌드 ${v}) · style.css ${css.length}자 · 시안은 dist/sian/`);

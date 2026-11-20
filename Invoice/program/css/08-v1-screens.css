@@ -333,7 +333,7 @@ input[type="date"].in::-webkit-date-and-time-value{min-height:1.4em;line-height:
 .wz-sticky{position:sticky;bottom:0;padding:12px 0;background:linear-gradient(transparent,var(--bg) 30%)}
 @media (max-width:767px){ .wz-steps li b{display:none} .wz-steps li.on b{display:inline} .wz-btns .btn{flex:1} }
 /* 발행 목록 상태 칸: 「발송 완료 + 수정됨」이 들어가게 넓힘 */
-.d-main{grid-template-columns:118px 120px minmax(0,1fr) 64px 118px 140px 52px}
+@media (min-width:1281px){ .d-main{grid-template-columns:118px 120px minmax(0,1fr) 64px 118px 140px 52px} }   /* 넓은 PC만 (v1.5.1: 조건 없이 두어 휴대폰 목록이 화면 밖으로 넘치던 것 고침) */
 .d-main .schip{white-space:nowrap}
 @media (max-width:1280px) and (min-width:768px){ .d-main{grid-template-columns:110px minmax(0,1fr) 110px 140px 52px} }
 
@@ -414,3 +414,8 @@ body.cs-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
 .cs-tools .btn{flex:1 1 120px;justify-content:center}
 @media (max-width:1100px){ .cat-sort{display:grid} }
 .catlist .cat-sort{flex:1 1 100%;width:100%;min-width:0}
+
+/* ══ v1.5.1 휴대폰 목록 넘침 고침: 한 줄은 카드 폭을 넘지 않게 ══ */
+.drow{min-width:0;max-width:100%}
+.dlist{min-width:0}
+@media (max-width:767px){ .d-main{grid-template-columns:minmax(0,1fr) auto auto} }
