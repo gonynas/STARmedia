@@ -7,6 +7,8 @@ import { emptyData, load } from './core/datafile.mjs';
 import { ic } from './icons.mjs';
 import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs';
 import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs';
+import { bindSortable, sortedIds } from './sortable.mjs';
+import { sortByOrder } from './core/catalog.mjs';
 import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs';
 import { docNo, DOC_TYPES } from './core/docs.mjs';
 import { processStamp } from './stamp.mjs';
@@ -479,15 +481,21 @@ function clientRow(c) {
 }
 function clientListHtml() {
   const q = S.clientQuery.trim().toLowerCase();
-  const list = S.data.clients.filter((c) => !q || [c.name, c.person, c.tel, c.bizNo].join(' ').toLowerCase().includes(q))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  const list = sortByOrder(S.data.clients.filter((c) => !q || [c.name, c.person, c.tel, c.bizNo].join(' ').toLowerCase().includes(q)), S.data.settings.clientOrder);
   if (!S.data.clients.length) return '<div class="empty">아직 등록한 거래처가 없어요.<br><b>거래처 추가</b>를 눌러 자주 거래하는 곳부터 넣어 보세요.</div>';
   if (!list.length) return '<div class="empty">「' + esc(S.clientQuery) + '」에 맞는 거래처가 없어요.</div>';
   return list.map(clientRow).join('');
 }
 function clientsPage() {
+  if (S.clientSort) {   // 순서 바꾸기: 꾹 눌러(마우스는 눌러서) 끌기 · 손잡이는 바로 · 키보드 ↑↓ → 저장
+    return '<section class="card"><div class="card-h"><h2>' + ic('users') + '거래처 순서 바꾸기</h2></div>' +
+      '<p class="cat-help">거래처를 <b>꾹 눌러</b>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <b>저장</b>을 누르세요. 문서의 거래처 고르기도 이 순서로 보여요.</p>' +
+      '<div class="cat-sort client-sort" id="clientSort" role="list">' + sortByOrder(S.data.clients, S.data.settings.clientOrder).map((c) =>
+        '<div class="csrow" role="listitem" tabindex="0" data-id="' + c.id + '" aria-label="' + esc(c.name) + ' — 끌거나 위 · 아래 화살표로 순서 바꾸기"><span class="csgrip" aria-hidden="true">' + ic('grip') + '</span><span class="csname">' + esc(c.name) + '</span>' + (c.person ? '<em>' + esc(c.person) + '</em>' : '') + '</div>').join('') + '</div>' +
+      '<div class="cat-tools cs-tools"><button class="btn primary" data-act="client-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="client-sort-cancel">취소</button></div></section>';
+  }
   return '<section class="card"><div class="card-h"><h2>' + ic('users') + '거래처 목록</h2><span class="hint">' + S.data.clients.length + '곳</span>' +
-    '<div class="tools">' + (S.data.clients.length ? '<button class="btn" data-act="x-clients-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn primary" data-act="client-add">' + ic('plus') + '거래처 추가</button></div></div>' +
+    '<div class="tools">' + (S.data.clients.length > 1 ? '<button class="btn" data-act="client-sort">' + ic('grip') + '순서 바꾸기</button>' : '') + (S.data.clients.length ? '<button class="btn" data-act="x-clients-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn primary" data-act="client-add">' + ic('plus') + '거래처 추가</button></div></div>' +
     '<div class="searchrow"><input class="in" type="search" id="cq" placeholder="상호 · 담당자 · 연락처로 찾기" value="' + esc(S.clientQuery) + '" aria-label="거래처 찾기"></div>' +
     '<div class="clist" id="clist">' + clientListHtml() + '</div></section>';
 }
@@ -598,6 +606,9 @@ document.addEventListener('click', async (e) => {
   else if (act === 'doc-save') saveDocNow(a);
   else if (act === 'retry') saveNow();
   else if (act === 'backup-now') { await saveNow(); const n = await S.store.backup('수동'); toast(n ? '백업을 만들었어요 (최근 10개 보관)' : '백업할 자료가 아직 없어요'); }
+  else if (act === 'client-sort') { S.clientSort = true; render(); }
+  else if (act === 'client-sort-cancel') { S.clientSort = false; render(); }
+  else if (act === 'client-sort-save') { S.data.settings.clientOrder = sortedIds('#clientSort', '.csrow[data-id]'); S.clientSort = false; changed(); render(); toast('거래처 순서를 저장했어요'); }
   else if (act === 'client-add') openClient(null);
   else if (act === 'client-edit') openClient(a.dataset.id);
   else if (act === 'client-del') deleteClient(a.dataset.id);
@@ -668,7 +679,7 @@ initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: 
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
 const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initUx(ctx); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
+initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {

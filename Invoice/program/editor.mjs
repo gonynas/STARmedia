@@ -2,7 +2,7 @@
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
 import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs';
 import { lineTax } from './core/money.mjs';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems } from './core/catalog.mjs';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs';
 import { renderPages, won, fileTitle } from './docview.mjs';
 import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs';
 import { serialFor } from './core/docs.mjs';
@@ -164,7 +164,7 @@ export function editorPage() {
   const ev = d.eventId ? S.data.events.find((x) => x.id === d.eventId) : null;
   const isBase = ev && baseDoc(ev, S.data.docs) && baseDoc(ev, S.data.docs).id === d.id;
   const statusOpts = Object.keys(DOC_STATUS).map((k) => '<option value="' + k + '"' + (k === d.status ? ' selected' : '') + '>' + DOC_STATUS[k] + '</option>').join('');
-  const clientOpts = S.data.clients.map((c) => '<option value="' + esc(c.name) + '">').join('');
+  const clientOpts = sortByOrder(S.data.clients, S.data.settings.clientOrder).map((c) => '<option value="' + esc(c.name) + '">').join('');
   const phr = phrasesAll().map((p) => { const on = (d.notes.phrases || []).includes(p); return '<button type="button" class="pchip' + (on ? ' on' : '') + '" data-act="phrase" data-p="' + esc(p) + '" aria-pressed="' + on + '">' + ic(on ? 'check' : 'plus') + esc(p) + '</button>'; }).join('');
   const t = docTotals(d);
   const meMissing = !(S.data.me.name && S.data.me.bizNo);

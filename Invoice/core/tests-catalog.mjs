@@ -1,5 +1,5 @@
 // 품목 · 세트 규칙 시험 (실행: npm test · 빌드할 때도 먼저 실행된다)
-import { renameInOrder, searchItems, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
+import { sortByOrder, renameInOrder, searchItems, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './catalog.mjs';
 
 let pass = 0, fail = 0;
 function eq(name, got, want) {
@@ -66,6 +66,12 @@ eq('정한 순서 없으면 가나다순 · 분류 없음 맨 끝', categories(c
 eq('정한 순서대로, 순서에 없는 분류는 그 뒤 가나다순', categories(co, ['테이블 · 의자', '천막']).map((c) => c.name), ['테이블 · 의자', '천막', '음향', NO_CAT]);
 eq('품목 목록도 분류 순서대로', filterItems(co, { order: ['테이블 · 의자', '음향'] }).map((i) => i.id), ['i3', 'i6', 'i2', 'i1', 'i4']);
 eq('분류 이름 바꾸기 · 합치기 · 지우기 때 순서도', [renameInOrder(['a', 'b', 'c'], 'b', 'x'), renameInOrder(['a', 'b', 'c'], 'b', 'c'), renameInOrder(['a', 'b'], 'a', ''), renameInOrder(undefined, 'a', 'b')], [['a', 'x', 'c'], ['a', 'c'], ['b'], undefined]);
+console.log('거래처 순서 (사용자가 정함)');
+const cl = [{ id: 'c1', name: '한빛건설' }, { id: 'c2', name: '남해군청' }, { id: 'c3', name: '가나상사' }, { id: 'c4', name: '다온축제' }];
+eq('정한 순서 없으면 이름 가나다순', sortByOrder(cl, undefined).map((c) => c.id), ['c3', 'c2', 'c4', 'c1']);
+eq('정한 순서대로, 새 거래처는 그 뒤 가나다순', sortByOrder(cl, ['c1', 'c2']).map((c) => c.id), ['c1', 'c2', 'c3', 'c4']);
+eq('지운 거래처 id 가 순서에 남아 있어도 괜찮음', sortByOrder(cl, ['x9', 'c4']).map((c) => c.id), ['c4', 'c3', 'c2', 'c1']);
+eq('원래 목록은 그대로', cl.map((c) => c.id), ['c1', 'c2', 'c3', 'c4']);
 console.log('칸이 밀린 품목 바로잡기');
 const mis = () => ({
   items: [

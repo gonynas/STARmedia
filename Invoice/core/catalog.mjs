@@ -19,6 +19,13 @@ export function catRank(order) {
   const m = new Map((Array.isArray(order) ? order : []).map((n, i) => [n, i]));
   return (name) => (name === NO_CAT ? 1e9 : m.has(name) ? m.get(name) : 1e6);
 }
+/** 사용자가 정한 순서(order = id 목록)대로 줄 세우기. 순서에 없는 것(새로 넣은 것)은 그 뒤에 fallback 순(기본: 이름 가나다순).
+ *  거래처 순서(settings.clientOrder)에 쓴다. 원래 목록은 바꾸지 않고 새 목록을 돌려준다 */
+export function sortByOrder(list, order, fallback = (a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ko')) {
+  const m = new Map((Array.isArray(order) ? order : []).map((id, i) => [id, i]));
+  const r = (x) => (m.has(x.id) ? m.get(x.id) : 1e9);
+  return list.slice().sort((a, b) => r(a) - r(b) || fallback(a, b));
+}
 /** 분류 목록과 품목 수. 정한 순서(order) → 나머지 가나다순, 「분류 없음」은 맨 끝 */
 export function categories(items, order = []) {
   const m = new Map(), r = catRank(order);

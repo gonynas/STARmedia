@@ -56,6 +56,7 @@ app/
 │  ├─ stamp.mjs        도장 사진 흰 배경 지우기
 │  ├─ icons.mjs        아이콘 ic('이름')
 │  ├─ ux.mjs           하위 메뉴 디자인(v1.6.0): 설정 · 백업 → 화면 → 「화면 디자인 (UI · UX)」 기본 · A · B (이 기기 localStorage), uxMode() · 탭 · 하위 메뉴 · ⋯ 메뉴 · 휴대폰 자세히 창. 품목 · 발행 목록 · 설정 화면이 uxMode() 로 모양을 고름 (CSS: css/09-ux-ab.css)
+│  ├─ sortable.mjs     끌어서 순서 바꾸기 부품(bindSortable · sortedIds) — 거래처 순서(v1.6.1)
 │  ├─ sw.js · manifest.webmanifest   홈 화면 설치(인터넷 먼저, 끊기면 저장본)
 │  ├─ assets/          로고 · 아이콘
 │  └─ css/             01 → 08 순서로 이어 붙여 style.css 가 됨 (08-v1-screens.css = 1.0에서 더한 화면)
@@ -99,7 +100,7 @@ docs      [{ id, type('quote'|'stmt'|'inv'|'rcpt'), serial, version, showNo, dat
              agreed, deposit{on,amount}, notes{...}, fillRows, eventId, tradeDate, copies, dueDate, paidDate, payMethod, device, createdAt, updatedAt }]
 payments  [{ id, eventId, date, amount(환불은 음수), method, memo, cancelled, createdAt }]
 trash     [{ kind('doc'|'client'|'item'|'set'|'equip'), item, deletedAt, gearOf? }]   30일 뒤 자동으로 비움
-settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], catOrder[](분류 순서, 없으면 가나다순), lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)
+settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], catOrder[](분류 순서, 없으면 가나다순), clientOrder[](거래처 id 순서), lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)
 ```
 날짜는 모두 `YYYY-MM-DD` 글자, 시각은 ISO 문자열. 금액은 원 단위 정수.
 

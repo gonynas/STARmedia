@@ -2012,3 +2012,4 @@ body.cs-dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
   .set-ux .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
   .set-ux .seg button{padding:0 6px;font-size:.86rem;line-height:1.25;white-space:normal}
 }
+.client-sort .csrow em{background:none;padding:0;font-weight:600}
