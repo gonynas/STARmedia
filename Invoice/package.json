@@ -1,6 +1,6 @@
 {
   "name": "starmedia-quote",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "description": "스타미디어 견적서 발행기 (외부 라이브러리 없음, 빌드 결과는 정적 파일)",
   "scripts": {

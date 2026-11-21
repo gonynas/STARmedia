@@ -16,8 +16,9 @@ export function uxOn(route) { return !!uxMode() && UX_ROUTES.includes(route); }
 export function applyUx() { const m = uxMode(); if (m) document.documentElement.dataset.ux = m; else delete document.documentElement.dataset.ux; applyCard(); }
 /* 영역 제목 모양(v1.6.4 시험): 각 상자(카드) 맨 위 제목 줄 — '' 기본 · 'band' 1 파란 띠(흰 글자) · 'soft' 2 연한 파란 띠. 이 기기에만 저장 */
 const CKEY = 'starmedia-quote:cardh';
-export function cardMode() { try { const v = localStorage.getItem(CKEY) || ''; return v === 'band' || v === 'soft' ? v : ''; } catch (e) { return ''; } }
-export function applyCard() { const m = cardMode(); if (m) document.documentElement.dataset.cardh = m; else delete document.documentElement.dataset.cardh; }
+// v1.7.1: 사용자가 고른 「연한 띠(soft)」가 기본. 'band' 파란 띠 · 'none' 띠 없음(예전 모양)은 설정에서 고를 때만
+export function cardMode() { try { const v = localStorage.getItem(CKEY) || 'soft'; return v === 'band' || v === 'none' ? v : 'soft'; } catch (e) { return 'soft'; } }
+export function applyCard() { const m = cardMode(); if (m !== 'none') document.documentElement.dataset.cardh = m; else delete document.documentElement.dataset.cardh; }
 export const isPhone = () => matchMedia('(max-width:767px)').matches;
 export function uxLvl() { return lvl; }
 export function setLvl(n) { lvl = n; }
@@ -91,9 +92,9 @@ export function uxClick(act, a) {
       return true;
     }
     case 'ux-cardh': {
-      try { if (a.dataset.v) localStorage.setItem(CKEY, a.dataset.v); else localStorage.removeItem(CKEY); } catch (e) { /* 무시 */ }
+      try { if (a.dataset.v && a.dataset.v !== 'soft') localStorage.setItem(CKEY, a.dataset.v); else localStorage.removeItem(CKEY); } catch (e) { /* 무시 */ }
       applyCard(); a.parentElement.querySelectorAll('button').forEach((b) => { const on = b === a; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
-      C.toast(a.dataset.v === 'band' ? '영역 제목을 「파란 띠」로 바꿨어요' : a.dataset.v === 'soft' ? '영역 제목을 「연한 띠」로 바꿨어요' : '영역 제목을 원래 모양으로 돌렸어요');
+      C.toast(a.dataset.v === 'band' ? '영역 제목을 「파란 띠」로 바꿨어요' : a.dataset.v === 'soft' ? '영역 제목을 「연한 띠」(기본)로 바꿨어요' : '영역 제목을 띠 없는 예전 모양으로 바꿨어요');
       return true;
     }
     case 'ux-tip': { const h = a.closest('.top'); if (h) h.classList.toggle('tip'); return true; }

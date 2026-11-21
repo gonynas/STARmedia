@@ -2,6 +2,9 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.7.1 — 2026-11-21 · 영역 제목 「연한 띠」 기본
+- 좋아짐: 사용자가 고른 시안 2(연한 띠)를 기본으로(ux.mjs cardMode 기본 'soft', 저장값 'band' · 'none' 만 남김). 설정 선택지: 연한 띠(기본) · 파란 띠 · 띠 없음.
+
 ## v1.7.0 — 2026-11-21 · 영역 제목 모양 · 중복 품목 알림 · 다시 열면 잠금
 - 새 기능: 영역 제목 모양(ux.mjs cardMode/applyCard, localStorage 'starmedia-quote:cardh', html[data-cardh] band · soft, css 09 「v1.6.4 영역 제목」) — 설정 → 화면.
 - 새 기능: 중복 품목 확인 창(core/docs.mjs mergeLines 'qty' · 'skip' + 시험, editor insertLines) — 수량 + / 삭제.

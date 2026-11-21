@@ -1,16 +1,16 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwpy4bts';
-import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwpy4bts';
-import { toNum } from './core/catalog.mjs?v=mwpy4bts';
-import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwpy4bts';
-import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwpy4bts';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwpy4bts';
-import { wrap } from './core/datafile.mjs?v=mwpy4bts';
-import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwpy4bts';
-import { openInstall, isStandalone } from './install.mjs?v=mwpy4bts';
-import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwpy4bts';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwq56y00';
+import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwq56y00';
+import { toNum } from './core/catalog.mjs?v=mwq56y00';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwq56y00';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwq56y00';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwq56y00';
+import { wrap } from './core/datafile.mjs?v=mwq56y00';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwq56y00';
+import { openInstall, isStandalone } from './install.mjs?v=mwq56y00';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwq56y00';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
@@ -47,7 +47,7 @@ function settingsBody() {
     '<div class="set-row set-ux"><span class="sl"><b>화면 디자인 (UI · UX)</b><small>이 기기에만 적용돼요 · 품목 · 세트, 발행 목록, 설정 · 백업 화면 모양</small></span>' +
     seg('ux-set', [['', '기본'], ['a', 'A · 탭 정리형'], ['b', 'B · 목록 · 상세형']], uxMode()) + '</div>' +
     '<div class="set-row set-ux"><span class="sl"><b>영역 제목 모양</b><small>이 기기에만 적용돼요 · 각 상자 맨 위 제목 줄</small></span>' +
-    seg('ux-cardh', [['', '기본'], ['band', '1 · 파란 띠'], ['soft', '2 · 연한 띠']], cardMode()) + '</div>' +
+    seg('ux-cardh', [['soft', '연한 띠 (기본)'], ['band', '파란 띠'], ['none', '띠 없음']], cardMode()) + '</div>' +
     '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +

@@ -2,9 +2,9 @@
 // 행사 한 건에 견적서 · 수정본 · 거래명세서 · 납품ㆍ청구서 · 영수증을 묶고, 돈은 「계약 기준 문서」 한 장으로만 센다.
 // 행사: { id, name, clientId, client:{name,person,tel}, start, end, place, baseDocId, status:'active'|'cancel', memo, createdAt, updatedAt }
 // 입금: { id, eventId, date, amount(환불은 음수), method, memo, cancelled, createdAt }
-import { ledger, canIssueReceipt, refundOnCancel } from './money.mjs?v=mwpy4bts';
-import { docTotals, copyDoc, serialFor, addDays, ymd, docNo } from './docs.mjs?v=mwpy4bts';
-import { toNum } from './catalog.mjs?v=mwpy4bts';
+import { ledger, canIssueReceipt, refundOnCancel } from './money.mjs?v=mwq56y00';
+import { docTotals, copyDoc, serialFor, addDays, ymd, docNo } from './docs.mjs?v=mwq56y00';
+import { toNum } from './catalog.mjs?v=mwq56y00';
 
 const nid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 

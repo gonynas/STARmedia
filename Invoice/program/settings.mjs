@@ -47,7 +47,7 @@ function settingsBody() {
     '<div class="set-row set-ux"><span class="sl"><b>화면 디자인 (UI · UX)</b><small>이 기기에만 적용돼요 · 품목 · 세트, 발행 목록, 설정 · 백업 화면 모양</small></span>' +
     seg('ux-set', [['', '기본'], ['a', 'A · 탭 정리형'], ['b', 'B · 목록 · 상세형']], uxMode()) + '</div>' +
     '<div class="set-row set-ux"><span class="sl"><b>영역 제목 모양</b><small>이 기기에만 적용돼요 · 각 상자 맨 위 제목 줄</small></span>' +
-    seg('ux-cardh', [['', '기본'], ['band', '1 · 파란 띠'], ['soft', '2 · 연한 띠']], cardMode()) + '</div>' +
+    seg('ux-cardh', [['soft', '연한 띠 (기본)'], ['band', '파란 띠'], ['none', '띠 없음']], cardMode()) + '</div>' +
     '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +
