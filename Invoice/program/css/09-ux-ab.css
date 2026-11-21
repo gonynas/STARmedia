@@ -225,3 +225,32 @@
   .ux-b .uxleaf .uxnav-go .ic{width:16px;height:16px}
 }
 @media (prefers-reduced-motion:reduce){ .uxmid-c{transition:none} }
+
+/* ══ v1.6.4 홈 「만료가 가까운 견적 · 입금 기한 지난 청구 · 이번 주 행사」: 마우스를 올리면 대표 색으로 반전 + 떠오름(새 문서 만들기 단추와 같은 느낌) ══ */
+.tcard{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease,color .18s ease}
+.tcard.warn{--tc:#B26B00}.tcard.danger{--tc:#C02121}.tcard.info{--tc:#3A83F7}
+.tcard:hover,.tcard:focus-within{background:var(--tc);border-color:var(--tc);color:#fff;transform:translateY(-3px);box-shadow:0 2px 6px rgba(23,43,70,.12),0 18px 32px -16px rgba(23,43,70,.5)}
+.tcard:hover h3,.tcard:hover .tc-big,.tcard:hover .tc-big b,.tcard:hover p,.tcard:hover small,.tcard:hover li,.tcard:hover li em,.tcard:hover li a,
+.tcard:focus-within h3,.tcard:focus-within .tc-big,.tcard:focus-within .tc-big b,.tcard:focus-within p,.tcard:focus-within li,.tcard:focus-within li em{color:#fff}
+.tcard:hover .tc-ic,.tcard:focus-within .tc-ic{background:rgba(255,255,255,.2);color:#fff}
+.tcard:hover li,.tcard:focus-within li{background:rgba(255,255,255,.14)}
+.tcard:hover .btn,.tcard:hover .mini,.tcard:focus-within .btn,.tcard:focus-within .mini{background:#fff;border-color:#fff;color:var(--tc)}
+@media (prefers-reduced-motion:reduce){ .tcard{transition:none} .tcard:hover{transform:none} }
+
+/* ══ v1.6.4 영역 제목 모양 (설정 → 화면 → 「영역 제목 모양」) — 각 상자 맨 위 제목 줄을 띠로 ══ */
+html[data-cardh] .main .card>.card-h:first-child{margin:-22px -22px 18px;padding:13px 22px;border-radius:var(--radius) var(--radius) 0 0;min-height:56px}
+html[data-cardh] .main .catcard.uxg>.uxg-h,html[data-cardh] .main .uxg>.uxg-h{margin:-6px -6px 8px;padding:12px 14px;border-radius:var(--radius) var(--radius) 0 0;border-bottom:0}
+/* 1 · 파란 띠: 파란 바탕 + 흰 글자 */
+html[data-cardh="band"] .main .card>.card-h:first-child,html[data-cardh="band"] .main .uxg>.uxg-h{background:var(--primary);color:#fff}
+html[data-cardh="band"] .main .card>.card-h:first-child h2,html[data-cardh="band"] .main .card>.card-h:first-child h2 .ic,html[data-cardh="band"] .main .card>.card-h:first-child .more{color:#fff}
+html[data-cardh="band"] .main .card>.card-h:first-child .hint{color:rgba(255,255,255,.86)}
+html[data-cardh="band"] .main .card>.card-h:first-child .sn{background:#fff;color:var(--primary-ink)}
+html[data-cardh="band"] .main .card>.card-h:first-child .btn{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.55);color:#fff}
+html[data-cardh="band"] .main .card>.card-h:first-child .btn.primary{background:#fff;border-color:#fff;color:var(--primary-ink)}
+html[data-cardh="band"] .main .uxg>.uxg-h .uxg-i{background:rgba(255,255,255,.2);color:#fff}
+/* 2 · 연한 띠: 연한 파란 바탕 + 진한 파란 글자 + 아래 선 */
+html[data-cardh="soft"] .main .card>.card-h:first-child,html[data-cardh="soft"] .main .uxg>.uxg-h{background:var(--primary-soft);color:#173A6B;border-bottom:1px solid #D6E4FB}
+html[data-cardh="soft"] .main .card>.card-h:first-child h2,html[data-cardh="soft"] .main .card>.card-h:first-child h2 .ic{color:#173A6B}
+html[data-cardh="soft"] .main .card>.card-h:first-child .hint{color:#4D6A93}
+html[data-cardh="soft"] .main .uxg>.uxg-h .uxg-i{background:#fff}
+@media (max-width:767px){ html[data-cardh] .main .card>.card-h:first-child{margin:-16px -16px 14px;padding:12px 16px} }

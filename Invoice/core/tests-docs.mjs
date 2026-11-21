@@ -1,5 +1,5 @@
 // 셋째 묶음 시험: 문서 번호 · 합계 · 선금 · 끝자리 정리 · 쪽 나누기 · 붙여넣기 · 복사
-import { pageLimits, serialFor, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, addDays, validUntil, notesList, paginate, parseLinePaste, itemToLine, filterDocs, dateKo } from './docs.mjs';
+import { mergeLines, pageLimits, serialFor, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, addDays, validUntil, notesList, paginate, parseLinePaste, itemToLine, filterDocs, dateKo } from './docs.mjs';
 import { emptyData } from './datafile.mjs';
 
 let pass = 0, fail = 0;
@@ -76,6 +76,16 @@ const p2 = parseLinePaste('무대 트러스\t6m\t2\t1\t1200000\n음향\t\t1\t1\t
 eq('머리글 없이 5칸 · 6칸', p2.rows.map((r) => [r.name, r.days, r.qty, r.price, r.memo]), [['무대 트러스', 2, 1, 1200000, ''], ['음향', 1, 1, 800000, '기본']]);
 eq('2칸: 품목 · 단가', parseLinePaste('발전차\t1,000,000원').rows[0].price, 1000000);
 
+console.log('중복 품목 넣기');
+const ex = [{ id: 'a', name: '천막텐트', spec: '3mx6m', qty: 1 }, { id: 'b', name: '의자', spec: '등받이형', qty: 10 }];
+const inc = [{ id: 'c', name: '천막 텐트', spec: '3MX6M', qty: 2 }, { id: 'd', name: '테이블', spec: '1800×750', qty: 1 }, { id: 'e', name: '테이블', spec: '1800×750', qty: 3 }];
+const mq = mergeLines(ex, inc, 'qty');
+eq('수량 +: 겹친 줄 수량에 더함 · 새 줄은 붙임 · 새 줄끼리도 합침', mq.lines.map((l) => l.name + ':' + l.qty), ['천막텐트:3', '의자:10', '테이블:4']);
+eq('겹친 개수 · 이름', [mq.added, mq.dups, mq.dupNames], [1, 2, ['천막 텐트', '테이블']]);
+const ms = mergeLines(ex, inc, 'skip');
+eq('삭제: 겹친 줄은 빼고 넣음', ms.lines.map((l) => l.name + ':' + l.qty), ['천막텐트:1', '의자:10', '테이블:1']);
+eq('원래 목록은 그대로', ex.map((l) => l.qty), [1, 10]);
+eq('이름 없는 줄은 겹침으로 안 봄', mergeLines([{ name: '', qty: 1 }], [{ name: '', qty: 1 }]).dups, 0);
 console.log('발행 목록 거르기');
 const list = [{ id: 1, type: 'quote', serial: '261115-01', client: { name: '○○군청', person: '김주무관' }, event: { name: '가을축제' }, lines: [{ name: '몽골텐트' }], updatedAt: '2026-11-15T01' },
   { id: 2, type: 'inv', serial: '261115-01', client: { name: '한빛건설' }, event: { name: '준공식' }, lines: [], updatedAt: '2026-11-15T02' }];

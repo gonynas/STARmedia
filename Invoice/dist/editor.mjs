@@ -1,12 +1,12 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwouo7hy';
-import { lineTax } from './core/money.mjs?v=mwouo7hy';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwouo7hy';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwouo7hy';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwouo7hy';
-import { serialFor } from './core/docs.mjs?v=mwouo7hy';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwouo7hy';
+import { mergeLines, DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwpy4bts';
+import { lineTax } from './core/money.mjs?v=mwpy4bts';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwpy4bts';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwpy4bts';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwpy4bts';
+import { serialFor } from './core/docs.mjs?v=mwpy4bts';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwpy4bts';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -306,8 +306,22 @@ function printDoc(pdf) {
 /* ── 고르기 창들 ── */
 function insertLines(lines, msg) {
   const d = curDoc(); if (!d || !lines.length) return;
-  d.lines.push(...lines); touch(d); refreshLines(); refreshSum(); pvSoon();
-  C.toast(msg || '품목 ' + lines.length + '개를 넣었어요');
+  const apply = (mode) => {
+    const r = mergeLines(d.lines, lines, mode);
+    d.lines.length = 0; d.lines.push(...r.lines);
+    touch(d); refreshLines(); refreshSum(); pvSoon();
+    C.toast(r.dups ? (mode === 'qty' ? '겹친 품목 ' + r.dups + '개는 수량을 더했어요' : '겹친 품목 ' + r.dups + '개는 빼고 넣었어요') + (r.added ? ' · 새 품목 ' + r.added + '개' : '') : (msg || '품목 ' + lines.length + '개를 넣었어요'));
+  };
+  const chk = mergeLines(d.lines, lines, 'skip');
+  if (!chk.dups) { apply('qty'); return; }
+  // 이미 들어 있는 품목을 또 넣을 때: 삭제(빼고 넣기) · 수량 +(그 줄 수량에 더하기)
+  C.openModal({
+    icon: 'alert', tone: 'primary', title: '중복된 품목이 있습니다',
+    body: '<p>이미 들어 있는 품목이에요: <b>' + chk.dupNames.map(C.esc).join(', ') + '</b></p><p class="hint" style="margin-top:6px"><b>삭제</b> = 겹친 품목은 빼고 넣기 · <b>수량 +</b> = 그 줄 수량에 더하기</p>',
+    ok: '수량 +', cancel: '삭제',
+    onOk: () => apply('qty'),
+    onCancel: () => apply('skip')
+  });
 }
 function openPickItems() {
   const { S, esc, ic } = C;

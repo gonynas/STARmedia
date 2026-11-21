@@ -13,7 +13,11 @@ export function initUx(ctx) {
 /** '' (기본) · 'a' · 'b' */
 export function uxMode() { try { const v = localStorage.getItem(KEY) || ''; return v === 'a' || v === 'b' ? v : ''; } catch (e) { return ''; } }
 export function uxOn(route) { return !!uxMode() && UX_ROUTES.includes(route); }
-export function applyUx() { const m = uxMode(); if (m) document.documentElement.dataset.ux = m; else delete document.documentElement.dataset.ux; }
+export function applyUx() { const m = uxMode(); if (m) document.documentElement.dataset.ux = m; else delete document.documentElement.dataset.ux; applyCard(); }
+/* 영역 제목 모양(v1.6.4 시험): 각 상자(카드) 맨 위 제목 줄 — '' 기본 · 'band' 1 파란 띠(흰 글자) · 'soft' 2 연한 파란 띠. 이 기기에만 저장 */
+const CKEY = 'starmedia-quote:cardh';
+export function cardMode() { try { const v = localStorage.getItem(CKEY) || ''; return v === 'band' || v === 'soft' ? v : ''; } catch (e) { return ''; } }
+export function applyCard() { const m = cardMode(); if (m) document.documentElement.dataset.cardh = m; else delete document.documentElement.dataset.cardh; }
 export const isPhone = () => matchMedia('(max-width:767px)').matches;
 export function uxLvl() { return lvl; }
 export function setLvl(n) { lvl = n; }
@@ -41,9 +45,10 @@ export function uxMore(label, items) {
       고른 항목이 든 묶음은 늘 펼침. 접힘 상태는 이 화면을 쓰는 동안만 기억(S.navOpen). 규칙 문서: D:\…\v1.6.2_메뉴 분류 · 앱 아이콘 시안 ── */
 const FOLD_DEF = { items: false, sets: false, types: true, sts: true, sg: true };
 export function isOpen(k, forced) {
-  if (forced) return true;
+  // 사용자가 직접 펼치거나 접었으면 그대로(v1.6.4: 고른 묶음이 늘 펼쳐져 「품목 세트」를 다시 눌러도 안 접히던 것 고침), 아니면 고른 묶음은 펼침, 그 밖은 기본값
   const o = C.S.navOpen || {};
-  return k in o ? o[k] : (FOLD_DEF[k.split(':')[0]] ?? true);
+  if (k in o) return o[k];
+  return forced || (FOLD_DEF[k.split(':')[0]] ?? true);
 }
 export function uxGroup(icon, title, inner) {
   return '<section class="card uxg"><h3 class="uxg-h"><span class="uxg-i">' + C.ic(icon) + '</span>' + title + '</h3>' + inner + '</section>';
@@ -83,6 +88,12 @@ export function uxClick(act, a) {
       if (C.S.route === 'set') { C.S.setGroup = 'screen'; lvl = 2; }   // 설정에서 바꾸면 A · B 에서도 「화면」 묶음을 그대로 보여 줌
       C.render();
       C.toast(a.dataset.v ? '시안 ' + a.dataset.v.toUpperCase() + ' 모양으로 바꿨어요 (품목 · 세트 · 발행 목록 · 설정 · 백업)' : '원래 모양으로 돌아왔어요');
+      return true;
+    }
+    case 'ux-cardh': {
+      try { if (a.dataset.v) localStorage.setItem(CKEY, a.dataset.v); else localStorage.removeItem(CKEY); } catch (e) { /* 무시 */ }
+      applyCard(); a.parentElement.querySelectorAll('button').forEach((b) => { const on = b === a; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+      C.toast(a.dataset.v === 'band' ? '영역 제목을 「파란 띠」로 바꿨어요' : a.dataset.v === 'soft' ? '영역 제목을 「연한 띠」로 바꿨어요' : '영역 제목을 원래 모양으로 돌렸어요');
       return true;
     }
     case 'ux-tip': { const h = a.closest('.top'); if (h) h.classList.toggle('tip'); return true; }

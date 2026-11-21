@@ -2,6 +2,13 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.7.0 — 2026-11-21 · 영역 제목 모양 · 중복 품목 알림 · 다시 열면 잠금
+- 새 기능: 영역 제목 모양(ux.mjs cardMode/applyCard, localStorage 'starmedia-quote:cardh', html[data-cardh] band · soft, css 09 「v1.6.4 영역 제목」) — 설정 → 화면.
+- 새 기능: 중복 품목 확인 창(core/docs.mjs mergeLines 'qty' · 'skip' + 시험, editor insertLines) — 수량 + / 삭제.
+- 좋아짐: 홈 tcard 마우스 올림 반전(warn #B26B00 · danger #C02121 · info #3A83F7) + translateY(-3px).
+- 좋아짐: 잠금 — lockOnBoot 가 sessionStorage 'starmedia-quote:unlocked'(창을 닫으면 지워짐) 또는 닫은 지 15초 넘음(localStorage closedAt, 이전 탭 되살리기 대비)이면 잠금. unlock 때 표시.
+- 고침: ux.mjs isOpen — 사용자가 직접 펼치거나 접은 상태가 「고른 묶음 펼침」보다 우선(품목 세트 다시 눌러도 안 접히던 것).
+
 ## v1.6.3 — 2026-11-20 · 앱 아이콘 새 심볼로 전부 바꿈
 - 고침: 옛 별 아이콘이 남아 있던 star-icon.svg(왼쪽 메뉴 · 시안) · app-icon.svg · icon-180.png 를 새 심볼로 덮어씀. 설치 · 바탕화면 아이콘은 새 이름 starmedia-192/512/maskable-512 · starmedia-180 (manifest · index.html · install.mjs) — 같은 이름이면 크롬 · 휴대폰이 옛 그림을 기억해서.
 

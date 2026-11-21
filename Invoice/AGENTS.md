@@ -45,7 +45,7 @@ app/
 │  ├─ calendar.mjs     행사 달력(#cal)
 │  ├─ trash.mjs        휴지통(#trash)
 │  ├─ settings.mjs     설정 · 백업(#set): 기본값 · 글자 크게 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 업데이트 확인
-│  ├─ lockscreen.mjs   화면 잠금(숫자 4~10자리, 동그라미 = 자릿수, 자동 잠금, 초기화 코드로 「초기화 → 재설정」)
+│  ├─ lockscreen.mjs   화면 잠금(숫자 4~10자리, 동그라미 = 자릿수, 자동 잠금, 초기화 코드로 「초기화 → 재설정」). 브라우저 · 앱을 닫았다 열면 잠금(sessionStorage + closedAt 15초, v1.7.0)
 │  ├─ setup.mjs        처음 설정 단계(needsSetup: drive → folder(PC만, 나중 가능) → me → pin) — 자료를 보고 단계를 정해서 드라이브에 설정이 있으면 건너뜀
 │  ├─ gdrive.mjs       구글 드라이브 연결 · 휴대폰 「드라이브에서 불러오기」 · 저절로 맞추기 · 상태 알약 (규칙은 core/drive.mjs · core/sync.mjs)
 │  ├─ config.mjs       GOOGLE_CLIENT_ID (비어 있으면 드라이브 칸이 「설정 전」) — 만드는 법 GOOGLE_SETUP.md

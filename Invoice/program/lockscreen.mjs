@@ -7,6 +7,9 @@ import { validPin, onlyDigits, makeLock, checkPin, checkReset, hasRecovery, shou
 
 let C;
 const LAST = 'starmedia-quote:lastActive';
+const SESS = 'starmedia-quote:unlocked';      // 이 창(탭)에서 잠금을 푼 적 있음 — 창을 닫으면 브라우저가 지움(sessionStorage)
+const CLOSED = 'starmedia-quote:closedAt';    // 마지막으로 창을 닫거나 떠난 시각 — 새로 고침(몇 초)과 「닫았다 다시 열기」를 구분
+const CLOSED_AT_BOOT = (() => { try { return Number(localStorage.getItem(CLOSED)) || 0; } catch (e) { return 0; } })();   // 프로그램이 뜨자마자 읽어 둠(pageshow 가 지우기 전에)
 const st = { locked: false, typed: '', mode: 'unlock', tries: 0, code: '' };   // mode: unlock · reset1 · reset2 · code
 
 const lockInfo = () => (C.S.data && C.S.data.settings && C.S.data.settings.lock) || null;
@@ -33,15 +36,24 @@ export function initLock(ctx) {
 let tt = 0;
 function touchThrottled() { const n = now(); if (n - tt > 5000) { tt = n; touch(); } }
 
-/** 프로그램을 열 때: 비밀번호가 있고 정한 시간이 지났으면 잠근 채로 시작 */
-export function lockOnBoot() { if (hasLock() && minutes() > 0 && shouldAutoLock(lastActive(), now(), minutes())) lockNow(); else touch(); }
+/** 프로그램을 열 때: 비밀번호가 있으면 ① 브라우저 · 앱을 닫았다 다시 연 경우(v1.6.4) ② 정한 시간이 지난 경우 잠근 채로 시작.
+ *  새로 고침(같은 창, 닫은 지 15초 안)은 잠그지 않는다. 브라우저가 「이전 탭 다시 열기」로 창 기억을 되살려도 닫은 지 15초가 넘으면 잠근다 */
+export function lockOnBoot() {
+  if (!hasLock()) { sessMark(); touch(); return; }
+  let fresh = false, gap = 0;
+  try { fresh = !sessionStorage.getItem(SESS); gap = CLOSED_AT_BOOT ? now() - CLOSED_AT_BOOT : 0; } catch (e) { fresh = false; }
+  if (fresh || gap > 15000 || (minutes() > 0 && shouldAutoLock(lastActive(), now(), minutes()))) lockNow(); else touch();
+}
+function sessMark() { try { sessionStorage.setItem(SESS, '1'); } catch (e) { /* 무시 */ } }
+window.addEventListener('pagehide', () => { try { localStorage.setItem(CLOSED, String(now())); } catch (e) { /* 무시 */ } });
+window.addEventListener('pageshow', () => { try { localStorage.removeItem(CLOSED); } catch (e) { /* 무시 */ } });
 
 export function lockNow() {
   if (!hasLock()) return false;
   st.locked = true; st.typed = ''; st.mode = 'unlock'; st.tries = 0;
   paint(); return true;
 }
-function unlock() { st.locked = false; st.typed = ''; st.mode = 'unlock'; touch(); const el = document.getElementById('lockScreen'); if (el) el.remove(); document.body.classList.remove('is-locked'); }
+function unlock() { st.locked = false; st.typed = ''; st.mode = 'unlock'; sessMark(); touch(); const el = document.getElementById('lockScreen'); if (el) el.remove(); document.body.classList.remove('is-locked'); }
 
 const WARN = '이 코드는 <b>지금 한 번만</b> 보여 드려요. 비밀번호를 잊었을 때 사업자등록번호와 함께 있어야 초기화할 수 있어요. <b>화면을 캡처해 두거나 따로 적어 두세요.</b>';
 /** 초기화 코드 안내 (설정 화면 · 잠금 화면 같은 모양) */

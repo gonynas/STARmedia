@@ -198,6 +198,27 @@ export function parseLinePaste(text) {
 /* ── 목록 ── */
 const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase();
 /** 발행 목록 거르기: 종류 · 검색어(받는 곳 · 담당자 · 행사명 · 번호 · 품목) · 최근 고친 순 */
+/** 문서 품목 줄에 새 줄들을 넣을 때 같은 품목(이름 + 규격, 띄어쓰기 · 대소문자 무시)이 이미 있으면:
+ *  mode 'qty' = 그 줄 수량에 더함(수량 +), 'skip' = 빼고 넣음(삭제). 새로 넣는 줄끼리 겹쳐도 같게. 원래 목록은 바꾸지 않는다.
+ *  돌려주는 값: { lines: 합친 새 목록, added: 새로 붙인 줄 수, dups: 겹친 줄 수, dupNames: 겹친 품목 이름들 } */
+export function mergeLines(existing, incoming, mode = 'qty') {
+  const sq = (v) => String(v == null ? '' : v).replace(/\s+/g, '').toLowerCase();
+  const key = (l) => sq(l.name) + '|' + sq(l.spec);
+  const out = existing.map((l) => ({ ...l })), idx = new Map(), names = [];
+  let added = 0, dups = 0;
+  for (const l of out) if (sq(l.name)) idx.set(key(l), l);
+  for (const l of incoming) {
+    const hit = sq(l.name) ? idx.get(key(l)) : null;
+    if (hit) {
+      dups++; if (!names.includes(l.name)) names.push(l.name);
+      if (mode === 'qty') hit.qty = (toNum(hit.qty) ?? 1) + (toNum(l.qty) ?? 1);
+      continue;
+    }
+    const nl = { ...l }; out.push(nl); added++;
+    if (sq(l.name)) idx.set(key(l), nl);
+  }
+  return { lines: out, added, dups, dupNames: names };
+}
 export function filterDocs(docs, { type = '', q = '', status = '' } = {}) {
   const k = squash(q);
   return docs.filter((d) => !d.pending && (!type || d.type === type) && (!status || (d.status || 'draft') === status) &&
