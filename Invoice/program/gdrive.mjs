@@ -111,7 +111,7 @@ async function connect() {
     if (peek.found && hasLocal) {
       const a = countData(local), b = countData(peek.data);
       C.openModal({ icon: 'cloud', title: '드라이브에 자료가 이미 있어요', body: '<p>드라이브: 문서 ' + b.docs + ' · 거래처 ' + b.clients + ' · 품목 ' + b.items + '</p><p>이 기기: 문서 ' + a.docs + ' · 거래처 ' + a.clients + ' · 품목 ' + a.items + '</p>' +
-        '<p class="note">' + C.ic('check') + '<span>두 자료를 <b>합쳐요</b>(어느 쪽도 지우지 않아요). 합치기 전에 이 기기 자료를 백업해 둬요.</span></p>', ok: '합치고 연결하기', onOk: go });
+        '<p class="note">' + C.ic('check') + '<span>두 자료를 <b>합쳐요</b>(<mark class="hl-g">어느 쪽도 지우지 않아요</mark>). 합치기 전에 이 기기 자료를 백업해 둬요.</span></p>', ok: '합치고 연결하기', onOk: go });
       G.status = 'off'; paint(); return;
     }
     await go();
@@ -128,7 +128,7 @@ async function loadFromDrive() {
     await login(true);
     const peek = await peekRemote(drive());
     if (!peek.found) {
-      C.openModal({ icon: 'cloud', title: 'PC에서 먼저 설정해 주세요', body: '<p>이 구글 계정의 드라이브에 「' + FOLDER_NAME + '」 자료가 아직 없어요.</p><p>이 프로그램은 <b>PC에서 먼저 처음 설정</b>(구글 드라이브 연결 · 내 정보 · 잠금 비밀번호)을 마쳐야 휴대폰에서 쓸 수 있어요. PC와 <b>같은 구글 계정</b>인지도 확인해 주세요.</p>', ok: '알겠어요', cancel: false });
+      C.openModal({ icon: 'cloud', title: 'PC에서 먼저 설정해 주세요', body: '<p>이 구글 계정의 드라이브에 「' + FOLDER_NAME + '」 자료가 아직 없어요.</p><p>이 프로그램은 <mark class="hl-y"><b>PC에서 먼저</b></mark><b> 처음 설정</b>(구글 드라이브 연결 · 내 정보 · 잠금 비밀번호)을 마쳐야 휴대폰에서 쓸 수 있어요. PC와 <mark class="hl-p"><b>같은 구글 계정</b></mark>인지도 확인해 주세요.</p>', ok: '알겠어요', cancel: false });
       return;
     }
     await adoptRemote(peek);
@@ -136,7 +136,7 @@ async function loadFromDrive() {
   } catch (e) { C.toast(String(e && e.message || e)); if (!/닫았어요/.test(String(e && e.message))) logProblem('구글 불러오기 실패', e); }
 }
 async function disconnect() {
-  C.openModal({ icon: 'cloud', title: '구글 드라이브 연결을 끊을까요?', body: '<p>이 기기는 더 이상 드라이브와 맞추지 않아요. <b>드라이브와 이 기기의 자료는 지우지 않아요.</b></p><p class="warnbox">' + C.ic('alert') + '<span>구글 드라이브는 1차 저장소(필수)라서, 끊으면 다시 연결할 때까지 처음 설정 화면이 나와요. 다른 구글 계정으로 바꿀 때만 쓰세요.</span></p>', ok: '연결 끊기',
+  C.openModal({ icon: 'cloud', title: '구글 드라이브 연결을 끊을까요?', body: '<p>이 기기는 더 이상 드라이브와 맞추지 않아요. <b>드라이브와 이 기기의 <mark class="hl-g">자료는 지우지 않아요</mark>.</b></p><p class="warnbox">' + C.ic('alert') + '<span>구글 드라이브는 1차 저장소(필수)라서, 끊으면 다시 연결할 때까지 <mark class="hl-p">처음 설정 화면이 나와요</mark>. <mark class="hl-p">다른 구글 계정으로 바꿀 때만</mark> 쓰세요.</span></p>', ok: '연결 끊기',
     onOk: async () => {
       const t = token(); try { if (t && window.google && google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(t, () => {}); } catch (e) {}
       try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
@@ -169,7 +169,7 @@ export function warnIfDisconnected() {
   if (isLocked() || document.querySelector('#modal.on')) { setTimeout(warnIfDisconnected, 1500); return; }   // 잠금을 풀고 · 다른 창을 닫은 뒤에 보여 준다
   if (!location.hash.startsWith('#doc/')) return;
   G.warned = true;
-  C.openModal({ icon: 'google', title: '구글 드라이브 연결이 끊겼어요', body: '<p>구글은 보안 때문에 <b>1시간쯤마다 다시 확인</b>해요. 지금 쓰는 내용은 이 기기에 저장되고 있어요.</p><p><b>연결</b>을 누르면 드라이브와 다시 맞춰서 휴대폰 · 다른 PC에도 보여요.</p>', ok: '연결', cancel: '나중에',
+  C.openModal({ icon: 'google', title: '구글 드라이브 연결이 끊겼어요', body: '<p>구글은 보안 때문에 <b>1시간쯤마다 다시 확인</b>해요. 지금 쓰는 내용은 <mark class="hl-g">이 기기에 저장되고 있어요</mark>.</p><p><mark class="hl-y"><b>연결</b></mark>을 누르면 드라이브와 다시 맞춰서 휴대폰 · 다른 PC에도 보여요.</p>', ok: '연결', cancel: '나중에',
     onOk: () => login(false).then(() => { G.warned = false; G.status = 'ok'; paint(); syncNow(); C.toast('구글 드라이브에 다시 연결했어요'); }).catch((e) => C.toast(String(e && e.message || e))) });
 }
 /** 처음 설정 화면의 구글 드라이브 단계 */

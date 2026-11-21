@@ -4,9 +4,9 @@
 //  휴대폰 · 태블릿 : ① 「구글 드라이브에서 불러오기」만 (PC에서 먼저 설정해야 쓸 수 있음). 2차 저장소 없음.
 //  구글 드라이브에 이미 설정된 자료가 있으면(PC 포맷 뒤 · 다른 사무실 PC · 휴대폰) ③ ④ 는 저절로 건너뛴다.
 //  어느 단계인지는 자료를 보고 정한다(needsSetup) — 따로 저장하는 「설정 끝」 표시가 없어서 기기를 바꿔도 맞게 나온다.
-import { driveConfigured, driveConnected, setupDriveHtml } from './gdrive.mjs?v=mwqgvo9m';
-import { hasLock, setPin, showCodeModal } from './lockscreen.mjs?v=mwqgvo9m';
-import { validPin, onlyDigits, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwqgvo9m';
+import { driveConfigured, driveConnected, setupDriveHtml } from './gdrive.mjs?v=mwqo0jnd';
+import { hasLock, setPin, showCodeModal } from './lockscreen.mjs?v=mwqo0jnd';
+import { validPin, onlyDigits, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwqo0jnd';
 
 let C;
 const FOLDER_DONE = 'starmedia-quote:folderStepDone';
@@ -54,7 +54,7 @@ export function setupWizardHtml(step) {
       '<label class="fld"><span>비밀번호 다시 입력</span><input class="in" id="wzPinB" type="password" inputmode="numeric" maxlength="' + PIN_MAX + '" autocomplete="new-password"></label></div>' +
       '<p class="note" id="wzMsg" style="display:none"></p>' +
       '<div class="wz-btns"><button type="button" class="btn primary big" data-act="wz-pin">' + C.ic('lock') + '비밀번호 정하기</button></div>' +
-      '<p class="note">' + C.ic('alert') + '<span>정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊었을 때 꼭 필요하니 <b>캡처하거나 따로 적어 두세요.</b></span></p></div>';
+      '<p class="note">' + C.ic('alert') + '<span>정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊었을 때 <mark class="hl-p">꼭 필요하니</mark> <mark class="hl-y"><b>캡처하거나 따로 적어 두세요.</b></mark></span></p></div>';
   }
   return '<div class="setup wz"><div class="setup-card">' + body + '</div></div>';
 }

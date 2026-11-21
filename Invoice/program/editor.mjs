@@ -48,7 +48,7 @@ function deleteDoc(id) {
   const d = C.S.data.docs.find((x) => x.id === id); if (!d) return;
   C.openModal({
     tone: 'danger', icon: 'trash', title: '문서를 삭제할까요?',
-    body: '<p><b>' + C.esc(docNo(d)) + '</b> · ' + C.esc(d.client.name || '받는 곳 없음') + '</p><p>휴지통으로 옮겨 30일 동안 보관해요. 그 안에는 되돌릴 수 있어요.</p>', ok: '삭제',
+    body: '<p><b>' + C.esc(docNo(d)) + '</b> · ' + C.esc(d.client.name || '받는 곳 없음') + '</p><p>휴지통으로 옮겨 <mark class="hl-g">30일 동안 보관</mark>해요. 그 안에는 <mark class="hl-g">되돌릴 수 있어요</mark>.</p>', ok: '삭제',
     onOk: () => {
       C.S.data.docs = C.S.data.docs.filter((x) => x.id !== id);
       C.S.data.trash.push({ kind: 'doc', item: d, deletedAt: new Date().toISOString() });
@@ -217,7 +217,7 @@ export function editorPage() {
     (d.type !== 'quote' ? '' : '<div class="opt-row"><span class="ol">예상 선금</span>' + sw('deposit.on', d.deposit.on, '견적서에 선금 · 잔금 줄 넣기') +
     '<div class="dep"' + (d.deposit.on ? '' : ' hidden') + ' id="depBox"><input class="in num" data-d="deposit.amount" value="' + won(d.deposit.amount) + '" inputmode="numeric" aria-label="예상 선금 금액"><span class="won-s">원</span>' +
     '<button type="button" class="pchip" data-act="dep-rate" data-r="0.1">10%</button><button type="button" class="pchip" data-act="dep-rate" data-r="0.3">30%</button><button type="button" class="pchip" data-act="dep-rate" data-r="0.5">50%</button></div>' +
-    '<p class="dep-hint">실제로 받은 돈은 「행사 · 입금」에서 따로 적어요. 여기는 견적서에 보여 줄 <b>예상</b> 금액이에요.</p></div>') +
+    '<p class="dep-hint">실제로 받은 돈은 <mark class="hl-y">「행사 · 입금」에서 따로 적어요</mark>. 여기는 견적서에 보여 줄 <mark class="hl-p"><b>예상</b></mark> 금액이에요.</p></div>') +
     '<div class="opt-row"><span class="ol">끝자리 정리</span><label class="sw"><input type="checkbox" data-act-sw="agreed"' + (agreedOn ? ' checked' : '') + '><i></i><span>최종 합의금액으로 맞추기 (네고)</span></label>' +
     '<div class="dep"' + (agreedOn ? '' : ' hidden') + ' id="agreedBox"><input class="in num" data-d="agreed" value="' + (toNum(d.agreed) > 0 ? won(d.agreed) : '') + '" inputmode="numeric" placeholder="' + won(t.base.total) + '" aria-label="최종 합의금액 (부가세 포함)"><span class="won-s">원</span></div>' +
     '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p></div>' +
@@ -238,7 +238,7 @@ export function editorPage() {
     '<button type="button" class="sb" data-act="x-pdf">' + ic('pdf') + 'PDF 저장</button><button type="button" class="sb" data-act="x-jpg">' + ic('image') + '이미지 저장</button>' +
     '<button type="button" class="sb" data-act="doc-print">' + ic('print') + '인쇄</button><button type="button" class="sb" data-act="x-xlsx">' + ic('table') + '엑셀 저장</button>' +
     '<button type="button" class="sb" data-act="doc-copy" data-id="' + d.id + '">' + ic('copy') + '복사해서 새로</button><button type="button" class="sb" data-act="doc-del" data-id="' + d.id + '">' + ic('trash') + '삭제</button></div>' +
-    '<p class="note pv-note">' + ic('check') + '<span>입력하면 저절로 저장되고, 미리보기도 바로 바뀌어요.</span></p>' +
+    '<p class="note pv-note">' + ic('check') + '<span>입력하면 <mark class="hl-g">저절로 저장</mark>되고, 미리보기도 바로 바뀌어요.</span></p>' +
     '</aside></div>' +
     '<div class="ed-next">' + prev + '<button type="button" class="btn ed-save" data-act="doc-save" aria-label="지금 바로 저장">' + ic('download') + '저장</button>' + next + '</div>' +
     '<div class="pvfull" id="pvFull" role="dialog" aria-modal="true" aria-label="문서 크게 보기"><div class="pvfull-bar"><b>' + C.esc(docNo(d)) + '</b><button type="button" class="btn" data-act="doc-print">' + ic('print') + '인쇄</button><button type="button" class="btn primary" data-act="pv-close">' + ic('x') + '닫기</button></div><div class="pvfull-body" id="pvFullBody"></div></div>' +
@@ -318,7 +318,7 @@ function insertLines(lines, msg) {
   // 이미 들어 있는 품목을 또 넣을 때: 삭제(빼고 넣기) · 수량 +(그 줄 수량에 더하기)
   C.openModal({
     icon: 'alert', tone: 'primary', title: '중복된 품목이 있습니다',
-    body: '<p>이미 들어 있는 품목이에요: <b>' + chk.dupNames.map(C.esc).join(', ') + '</b></p><p class="hint" style="margin-top:6px"><b>삭제</b> = 겹친 품목은 빼고 넣기 · <b>수량 +</b> = 그 줄 수량에 더하기</p>',
+    body: '<p>이미 들어 있는 품목이에요: <b>' + chk.dupNames.map(C.esc).join(', ') + '</b></p><p class="hint" style="margin-top:6px"><mark class="hl-p"><b>삭제</b></mark> = 겹친 품목은 빼고 넣기 · <mark class="hl-y"><b>수량 +</b></mark> = 그 줄 수량에 더하기</p>',
     ok: '수량 +', cancel: '삭제',
     onOk: () => apply('qty'),
     onCancel: () => apply('skip')
@@ -397,7 +397,7 @@ function openPasteLines() {
   };
   C.openModal({
     icon: 'table', title: '엑셀에서 품목 붙여넣기', wide: true,
-    body: '<p class="pv-sum">엑셀 견적서의 <b>품목 · 규격 · 일수 · 수량 · 단가 · 비고</b> 칸을 드래그해 복사한 뒤 붙여넣으세요. 머리글 줄이 있으면 순서가 달라도 맞춰요. (단위 · 금액 칸은 무시하고 금액은 다시 계산해요)</p>' +
+    body: '<p class="pv-sum">엑셀 견적서의 <b>품목 · 규격 · 일수 · 수량 · 단가 · 비고</b> 칸을 <mark class="hl-y">드래그해 복사한 뒤 붙여넣으세요</mark>. 머리글 줄이 있으면 순서가 달라도 맞춰요. (단위 · 금액 칸은 무시하고 <mark class="hl-g">금액은 다시 계산해요</mark>)</p>' +
       '<textarea class="in ta-paste" id="lpIn" rows="6" aria-label="붙여넣을 표" placeholder="품목&#9;규격&#9;일수&#9;수량&#9;단가&#10;몽골텐트&#9;5×5m&#9;1&#9;4&#9;170,000"></textarea><div id="lpPv"></div>',
     ok: '넣기', cancel: '취소',
     onOk: () => {

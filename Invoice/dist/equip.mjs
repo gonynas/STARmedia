@@ -3,10 +3,10 @@
 // 행사에 넣은 장비: event.gear = [{ equipId, qty }], 반출 event.out · 반납 event.back, 부족 사유 event.gearNote
 // 3차 시안 요구: 수정 · 삭제 버튼, 체크해서 여러 개 한꺼번에 삭제, − + 로 바꾼 총 수량은 「변경 저장」을 눌러야 반영, 할 때마다 확인 창.
 // 부족은 숨기지 않고 「N개 부족」으로 보여 준다. 계산은 core/reports.mjs (node 시험 통과).
-import { equipmentOn, equipState, gearShortage, gearRange, usageOn } from './core/reports.mjs?v=mwqgvo9m';
-import { toNum } from './core/catalog.mjs?v=mwqgvo9m';
-import { ymd, dateKo, dateShort } from './core/docs.mjs?v=mwqgvo9m';
-import { won } from './docview.mjs?v=mwqgvo9m';
+import { equipmentOn, equipState, gearShortage, gearRange, usageOn } from './core/reports.mjs?v=mwqo0jnd';
+import { toNum } from './core/catalog.mjs?v=mwqo0jnd';
+import { ymd, dateKo, dateShort } from './core/docs.mjs?v=mwqo0jnd';
+import { won } from './docview.mjs?v=mwqo0jnd';
 
 let C;
 export function initEquip(ctx) { C = ctx; }
@@ -83,7 +83,7 @@ export function equipPage() {
     '</section>' +
     '<section class="card eq-form"><div class="card-h"><h2>' + C.ic('plus') + '장비 등록</h2></div>' + formHtml({}, 'n') +
     '<button type="button" class="btn primary big wide" data-act="eq-add">' + C.ic('plus') + '장비 등록하기</button>' +
-    '<p class="note">' + C.ic('layers') + '<span>「품목에도 넣기」를 켜 두면 품목 · 세트에도 들어가서 견적서에서 바로 골라 쓸 수 있어요.</span></p></section></div></div>';
+    '<p class="note">' + C.ic('layers') + '<span><mark class="hl-y">「품목에도 넣기」</mark>를 켜 두면 품목 · 세트에도 들어가서 견적서에서 바로 골라 쓸 수 있어요.</span></p></section></div></div>';
 }
 const addD = (s, n) => { const [y, m, d] = s.split('-').map(Number); return ymd(new Date(y, m - 1, d + n)); };
 

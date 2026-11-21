@@ -199,7 +199,7 @@ async function onFolderChange() {
   openModal({
     icon: 'cloud', title: '저장 폴더를 바꿀까요?',
     body: '<p>지금 폴더: <b>' + esc(oldH.name || '') + '</b> → 새 폴더: <b>' + esc(h.name || '') + '</b></p>' +
-      '<ul class="x-steps"><li>지금 자료와 ' + (nBk ? '하루 전 사본 · 백업 ' + nBk + '개를' : '백업을') + ' 새 폴더로 <b>복사</b>해요.</li><li>앞으로는 <b>새 폴더에만</b> 저장해요.</li><li>예전 폴더의 파일은 <b>지우지 않고 그대로</b> 둬요.</li></ul>' +
+      '<ul class="x-steps"><li>지금 자료와 ' + (nBk ? '하루 전 사본 · 백업 ' + nBk + '개를' : '백업을') + ' 새 폴더로 <b>복사</b>해요.</li><li>앞으로는 <mark class="hl-y"><b>새 폴더에만</b> 저장</mark>해요.</li><li>예전 폴더의 파일은 <mark class="hl-g"><b>지우지 않고 그대로</b> 둬요</mark>.</li></ul>' +
       (there ? '<p class="warnbox">' + ic('alert') + '<span>새 폴더에 이미 견적서 자료가 있어요. 그 자료는 지우지 않고 그 폴더의 백업에 「폴더바꾸기전_보관」으로 남겨 둬요.</span></p>' : '') +
       (S.folder.state !== 'connected' && !Object.keys(oldFiles).length ? '<p class="note">' + ic('alert') + '<span>예전 폴더를 읽을 허락이 없어 백업은 복사하지 못해요. 지금 자료는 새 폴더에 저장돼요.</span></p>' : ''),
     ok: '바꾸기',
@@ -228,7 +228,7 @@ async function onFolderConnect() {
     openModal({
       icon: 'cloud', title: '이 폴더에 자료가 이미 있어요',
       body: '<p>폴더 자료: <b>' + dateKo(found.savedAt) + '</b> 저장 · ' + summary(found.data) + '</p><p>지금 자료: ' + summary(S.data) + '</p>' +
-        '<p class="note">' + ic('check') + '<span>어느 쪽을 골라도 다른 쪽은 백업으로 남아요.</span></p>',
+        '<p class="note">' + ic('check') + '<span>어느 쪽을 골라도 <mark class="hl-g">다른 쪽은 백업으로 남아요</mark>.</span></p>',
       ok: '폴더 자료 불러오기', cancel: '지금 자료로 계속',
       onOk: () => adoptFound(handle, found),
       onCancel: () => connectFolderKeepCurrent(handle)
@@ -300,7 +300,7 @@ async function startFresh(handle) {
   if (!handle && HAS_FOLDER) {
     openModal({
       icon: 'cloud', title: 'PC 폴더에도 같이 저장할까요?',
-      body: '<p>이 기기 말고 PC 폴더(예: <b>D:\\견적서발행기</b>)에도 저절로 저장해 두면, 노트북을 바꾸거나 브라우저 기록을 지워도 버튼 한 번으로 다시 불러올 수 있어요.</p><p class="note">' + ic('star') + '<span>추천: 폴더를 정해 두세요</span></p>',
+      body: '<p>이 기기 말고 PC 폴더(예: <b>D:\\견적서발행기</b>)에도 저절로 저장해 두면, 노트북을 바꾸거나 브라우저 기록을 지워도 <mark class="hl-g">버튼 한 번으로 다시 불러올 수 있어요</mark>.</p><p class="note">' + ic('star') + '<span>추천: <mark class="hl-y">폴더를 정해 두세요</mark></span></p>',
       ok: '폴더 고르기', cancel: '나중에',
       onOk: async () => { const h = await pickFolder(); if (h) await connectFolderKeepCurrent(h); }
     });
@@ -489,7 +489,7 @@ function clientListHtml() {
 function clientsPage() {
   if (S.clientSort) {   // 순서 바꾸기: 꾹 눌러(마우스는 눌러서) 끌기 · 손잡이는 바로 · 키보드 ↑↓ → 저장
     return '<section class="card"><div class="card-h"><h2>' + ic('users') + '거래처 순서 바꾸기</h2></div>' +
-      '<p class="cat-help">거래처를 <b>꾹 눌러</b>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <b>저장</b>을 누르세요. 문서의 거래처 고르기도 이 순서로 보여요.</p>' +
+      '<p class="cat-help">거래처를 <mark class="hl-g"><b>꾹 눌러</b></mark>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <mark class="hl-y"><b>저장</b></mark>을 누르세요. 문서의 거래처 고르기도 이 순서로 보여요.</p>' +
       '<div class="cat-sort client-sort" id="clientSort" role="list">' + sortByOrder(S.data.clients, S.data.settings.clientOrder).map((c) =>
         '<div class="csrow" role="listitem" tabindex="0" data-id="' + c.id + '" aria-label="' + esc(c.name) + ' — 끌거나 위 · 아래 화살표로 순서 바꾸기"><span class="csgrip" aria-hidden="true">' + ic('grip') + '</span><span class="csname">' + esc(c.name) + '</span>' + (c.person ? '<em>' + esc(c.person) + '</em>' : '') + '</div>').join('') + '</div>' +
       '<div class="cat-tools cs-tools"><button class="btn primary" data-act="client-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="client-sort-cancel">취소</button></div></section>';
@@ -530,7 +530,7 @@ function deleteClient(id) {
   const c = S.data.clients.find((x) => x.id === id); if (!c) return;
   openModal({
     tone: 'danger', icon: 'trash', title: '거래처를 삭제할까요?',
-    body: '<p><b>' + esc(c.name) + '</b></p><p>휴지통으로 옮겨 30일 동안 보관해요. 그 안에는 되돌릴 수 있어요.</p>', ok: '삭제', cancel: '취소',
+    body: '<p><b>' + esc(c.name) + '</b></p><p>휴지통으로 옮겨 <mark class="hl-g">30일 동안 보관</mark>해요. 그 안에는 <mark class="hl-g">되돌릴 수 있어요</mark>.</p>', ok: '삭제', cancel: '취소',
     onOk: () => {
       S.data.clients = S.data.clients.filter((x) => x.id !== id);
       S.data.trash.push({ kind: 'client', item: c, deletedAt: new Date().toISOString() });

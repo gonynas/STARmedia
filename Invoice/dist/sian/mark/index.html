@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>형광펜 표시 고르기 (v1.9 후보) · 스타미디어 견적서 발행기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--bg:#F3F6FB;--surface:#fff;--surface2:#F7F9FD;--line:#E3E9F2;--text:#172B46;--sub:#5F6B7D;--muted:#5F6B7D;--primary:#3A83F7;--primary-ink:#1C62D8;--primary-soft:#EAF2FE;
+  --hy:#FFE45C;--hg:#9BE8B5;--hp:#FFB8D4;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--text);background:var(--bg);line-height:1.6;word-break:keep-all}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid rgba(58,131,247,.35);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 140px}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.02em}
+.lead{margin:6px 0 18px;color:var(--sub)}
+/* 형광펜: 실제 형광펜처럼 글자 아래쪽 60%를 칠함 */
+mark{color:var(--text);padding:0 .12em;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.hl-y{background:linear-gradient(180deg,transparent 38%,var(--hy) 38%)}
+.hl-g{background:linear-gradient(180deg,transparent 38%,var(--hg) 38%)}
+.hl-p{background:linear-gradient(180deg,transparent 38%,var(--hp) 38%)}
+.card{background:var(--surface);border:1px solid #E6EBF3;border-radius:var(--r);box-shadow:0 1px 2px rgba(23,43,70,.05),0 10px 28px -16px rgba(23,43,70,.22)}
+.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:16px;margin-bottom:16px}
+.legend div{padding:12px 14px;border-radius:10px;background:var(--surface2)}
+.legend b{display:block;margin-bottom:2px}
+.legend small{color:var(--sub)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.bar .btn{min-height:38px}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--primary-ink);border-color:var(--primary-ink);color:#fff}
+.btn.primary:hover{background:#174FAE}
+.grp-t{margin:26px 4px 10px;font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.grp-t em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--sub);background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 8px}
+.item{padding:0;margin-bottom:12px;overflow:hidden}
+.item.off{opacity:.55}
+.it-h{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--primary-soft);border-bottom:1px solid #D6E4FB}
+.it-h .no{font-weight:800;color:var(--primary-ink);min-width:2.2em}
+.it-h b{flex:1;min-width:0}
+.kind{font-size:.76rem;font-weight:800;padding:1px 8px;border-radius:999px;background:#fff;color:var(--primary-ink);border:1px solid #CFE0FB;white-space:nowrap}
+.kind.warn{color:#B4235E;border-color:#F6C4D8}
+.it-h label{display:flex;align-items:center;gap:6px;font-size:.88rem;font-weight:700;white-space:nowrap;cursor:pointer}
+.it-b{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0}
+.pv{padding:16px 18px;border-right:1px solid var(--line)}
+.pv small{display:block;color:var(--muted);font-size:.8rem;margin-bottom:6px}
+.pv .box{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:.98rem}
+.pv .box p{margin:0 0 6px}.pv .box p:last-child{margin:0}
+.ph{padding:12px 16px;display:grid;gap:6px;align-content:start}
+.ph small{color:var(--muted);font-size:.8rem}
+.prow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border-radius:9px;background:var(--surface2)}
+.prow input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary)}
+.prow .t{font-weight:600;font-size:.92rem;overflow-wrap:anywhere}
+.prow select{min-height:32px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:0 6px;font-weight:700}
+.prow.off .t{color:var(--muted);text-decoration:line-through}
+.memo{width:100%;min-height:38px;border:1px dashed var(--line);border-radius:9px;padding:6px 10px;background:#fff;resize:vertical;font-size:.9rem}
+.foot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);box-shadow:0 -10px 24px -18px rgba(23,43,70,.35);padding:12px 20px}
+.foot .in{max-width:1100px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.foot .sum{flex:1;min-width:200px;color:var(--sub)}
+.foot .sum b{color:var(--text)}
+.out{display:none;margin-top:18px;padding:16px}
+.out.on{display:block}
+.out textarea{width:100%;min-height:260px;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:.85rem}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#172B46;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:760px){ .legend{grid-template-columns:1fr} .it-b{grid-template-columns:1fr} .pv{border-right:0;border-bottom:1px solid var(--line)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>형광펜 표시 고르기</h1>
+  <p class="lead">프로그램의 팝업 · 안내 · 주의 글에서 <b>꼭 봐야 할 글자</b>에 형광펜을 칠하려고 해요. 아래 후보를 보고 <b>쓸 것만 체크</b>하고, 색이 마음에 안 들면 <b>색 칸에서 바꿔</b> 주세요. 다 고른 뒤 맨 아래 <b>「최종 답변 만들기」</b>를 누르고, 나온 글을 <b>복사해서 대화창에 붙여 넣어</b> 주시면 그대로 프로그램에 적용할게요. (고른 내용은 이 브라우저에 저절로 저장돼요)</p>
+
+  <section class="card legend" aria-label="색 규칙">
+    <div><b><mark class="hl-y">노란색</mark> — 해야 할 행동</b><small>누를 단추 · 누를 키 · 꼭 할 일 (예: <mark class="hl-y">Ctrl + V</mark>)</small></div>
+    <div><b><mark class="hl-g">초록색</mark> — 안심 · 잘 됨</b><small>자료가 그대로 남음 · 되돌릴 수 있음 · 저절로 저장</small></div>
+    <div><b><mark class="hl-p">분홍색</mark> — 주의 · 되돌릴 수 없음</b><small>지우면 끝 · 잊으면 곤란 · 돈을 돌려줘야 함</small></div>
+  </section>
+
+  <div class="bar">
+    <button type="button" class="btn" data-all="on">모두 쓰기</button>
+    <button type="button" class="btn" data-all="off">모두 안 쓰기</button>
+    <button type="button" class="btn" data-all="reset">추천대로 되돌리기</button>
+  </div>
+  <div id="list"></div>
+  <section class="card out" id="out" aria-label="최종 답변">
+    <b>최종 답변</b> — 아래 글을 <b>복사</b>해서 대화창에 붙여 넣어 주세요.
+    <div class="bar" style="margin-top:10px"><button type="button" class="btn primary" id="copy">복사하기</button><button type="button" class="btn" id="save">텍스트 파일로 저장</button></div>
+    <textarea id="outText" readonly></textarea>
+  </section>
+</div>
+<div class="foot"><div class="in"><span class="sum" id="sum"></span><button type="button" class="btn primary" id="make">최종 답변 만들기</button></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function () {
+  'use strict';
+  const C = { y: '노랑', g: '초록', p: '분홍' };
+  // [화면, 팝업/안내 제목, 종류, 언제 나오나, 본문(문단은 \n), 칠할 문구들 [[글자, 색], …]]
+  const RAW = [
+    ['보내기 · 저장', '문서 그림을 복사했어요', '팝업', '문서 → 보내기 → 카카오톡(PC)', 'PC 카카오톡에서 보낼 대화방을 여세요.\n입력 칸을 누르고 Ctrl + V(붙여넣기)를 누르세요.\n그림이 보이면 전송을 누르세요.\nPDF 파일로 보내려면 「파일로 저장 → PDF」로 저장한 뒤 대화방에 끌어다 놓으세요.', [['Ctrl + V(붙여넣기)', 'y'], ['전송', 'y'], ['「파일로 저장 → PDF」', 'y']]],
+    ['보내기 · 저장', '이미지 파일로 저장했어요', '팝업', '카카오톡 복사가 안 되는 PC', 'PC 카카오톡에서 보낼 대화방을 여세요.\n방금 내려받은 이미지(다운로드 폴더)를 대화창에 끌어다 놓으세요.', [['다운로드 폴더', 'g'], ['대화창에 끌어다 놓으세요', 'y']]],
+    ['보내기 · 저장', '이미지를 저장했어요', '팝업', '공유 창이 없는 휴대폰', '이 기기는 공유 창으로 파일을 넘길 수 없어요.\n저장한 이미지를 카카오톡 대화방에서 「사진」으로 골라 보내 주세요.', [['「사진」으로 골라 보내 주세요', 'y']]],
+    ['보내기 · 저장', 'PDF를 저장하고 Gmail을 열었어요', '팝업', '문서 → 보내기 → 메일(PC)', '거래처 이메일이 없어서 받는 사람 칸이 비어 있어요. Gmail에서 직접 넣어 주세요.\n방금 내려받은 PDF 파일을 Gmail 창에 끌어다 놓으세요. (다운로드 폴더에 있어요)\n내용을 확인하고 보내기를 누르세요.', [['받는 사람 칸이 비어 있어요', 'p'], ['Gmail 창에 끌어다 놓으세요', 'y'], ['보내기', 'y']]],
+    ['지우기 · 휴지통', '문서 · 거래처를 삭제할까요?', '팝업', '문서 · 거래처의 삭제 단추', '휴지통으로 옮겨 30일 동안 보관해요. 그 안에는 되돌릴 수 있어요.', [['30일 동안 보관', 'g'], ['되돌릴 수 있어요', 'g']]],
+    ['지우기 · 휴지통', '품목을 삭제할까요?', '팝업', '품목 · 세트 → 품목 삭제', '세트에는 지금 정보(이름 · 규격 · 단가)가 그대로 남아요.\n이미 만든 문서는 바뀌지 않아요. 휴지통에 30일 동안 보관해요.', [['이미 만든 문서는 바뀌지 않아요', 'g'], ['30일 동안 보관', 'g']]],
+    ['지우기 · 휴지통', '완전히 지울까요?', '주의', '휴지통 → 완전히 지우기', '지우면 되살릴 수 없어요. (백업에는 남아 있을 수 있어요)', [['되살릴 수 없어요', 'p']]],
+    ['지우기 · 휴지통', '휴지통을 비울까요?', '주의', '휴지통 → 비우기', 'N개를 모두 완전히 지워요. 되살릴 수 없어요.\n지우기 전에 백업을 하나 만들어 둬요.', [['모두 완전히 지워요', 'p'], ['되살릴 수 없어요', 'p'], ['백업을 하나 만들어 둬요', 'g']]],
+    ['백업 · 저장 위치', '이 백업으로 되살릴까요?', '팝업', '설정 · 백업 → 백업 되살리기', '지금 자료는 먼저 백업해 둬요. 그 뒤로 고친 내용은 지금 자료 백업에 남아요.', [['먼저 백업해 둬요', 'g']]],
+    ['백업 · 저장 위치', '저장 폴더를 바꿀까요?', '팝업', '설정 · 백업 → PC 폴더 바꾸기', '지금 자료와 백업을 새 폴더로 복사해요. 앞으로는 새 폴더에만 저장해요.\n예전 폴더의 파일은 지우지 않고 그대로 둬요.', [['새 폴더에만 저장', 'y'], ['지우지 않고 그대로 둬요', 'g']]],
+    ['백업 · 저장 위치', '이 폴더에 자료가 이미 있어요', '팝업', '자료가 있는 폴더를 고를 때', '어느 쪽을 골라도 다른 쪽은 백업으로 남아요.', [['다른 쪽은 백업으로 남아요', 'g']]],
+    ['백업 · 저장 위치', 'PC 폴더에도 같이 저장할까요?', '팝업', '처음 쓸 때 · PC', '이 기기 말고 PC 폴더(예: D:\\견적서발행기)에도 저절로 저장해 두면, 노트북을 바꾸거나 브라우저 기록을 지워도 버튼 한 번으로 다시 불러올 수 있어요.\n추천: 폴더를 정해 두세요', [['버튼 한 번으로 다시 불러올 수 있어요', 'g'], ['폴더를 정해 두세요', 'y']]],
+    ['구글 드라이브', '구글 드라이브 연결이 끊겼어요', '팝업', '1시간쯤마다 · 문서 화면', '구글은 보안 때문에 1시간쯤마다 다시 확인해요.\n지금 쓰는 내용은 이 기기에 저장되고 있어요.\n연결을 누르면 드라이브와 다시 맞춰서 휴대폰 · 다른 PC에도 보여요.', [['이 기기에 저장되고 있어요', 'g'], ['연결', 'y']]],
+    ['구글 드라이브', '구글 드라이브 연결을 끊을까요?', '주의', '설정 · 백업 → 연결 끊기', '드라이브와 이 기기의 자료는 지우지 않아요.\n구글 드라이브는 1차 저장소(필수)라서, 끊으면 다시 연결할 때까지 처음 설정 화면이 나와요. 다른 구글 계정으로 바꿀 때만 쓰세요.', [['자료는 지우지 않아요', 'g'], ['처음 설정 화면이 나와요', 'p'], ['다른 구글 계정으로 바꿀 때만', 'p']]],
+    ['구글 드라이브', '드라이브에 자료가 이미 있어요', '팝업', '드라이브 연결 때', '두 자료를 합쳐요 (어느 쪽도 지우지 않아요). 합치기 전에 이 기기 자료를 백업해 둬요.', [['어느 쪽도 지우지 않아요', 'g']]],
+    ['구글 드라이브', 'PC에서 먼저 설정해 주세요', '팝업', '휴대폰에서 처음 불러올 때', '이 프로그램은 PC에서 먼저 처음 설정(구글 드라이브 연결 · 내 정보 · 잠금 비밀번호)을 마쳐야 휴대폰에서 쓸 수 있어요.\nPC와 같은 구글 계정인지도 확인해 주세요.', [['PC에서 먼저', 'y'], ['같은 구글 계정', 'p']]],
+    ['비밀번호 · 잠금', '비밀번호 정하기', '주의', '설정 → 비밀번호 정하기', '내 정보에 사업자등록번호가 없으면 비밀번호를 잊었을 때 다시 정할 수 없어요. 먼저 넣어 두세요.', [['사업자등록번호가 없으면', 'p'], ['다시 정할 수 없어요', 'p'], ['먼저 넣어 두세요', 'y']]],
+    ['비밀번호 · 잠금', '비밀번호 재설정', '주의', '설정 → 비밀번호 재설정', '재설정하면 예전 초기화 코드는 못 쓰고, 새 초기화 코드를 드려요.', [['예전 초기화 코드는 못 쓰고', 'p']]],
+    ['비밀번호 · 잠금', '화면 잠금 안내', '안내', '설정 · 백업 → 화면 잠금', '비밀번호를 정하거나 재설정하면 초기화 코드(영어 대문자 · 숫자 5자리)를 한 번 보여 드려요.\n비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 사업자등록번호 + 초기화 코드로 초기화한 뒤 새 비밀번호를 정해요.', [['한 번', 'p'], ['사업자등록번호 + 초기화 코드', 'y']]],
+    ['비밀번호 · 잠금', '처음 설정 · 비밀번호 단계', '안내', '처음 설정 → 잠금 비밀번호', '정하면 초기화 코드(영어 대문자 · 숫자 5자리)를 한 번 보여 드려요.\n비밀번호를 잊었을 때 꼭 필요하니 캡처하거나 따로 적어 두세요.', [['꼭 필요하니', 'p'], ['캡처하거나 따로 적어 두세요', 'y']]],
+    ['행사 · 입금', '이 행사를 계약 취소할까요?', '주의', '행사 → 계약 취소', '문서와 입금 기록은 그대로 남고, 행사 상태만 「취소」가 돼요.\n이미 받은 ₩000,000 을 돌려줘야 해요. 돌려준 뒤 입금 내역에 환불로 적어 주세요.', [['그대로 남고', 'g'], ['돌려줘야 해요', 'p'], ['환불로 적어 주세요', 'y']]],
+    ['행사 · 입금', '이 입금을 취소로 표시할까요?', '팝업', '행사 → 입금 취소', '기록은 지우지 않고 「취소됨」으로 남아요. 받은 금액 · 남은 금액이 다시 계산돼요.\n이미 만든 완납 영수증은 「무효」로 표시돼요.', [['지우지 않고 「취소됨」으로 남아요', 'g'], ['「무효」로 표시돼요', 'p']]],
+    ['행사 · 입금', '계약 확정을 풀까요?', '주의', '행사 → 계약 확정 풀기', '입금 · 명세서 · 청구서가 없으면 매출 · 미수금에서 빠져요. 문서와 입금 기록은 그대로예요.', [['매출 · 미수금에서 빠져요', 'p'], ['그대로예요', 'g']]],
+    ['행사 · 입금', '행사 화면 안내', '안내', '행사 한 건 화면', '계약이 정해지면 「계약 확정」을 눌러 주세요.\n계약 확정한 행사(또는 입금 · 명세서 · 청구서가 있는 행사)만 매출 · 미수금에 들어가요.', [['「계약 확정」을 눌러 주세요', 'y'], ['계약 확정한 행사', 'p']]],
+    ['문서 작성', '예상 선금 안내', '안내', '문서 작성 → 예상 선금', '실제로 받은 돈은 「행사 · 입금」에서 따로 적어요. 여기는 견적서에 보여 줄 예상 금액이에요.', [['「행사 · 입금」에서 따로 적어요', 'y'], ['예상', 'p']]],
+    ['문서 작성', '중복된 품목이 있습니다', '팝업', '목록 · 세트에서 이미 있는 품목을 넣을 때', '이미 들어 있는 품목이에요: 천막텐트\n삭제 = 겹친 품목은 빼고 넣기 · 수량 + = 그 줄 수량에 더하기', [['삭제', 'p'], ['수량 +', 'y']]],
+    ['문서 작성', '엑셀에서 품목 붙여넣기(문서)', '안내', '문서 작성 → 엑셀 붙여넣기', '엑셀 견적서의 품목 · 규격 · 일수 · 수량 · 단가 · 비고 칸을 드래그해 복사한 뒤 붙여넣으세요.\n머리글 줄이 있으면 순서가 달라도 맞춰요. (단위 · 금액 칸은 무시하고 금액은 다시 계산해요)', [['드래그해 복사한 뒤 붙여넣으세요', 'y'], ['금액은 다시 계산해요', 'g']]],
+    ['문서 작성', '자동 저장 안내', '안내', '문서 작성 화면 아래', '입력하면 저절로 저장되고, 미리보기도 바로 바뀌어요.', [['저절로 저장', 'g']]],
+    ['품목 · 세트', '품목 단가 안내', '안내', '품목 · 세트 화면', '여기 단가는 기본값이에요. 문서마다 단가 · 일수 · 수량을 따로 고칠 수 있어요.', [['기본값', 'y'], ['따로 고칠 수 있어요', 'g']]],
+    ['품목 · 세트', '분류 이름 바꾸기', '주의', '품목 · 세트 → 분류 이름 바꾸기', '이미 있는 분류 이름을 쓰면 두 분류가 합쳐져요.', [['두 분류가 합쳐져요', 'p']]],
+    ['품목 · 세트', '엑셀에서 품목 붙여넣기(품목)', '안내', '품목 · 세트 → 엑셀에서 붙여넣기', '엑셀에서 분류 · 품목 · 규격 · 단가 칸을 드래그해 복사한 뒤 아래에 붙여넣으세요.\n첫 줄에 머리글이 있으면 순서가 달라도 알아서 맞춰요.', [['드래그해 복사한 뒤', 'y'], ['머리글', 'y']]],
+    ['품목 · 세트', '칸이 밀린 품목 바로잡기', '팝업', '품목 · 세트 → 확인하고 바로잡기', '체크한 품목을 품목 ← 분류, 규격 ← 품목으로 옮겨요. (분류는 그대로, 세트 · 작성 중 문서의 그 품목 줄도 같이 고쳐요)', [['품목 ← 분류, 규격 ← 품목', 'y']]],
+    ['품목 · 세트', '순서 바꾸기 안내(분류 · 거래처)', '안내', '분류 · 거래처 순서 바꾸기', '꾹 눌러(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 저장을 누르세요.', [['꾹 눌러', 'y'], ['저장', 'y']]],
+    ['장비', '장비 「품목에도 넣기」 안내', '안내', '장비 관리 → 장비 등록', '「품목에도 넣기」를 켜 두면 품목 · 세트에도 들어가서 견적서에서 바로 골라 쓸 수 있어요.', [['「품목에도 넣기」', 'y']]],
+    ['설정 · 기타', '문제 기록 안내', '안내', '설정 · 백업 → 문제 기록', '복사한 글을 Claude나 ChatGPT(Codex) 대화창에 붙여 넣고 「이 문제를 고쳐 줘」라고 하면 돼요.', [['「이 문제를 고쳐 줘」', 'y']]],
+    ['설정 · 기타', '아이폰 바탕화면 아이콘 안내', '안내', '아이폰 · 첫 화면', '아이폰은 애플 정책 때문에 프로그램이 대신 아이콘을 만들 수 없어요. 위 3단계만 해 주세요.', [['위 3단계만', 'y']]],
+    ['설정 · 기타', '문서 화면 바꿔 만들기 · 계약 기준 문서', '안내', '행사 → 거래명세서 · 청구서 만들기', '거래명세서 · 청구서는 계약 기준 문서의 품목 · 금액을 그대로 가져와요.', [['계약 기준 문서', 'y']]]
+  ];
+  const ITEMS = RAW.map((r, i) => ({ id: 'm' + String(i + 1).padStart(2, '0'), screen: r[0], title: r[1], kind: r[2], when: r[3], text: r[4], phrases: r[5].map(([t, c]) => ({ t, c })) }));
+  const KEY = 'starmedia-mark-pick-v1';
+  const def = () => ({ items: Object.fromEntries(ITEMS.map((it) => [it.id, { on: true, memo: '', ph: it.phrases.map((p) => ({ on: true, c: p.c })) }])) });
+  let S; try { S = JSON.parse(localStorage.getItem(KEY)) || def(); } catch (e) { S = def(); }
+  for (const it of ITEMS) if (!S.items[it.id]) S.items[it.id] = def().items[it.id];
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* 무시 */ } };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function preview(it) {
+    const st = S.items[it.id];
+    let html = esc(it.text);
+    // 긴 문구부터 칠해서 짧은 문구가 긴 문구 안을 먼저 칠하지 않게
+    const order = it.phrases.map((p, i) => ({ p, i })).sort((a, b) => b.p.t.length - a.p.t.length);
+    const tokens = [];
+    for (const { p, i } of order) {
+      const ps = st.ph[i]; if (!st.on || !ps.on) continue;
+      const e = esc(p.t), at = html.indexOf(e); if (at < 0) continue;
+      const tk = '\u0001' + tokens.length + '\u0002'; tokens.push('<mark class="hl-' + ps.c + '">' + e + '</mark>');
+      html = html.slice(0, at) + tk + html.slice(at + e.length);
+    }
+    html = html.replace(/\u0001(\d+)\u0002/g, (m, n) => tokens[n]);
+    return html.split('\n').map((l) => '<p>' + l + '</p>').join('');
+  }
+  function render() {
+    const groups = {}; ITEMS.forEach((it) => { (groups[it.screen] = groups[it.screen] || []).push(it); });
+    document.getElementById('list').innerHTML = Object.entries(groups).map(([g, list]) => '<h2 class="grp-t">' + esc(g) + ' <em>' + list.length + '</em></h2>' + list.map((it) => {
+      const st = S.items[it.id], n = ITEMS.indexOf(it) + 1;
+      return '<article class="card item' + (st.on ? '' : ' off') + '" data-id="' + it.id + '"><div class="it-h"><span class="no">' + n + '</span><b>' + esc(it.title) + '</b><span class="kind' + (it.kind === '주의' ? ' warn' : '') + '">' + it.kind + '</span>' +
+        '<label><input type="checkbox" data-k="on"' + (st.on ? ' checked' : '') + '> 이 글에 쓰기</label></div>' +
+        '<div class="it-b"><div class="pv"><small>' + esc(it.when) + '</small><div class="box">' + preview(it) + '</div></div>' +
+        '<div class="ph"><small>칠할 글자 · 색</small>' + it.phrases.map((p, i) => { const ps = st.ph[i]; return '<div class="prow' + (ps.on ? '' : ' off') + '"><input type="checkbox" data-k="ph" data-i="' + i + '"' + (ps.on ? ' checked' : '') + ' aria-label="' + esc(p.t) + ' 칠하기"><span class="t">' + esc(p.t) + '</span>' +
+          '<select data-k="c" data-i="' + i + '" aria-label="' + esc(p.t) + ' 색">' + Object.entries(C).map(([k, l]) => '<option value="' + k + '"' + (ps.c === k ? ' selected' : '') + '>' + l + (k === p.c ? ' (추천)' : '') + '</option>').join('') + '</select></div>'; }).join('') +
+        '<textarea class="memo" data-k="memo" placeholder="더 칠할 글자 · 고칠 점 (적고 싶을 때만)">' + esc(st.memo) + '</textarea></div></div></article>';
+    }).join('')).join('');
+    summary();
+  }
+  function summary() {
+    const on = ITEMS.filter((it) => S.items[it.id].on).length;
+    const ph = ITEMS.reduce((n, it) => n + (S.items[it.id].on ? S.items[it.id].ph.filter((p) => p.on).length : 0), 0);
+    document.getElementById('sum').innerHTML = '쓰는 글 <b>' + on + '</b> / ' + ITEMS.length + '곳 · 칠하는 글자 <b>' + ph + '</b>개';
+  }
+  document.addEventListener('change', (e) => {
+    const el = e.target, card = el.closest('.item'); if (!card) return;
+    const st = S.items[card.dataset.id], k = el.dataset.k, i = Number(el.dataset.i);
+    if (k === 'on') st.on = el.checked; else if (k === 'ph') st.ph[i].on = el.checked; else if (k === 'c') st.ph[i].c = el.value; else return;
+    save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  });
+  document.addEventListener('input', (e) => { const el = e.target; if (el.dataset.k !== 'memo') return; S.items[el.closest('.item').dataset.id].memo = el.value; save(); });
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-all]'); if (!b) return;
+    if (b.dataset.all === 'reset') S = def(); else ITEMS.forEach((it) => { S.items[it.id].on = b.dataset.all === 'on'; });
+    save(); render();
+  });
+  function answer() {
+    const lines = ['[형광펜 최종 답변] ' + new Date().toLocaleDateString('ko-KR'), '색 규칙: 노랑 = 해야 할 행동 · 초록 = 안심 · 분홍 = 주의', ''];
+    const pick = [];
+    ITEMS.forEach((it, n) => {
+      const st = S.items[it.id];
+      if (!st.on) { lines.push((n + 1) + '. ' + it.title + ' — 안 씀'); pick.push({ id: it.id, on: false }); return; }
+      const ph = it.phrases.map((p, i) => ({ t: p.t, c: st.ph[i].c, on: st.ph[i].on, rec: p.c })).filter((p) => p.on);
+      lines.push((n + 1) + '. ' + it.title + ' — ' + (ph.length ? ph.map((p) => (/^「.*」$/.test(p.t) ? p.t : '「' + p.t + '」') + ' ' + C[p.c] + (p.c !== p.rec ? '(바꿈)' : '')).join(', ') : '칠할 글자 없음') + (st.memo.trim() ? ' / 메모: ' + st.memo.trim() : ''));
+      pick.push({ id: it.id, on: true, ph: ph.map((p) => [p.t, p.c]), memo: st.memo.trim() || undefined });
+    });
+    lines.push('', '— 아래는 프로그램에 적용할 때 쓰는 자료예요(지우지 말고 같이 붙여 넣어 주세요) —', JSON.stringify({ v: 1, pick }));
+    return lines.join('\n');
+  }
+  const toast = (t) => { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 1800); };
+  document.getElementById('make').addEventListener('click', () => { const o = document.getElementById('out'); document.getElementById('outText').value = answer(); o.classList.add('on'); o.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  document.getElementById('copy').addEventListener('click', async () => { const t = document.getElementById('outText'); try { await navigator.clipboard.writeText(t.value); } catch (e) { t.select(); document.execCommand('copy'); } toast('복사했어요. 대화창에 붙여 넣어 주세요'); });
+  document.getElementById('save').addEventListener('click', () => { const b = new Blob([document.getElementById('outText').value], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = '형광펜_최종답변.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('텍스트 파일로 저장했어요'); });
+  render();
+})();
+</script>
+</body>
+</html>

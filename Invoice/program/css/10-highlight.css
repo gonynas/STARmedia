@@ -1,0 +1,9 @@
+/* ── 형광펜 표시 (v1.9.0, 사용자가 sian/mark/ 에서 고른 대로) ──
+   노랑 hl-y = 해야 할 행동 · 초록 hl-g = 안심 · 분홍 hl-p = 주의
+   진짜 형광펜처럼 글자 아래쪽 60%만 칠해서 글자를 가리지 않는다. 두 줄로 나뉘면 줄마다 칠함. */
+mark.hl-y,mark.hl-g,mark.hl-p{color:var(--text);padding:0 .12em;border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.hl-y{background:linear-gradient(180deg,transparent 38%,#FFE45C 38%)}
+mark.hl-g{background:linear-gradient(180deg,transparent 38%,#9BE8B5 38%)}
+mark.hl-p{background:linear-gradient(180deg,transparent 38%,#FFB8D4 38%)}
+mark.hl-y b,mark.hl-g b,mark.hl-p b{color:inherit}
+@media print{mark.hl-y,mark.hl-g,mark.hl-p{background:none}}

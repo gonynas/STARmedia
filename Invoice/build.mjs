@@ -69,5 +69,8 @@ mkdirSync(join(so, 'nav', 'icons'), { recursive: true });
 for (const f of readdirSync(join(sian, 'nav'))) if (f !== 'icons') copyFileSync(join(sian, 'nav', f), join(so, 'nav', f));
 for (const f of readdirSync(join(sian, 'nav', 'icons'))) copyFileSync(join(sian, 'nav', 'icons', f), join(so, 'nav', 'icons', f));
 writeFileSync(join(so, 'nav', 'index.html'), readFileSync(join(sian, 'nav', 'index.html'), 'utf8').replace('href="nav.css"', `href="nav.css?v=${v}"`).replace('src="nav.js"', `src="nav.js?v=${v}"`));
+// 형광펜 표시 고르기 시안 (v1.9 후보, 2026-11-22): sian/mark/ → dist/sian/mark/ (한 파일)
+mkdirSync(join(so, 'mark'), { recursive: true });
+copyFileSync(join(sian, 'mark', 'index.html'), join(so, 'mark', 'index.html'));
 
 console.log(`built dist/: 프로그램 v${pkg.version} (빌드 ${v}) · style.css ${css.length}자 · 시안은 dist/sian/`);

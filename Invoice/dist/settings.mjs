@@ -1,16 +1,16 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwqgvo9m';
-import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqgvo9m';
-import { toNum } from './core/catalog.mjs?v=mwqgvo9m';
-import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwqgvo9m';
-import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwqgvo9m';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwqgvo9m';
-import { wrap } from './core/datafile.mjs?v=mwqgvo9m';
-import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwqgvo9m';
-import { openInstall, isStandalone } from './install.mjs?v=mwqgvo9m';
-import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwqgvo9m';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwqo0jnd';
+import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqo0jnd';
+import { toNum } from './core/catalog.mjs?v=mwqo0jnd';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwqo0jnd';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwqo0jnd';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwqo0jnd';
+import { wrap } from './core/datafile.mjs?v=mwqo0jnd';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwqo0jnd';
+import { openInstall, isStandalone } from './install.mjs?v=mwqo0jnd';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwqo0jnd';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
@@ -55,7 +55,7 @@ function settingsBody() {
     (lockOn ? '<span class="set-btns"><button type="button" class="btn" data-act="set-lock-now">' + C.ic('lock') + '지금 잠금</button><button type="button" class="btn" data-act="set-pin-change">비밀번호 재설정</button><button type="button" class="btn danger-o" data-act="set-pin-remove">잠금 끄기</button></span>'
       : '<button type="button" class="btn primary" data-act="set-pin-new">' + C.ic('lock') + '비밀번호 정하기</button>') + '</div>' +
     '<div class="set-row"><span class="sl"><b>자동 잠금</b><small>이 시간 동안 손대지 않으면 잠가요 · 휴대폰은 다른 앱에 다녀와도</small></span>' + seg('set-autolock', LOCK_MIN, s.autoLockMin ?? 5) + '</div></div>' +
-    '<p class="note">' + C.ic('alert') + '<span>비밀번호를 정하거나 재설정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 <b>사업자등록번호 + 초기화 코드</b>로 초기화한 뒤 새 비밀번호를 정해요.</span></p></section>' +
+    '<p class="note">' + C.ic('alert') + '<span>비밀번호를 정하거나 재설정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 <mark class="hl-p">한 번</mark> 보여 드려요. 비밀번호를 잊으면 잠금 화면의 「비밀번호를 잊었어요」에서 <mark class="hl-y"><b>사업자등록번호 + 초기화 코드</b></mark>로 초기화한 뒤 새 비밀번호를 정해요.</span></p></section>' +
     // 4. 저장 위치
     '<section class="card"><div class="card-h"><h2>' + C.ic('cloud') + '저장 위치</h2><span class="hint">입력하면 저절로 저장돼요</span></div><div id="setSave">' + C.homeSaveRows() + '</div>' +
     '</section>' +
@@ -130,11 +130,11 @@ export function settingsClick(act, a) {
     case 'set-autolock': s.autoLockMin = Number(a.dataset.v); C.changed(); C.render(); C.toast(Number(a.dataset.v) ? a.dataset.v + '분 동안 손대지 않으면 잠가요' : '자동 잠금을 껐어요'); return true;
     case 'set-lock-now': lockNow(); return true;
     case 'set-pin-new':
-      C.openModal({ icon: 'lock', title: '비밀번호 정하기', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + (onlyDigits(S.data.me.bizNo).length < 10 ? '<p class="warnbox">' + C.ic('alert') + '<span>내 정보에 사업자등록번호가 없으면 비밀번호를 잊었을 때 다시 정할 수 없어요. 먼저 넣어 두세요.</span></p>' : ''), ok: '정하기',
+      C.openModal({ icon: 'lock', title: '비밀번호 정하기', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + (onlyDigits(S.data.me.bizNo).length < 10 ? '<p class="warnbox">' + C.ic('alert') + '<span>내 정보에 <mark class="hl-p">사업자등록번호가 없으면</mark> 비밀번호를 잊었을 때 <mark class="hl-p">다시 정할 수 없어요</mark>. <mark class="hl-y">먼저 넣어 두세요</mark>.</span></p>' : ''), ok: '정하기',
         onOk: async () => { const p = val('pinA'); if (!validPin(p)) return pinSay('숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); const code = await setPin(p); if (s.autoLockMin == null) s.autoLockMin = 5; C.render(); showCodeModal(code, '비밀번호를 정했어요'); } });
       return true;
     case 'set-pin-change':
-      C.openModal({ icon: 'lock', title: '비밀번호 재설정', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + '<p class="note">' + C.ic('alert') + '<span>재설정하면 예전 초기화 코드는 못 쓰고, 새 초기화 코드를 드려요.</span></p>', ok: '재설정',
+      C.openModal({ icon: 'lock', title: '비밀번호 재설정', body: pinForm([['pinA', '새 비밀번호 (숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리)'], ['pinB', '새 비밀번호 다시 입력']]) + '<p class="note">' + C.ic('alert') + '<span>재설정하면 <mark class="hl-p">예전 초기화 코드는 못 쓰고</mark>, 새 초기화 코드를 드려요.</span></p>', ok: '재설정',
         onOk: async () => { const p = val('pinA'); if (!validPin(p)) return pinSay('새 비밀번호는 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리로 넣어 주세요'); if (p !== val('pinB')) return pinSay('두 번 넣은 비밀번호가 달라요'); const code = await setPin(p); C.render(); showCodeModal(code, '비밀번호를 재설정했어요'); } });
       return true;
     case 'set-pin-remove':
@@ -148,7 +148,7 @@ export function settingsClick(act, a) {
     }
     case 'bk-restore': {
       const n = a.dataset.n;
-      C.openModal({ tone: 'danger', icon: 'copy', title: '이 백업으로 되살릴까요?', body: '<p><b>' + C.esc(localWhen(n)) + '</b> 백업 ' + C.esc(fmtBk(n).why) + '</p><p>지금 자료는 먼저 백업해 둬요. 그 뒤로 고친 내용은 지금 자료 백업에 남아요.</p>', ok: '되살리기',
+      C.openModal({ tone: 'danger', icon: 'copy', title: '이 백업으로 되살릴까요?', body: '<p><b>' + C.esc(localWhen(n)) + '</b> 백업 ' + C.esc(fmtBk(n).why) + '</p><p>지금 자료는 <mark class="hl-g">먼저 백업해 둬요</mark>. 그 뒤로 고친 내용은 지금 자료 백업에 남아요.</p>', ok: '되살리기',
         onOk: async () => { await C.saveNow(); const r = await S.store.restore(n); if (!r.ok) { C.toast('이 백업을 읽지 못해 아무것도 바꾸지 않았어요'); return; } C.adoptData(r.data); C.toast('백업으로 되살렸어요 (되살리기 전 자료도 백업에 있어요)'); } });
       return true;
     }

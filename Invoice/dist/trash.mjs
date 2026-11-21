@@ -1,9 +1,9 @@
 // 화면: 휴지통 (#trash) — 지운 문서 · 거래처 · 품목 · 세트 · 장비를 30일 동안 보관, 되살리기 · 완전히 지우기
 // 휴지통 한 칸: { kind: 'doc'|'client'|'item'|'set'|'equip', item, deletedAt, gearOf? }
 // 30일 지난 것은 프로그램을 열 때 비운다 (core/reports.mjs purgeTrash, node 시험 통과).
-import { daysLeft, TRASH_DAYS } from './core/reports.mjs?v=mwqgvo9m';
-import { docNo, DOC_TYPES, docTotals } from './core/docs.mjs?v=mwqgvo9m';
-import { won } from './docview.mjs?v=mwqgvo9m';
+import { daysLeft, TRASH_DAYS } from './core/reports.mjs?v=mwqo0jnd';
+import { docNo, DOC_TYPES, docTotals } from './core/docs.mjs?v=mwqo0jnd';
+import { won } from './docview.mjs?v=mwqo0jnd';
 
 let C;
 export function initTrash(ctx) { C = ctx; }
@@ -57,13 +57,13 @@ export function trashClick(act, a) {
   if (act === 'trash-restore') { restore(Number(a.dataset.i)); return true; }
   if (act === 'trash-purge') {
     const i = Number(a.dataset.i), t = S.data.trash[i]; if (!t) return true;
-    C.openModal({ tone: 'danger', icon: 'trash', title: '완전히 지울까요?', body: '<p><b>' + C.esc(describe(t)[0]) + '</b></p><p>지우면 되살릴 수 없어요. (백업에는 남아 있을 수 있어요)</p>', ok: '완전히 지우기',
+    C.openModal({ tone: 'danger', icon: 'trash', title: '완전히 지울까요?', body: '<p><b>' + C.esc(describe(t)[0]) + '</b></p><p>지우면 <mark class="hl-p">되살릴 수 없어요</mark>. (백업에는 남아 있을 수 있어요)</p>', ok: '완전히 지우기',
       onOk: () => { S.data.trash.splice(i, 1); C.changed(); C.render(); C.toast('완전히 지웠어요'); } });
     return true;
   }
   if (act === 'trash-empty') {
     const n = S.data.trash.length;
-    C.openModal({ tone: 'danger', icon: 'trash', title: '휴지통을 비울까요?', body: '<p>' + n + '개를 모두 완전히 지워요. 되살릴 수 없어요.</p><p class="note">' + C.ic('copy') + '<span>지우기 전에 백업을 하나 만들어 둬요.</span></p>', ok: '모두 지우기',
+    C.openModal({ tone: 'danger', icon: 'trash', title: '휴지통을 비울까요?', body: '<p>' + n + '개를 <mark class="hl-p">모두 완전히 지워요</mark>. <mark class="hl-p">되살릴 수 없어요</mark>.</p><p class="note">' + C.ic('copy') + '<span>지우기 전에 <mark class="hl-g">백업을 하나 만들어 둬요</mark>.</span></p>', ok: '모두 지우기',
       onOk: async () => { await C.saveNow(); await C.S.store.backup('휴지통비우기전_보관'); S.data.trash = []; C.changed(); C.render(); C.toast('휴지통을 비웠어요 (비우기 전 백업을 만들었어요)'); } });
     return true;
   }

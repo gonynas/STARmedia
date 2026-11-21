@@ -83,7 +83,7 @@ export function equipPage() {
     '</section>' +
     '<section class="card eq-form"><div class="card-h"><h2>' + C.ic('plus') + '장비 등록</h2></div>' + formHtml({}, 'n') +
     '<button type="button" class="btn primary big wide" data-act="eq-add">' + C.ic('plus') + '장비 등록하기</button>' +
-    '<p class="note">' + C.ic('layers') + '<span>「품목에도 넣기」를 켜 두면 품목 · 세트에도 들어가서 견적서에서 바로 골라 쓸 수 있어요.</span></p></section></div></div>';
+    '<p class="note">' + C.ic('layers') + '<span><mark class="hl-y">「품목에도 넣기」</mark>를 켜 두면 품목 · 세트에도 들어가서 견적서에서 바로 골라 쓸 수 있어요.</span></p></section></div></div>';
 }
 const addD = (s, n) => { const [y, m, d] = s.split('-').map(Number); return ymd(new Date(y, m - 1, d + n)); };
 

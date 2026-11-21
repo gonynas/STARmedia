@@ -54,7 +54,7 @@ export function setupWizardHtml(step) {
       '<label class="fld"><span>비밀번호 다시 입력</span><input class="in" id="wzPinB" type="password" inputmode="numeric" maxlength="' + PIN_MAX + '" autocomplete="new-password"></label></div>' +
       '<p class="note" id="wzMsg" style="display:none"></p>' +
       '<div class="wz-btns"><button type="button" class="btn primary big" data-act="wz-pin">' + C.ic('lock') + '비밀번호 정하기</button></div>' +
-      '<p class="note">' + C.ic('alert') + '<span>정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊었을 때 꼭 필요하니 <b>캡처하거나 따로 적어 두세요.</b></span></p></div>';
+      '<p class="note">' + C.ic('alert') + '<span>정하면 <b>초기화 코드(영어 대문자 · 숫자 5자리)</b>를 한 번 보여 드려요. 비밀번호를 잊었을 때 <mark class="hl-p">꼭 필요하니</mark> <mark class="hl-y"><b>캡처하거나 따로 적어 두세요.</b></mark></span></p></div>';
   }
   return '<div class="setup wz"><div class="setup-card">' + body + '</div></div>';
 }

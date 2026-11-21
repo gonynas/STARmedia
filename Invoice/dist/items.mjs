@@ -1,8 +1,8 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 화면 (1단계 둘째 묶음)
 // 규칙(분류 · 중복 · 세트 펼치기 · 엑셀 붙여넣기)은 core/catalog.mjs (node 시험 통과한 것)를 쓴다.
-import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwqgvo9m';
-import { lineAmount } from './core/money.mjs?v=mwqgvo9m';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqgvo9m';
+import { renameInOrder, misplacedItems, fixMisplaced, categories, filterItems, findDuplicate, renameCategory, removeCategory, setsUsing, expandSet, setAmount, snapshotLine, parsePaste, toNum, NO_CAT } from './core/catalog.mjs?v=mwqo0jnd';
+import { lineAmount } from './core/money.mjs?v=mwqo0jnd';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqo0jnd';
 
 let C = null;   // main.mjs 가 넘겨주는 도구 { S, $, esc, ic, uid, toast, openModal, changed, render }
 export function initItems(ctx) { C = ctx; bindCatSort(); }
@@ -39,7 +39,7 @@ function catListHtml() {
 }
 function catToolsHtml() {
   const { S, esc, ic } = C;
-  if (S.catSort) return '<p class="cat-help">분류를 <b>꾹 눌러</b>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <b>저장</b>을 누르세요. 품목 목록 · 문서의 품목 고르기도 이 순서로 보여요.</p>' +
+  if (S.catSort) return '<p class="cat-help">분류를 <mark class="hl-g"><b>꾹 눌러</b></mark>(PC는 마우스로 눌러서) 위 · 아래로 끌어 순서를 바꾼 뒤 <mark class="hl-y"><b>저장</b></mark>을 누르세요. 품목 목록 · 문서의 품목 고르기도 이 순서로 보여요.</p>' +
     '<div class="cat-tools cs-tools"><button class="btn primary" data-act="cat-sort-save">' + ic('check') + '저장</button><button class="btn" data-act="cat-sort-cancel">취소</button></div>';
   if (uxMode() && S.itemTab === 'set') return '';   // 시안 A · B: 세트를 볼 때는 분류 고치기 단추를 숨김
   if (!S.itemCat || S.itemCat === NO_CAT || !S.data.items.some((i) => (i.cat || '').trim() === S.itemCat)) {
@@ -181,7 +181,7 @@ export function itemsPage() {
     misHtml() +
     '<div class="searchrow"><input class="in" type="search" id="iq" placeholder="품목 · 규격 · 분류 · 비고로 찾기" value="' + esc(S.itemQuery) + '" aria-label="품목 찾기"></div>' +
     '<div class="iwrap" id="ilist">' + itemRowsHtml() + '</div>' +
-    '<p class="note" style="margin:12px 0 0">' + C.ic('check') + '<span>여기 단가는 <b>기본값</b>이에요. 문서마다 단가 · 일수 · 수량을 따로 고칠 수 있어요.</span></p></section>' +
+    '<p class="note" style="margin:12px 0 0">' + C.ic('check') + '<span>여기 단가는 <mark class="hl-y"><b>기본값</b></mark>이에요. 문서마다 단가 · 일수 · 수량을 <mark class="hl-g">따로 고칠 수 있어요</mark>.</span></p></section>' +
     '<section class="card setcard"><div class="card-h"><h2>' + ic('layers') + '품목 세트</h2><span class="hint">자주 같이 나가는 품목을 한 번에 넣어요</span>' +
     '<div class="tools"><button class="btn primary" data-act="set-add">' + ic('plus') + '세트 만들기</button></div></div>' +
     '<div id="slist">' + setCardsHtml() + '</div></section>' +
@@ -252,7 +252,7 @@ function openFixMis() {
   const list = misplacedItems(S.data.items); if (!list.length) return;
   openModal({
     icon: 'layers', title: '칸이 밀린 품목 바로잡기', ok: '바로잡기', cancel: '그대로 두기',
-    body: '<p>아래 품목은 <b>분류</b> 칸에 품목 이름이, <b>품목</b> 칸에 크기 · 모양이 들어간 것 같아요. 체크한 품목을 <b>품목 ← 분류</b>, <b>규격 ← 품목</b>으로 옮겨요. (분류는 그대로, 세트 · 작성 중 문서의 그 품목 줄도 같이 고쳐요)</p>' +
+    body: '<p>아래 품목은 <b>분류</b> 칸에 품목 이름이, <b>품목</b> 칸에 크기 · 모양이 들어간 것 같아요. 체크한 품목을 <mark class="hl-y"><b>품목 ← 분류</b>, <b>규격 ← 품목</b></mark>으로 옮겨요. (분류는 그대로, 세트 · 작성 중 문서의 그 품목 줄도 같이 고쳐요)</p>' +
       '<div class="mis-list">' + list.map((it) => '<label class="pk-row"><input type="checkbox" data-mis="' + it.id + '" checked><span class="pk-nm"><b>' + esc(it.cat) + ' / ' + esc(it.name) + '</b><small>→ 품목 「' + esc(it.cat) + '」 · 규격 「' + esc(it.name) + '」</small></span></label>').join('') + '</div>',
     onOk: () => {
       const ids = [...document.querySelectorAll('[data-mis]:checked')].map((x) => x.dataset.mis);
@@ -314,7 +314,7 @@ function deleteItem(id) {
     tone: 'danger', icon: 'trash', title: '품목을 삭제할까요?',
     body: '<p><b>' + esc(it.name) + (it.spec ? ' · ' + esc(it.spec) : '') + '</b></p>' +
       (used.length ? '<p class="warnbox">세트 ' + used.length + '개에 들어 있어요: ' + used.map(esc).join(', ') + '<br>세트에는 지금 정보(이름 · 규격 · 단가)가 그대로 남아요.</p>' : '') +
-      '<p>이미 만든 문서는 바뀌지 않아요. 휴지통에 30일 동안 보관해요.</p>', ok: '삭제', cancel: '취소',
+      '<p><mark class="hl-g">이미 만든 문서는 바뀌지 않아요</mark>. 휴지통에 <mark class="hl-g">30일 동안 보관</mark>해요.</p>', ok: '삭제', cancel: '취소',
     onOk: () => {
       S.data.items = S.data.items.filter((x) => x.id !== id);
       S.data.trash.push({ kind: 'item', item: it, deletedAt: new Date().toISOString() });
@@ -338,7 +338,7 @@ function renameCat() {
   openModal({
     icon: 'type', title: '분류 이름 바꾸기',
     body: '<label class="fld"><span>새 이름</span><input class="in" id="catNew" value="' + esc(from) + '"></label><p class="note" id="cnMsg" style="margin:4px 0 0;display:none"></p>' +
-      '<p class="note" style="margin:0">' + ic('check') + '<span>이미 있는 분류 이름을 쓰면 두 분류가 합쳐져요.</span></p>',
+      '<p class="note" style="margin:0">' + ic('check') + '<span>이미 있는 분류 이름을 쓰면 <mark class="hl-p">두 분류가 합쳐져요</mark>.</span></p>',
     ok: '바꾸기', cancel: '취소',
     onOk: () => {
       const to = $('#catNew').value.trim();
@@ -389,7 +389,7 @@ function openPaste() {
   const { S, $, ic, toast, openModal, changed, uid } = C;
   openModal({
     wide: true, icon: 'table', title: '엑셀에서 품목 붙여넣기',
-    body: '<p>엑셀에서 <b>분류 · 품목 · 규격 · 단가</b> 칸을 드래그해 복사한 뒤 아래에 붙여넣으세요. 첫 줄에 머리글이 있으면 순서가 달라도 알아서 맞춰요.</p>' +
+    body: '<p>엑셀에서 <b>분류 · 품목 · 규격 · 단가</b> 칸을 <mark class="hl-y">드래그해 복사한 뒤</mark> 아래에 붙여넣으세요. 첫 줄에 <mark class="hl-g">머리글</mark>이 있으면 순서가 달라도 알아서 맞춰요.</p>' +
       '<textarea class="in ta-paste" id="pasteIn" rows="6" placeholder="분류&#9;품목&#9;규격&#9;단가&#10;천막&#9;몽골텐트&#9;5×5m&#9;170,000" aria-label="붙여넣을 표"></textarea>' +
       '<label class="chkrow"><input type="checkbox" id="pasteUpd"><span>이미 있는 품목(이름 + 규격이 같은 것)은 <b>단가를 새 값으로 바꾸기</b></span></label>' +
       '<div id="pvPaste"></div>',

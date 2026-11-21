@@ -48,7 +48,7 @@ function bodyHtml() {
       step(1, chrome ? '주소창 오른쪽 <b>공유 단추</b> ' + C.ic('upload') + '를 눌러요' : '화면 아래(또는 주소창 옆)의 <b>공유 단추</b> ' + C.ic('upload') + '를 눌러요') +
       step(2, '목록을 내려 <b>「홈 화면에 추가」</b>를 눌러요') +
       step(3, '오른쪽 위 <b>「추가」</b>를 누르면 바탕화면에 <b>견적서</b> 아이콘이 생겨요') + '</ol>' +
-      '<p class="note">' + C.ic('alert') + '<span>아이폰은 애플 정책 때문에 프로그램이 대신 아이콘을 만들 수 없어요. 위 3단계만 해 주세요.</span></p>';
+      '<p class="note">' + C.ic('alert') + '<span>아이폰은 애플 정책 때문에 프로그램이 대신 아이콘을 만들 수 없어요. <mark class="hl-g">위 3단계만</mark> 해 주세요.</span></p>';
   }
   return '<h2>바탕화면에 아이콘 만들기</h2><p>한 번만 해 두면 다음부터 <b>아이콘을 눌러 앱처럼</b> 바로 열려요.</p>' +
     '<button type="button" class="btn primary big wide" id="instNative" data-inst="native"' + (deferred ? '' : ' hidden') + '>' + C.ic('download') + '바탕화면에 아이콘 만들기</button>' +

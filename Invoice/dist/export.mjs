@@ -2,13 +2,13 @@
 // 문서 그림은 미리보기와 똑같은 A4 화면을 그대로 찍는다(같은 renderPages · 같은 스타일 · 같은 글꼴).
 // PDF · 엑셀 파일은 core/pdf.mjs · core/xlsx.mjs 가 외부 라이브러리 없이 만든다.
 // 휴대폰 · 태블릿(손가락 화면)은 공유 창으로, PC 는 내려받기 · 클립보드 · Gmail 쓰기 창으로.
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwqgvo9m';
-import { docMoney } from './core/events.mjs?v=mwqgvo9m';
-import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwqgvo9m';
-import { imagesToPdf } from './core/pdf.mjs?v=mwqgvo9m';
-import { buildXlsx } from './core/xlsx.mjs?v=mwqgvo9m';
-import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwqgvo9m';
-import { logProblem } from './errors.mjs?v=mwqgvo9m';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwqo0jnd';
+import { docMoney } from './core/events.mjs?v=mwqo0jnd';
+import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwqo0jnd';
+import { imagesToPdf } from './core/pdf.mjs?v=mwqo0jnd';
+import { buildXlsx } from './core/xlsx.mjs?v=mwqo0jnd';
+import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwqo0jnd';
+import { logProblem } from './errors.mjs?v=mwqo0jnd';
 
 let C;
 export function initExport(ctx) { C = ctx; }
@@ -289,7 +289,7 @@ function kakao(doc) {
   if (isTouch()) {
     return withBusy('카톡으로 보낼 그림을 만드는 중이에요…', async () => {
       const jpgs = await makeJpgs(doc);
-      if (!canShareFiles(asFiles(jpgs))) { await downloadAll(jpgs); C.openModal({ icon: 'chat', title: '이미지를 저장했어요', body: '<p>이 기기는 공유 창으로 파일을 넘길 수 없어요. 저장한 이미지를 카카오톡 대화방에서 「사진」으로 골라 보내 주세요.</p>', ok: '알겠어요', cancel: false }); return; }
+      if (!canShareFiles(asFiles(jpgs))) { await downloadAll(jpgs); C.openModal({ icon: 'chat', title: '이미지를 저장했어요', body: '<p>이 기기는 공유 창으로 파일을 넘길 수 없어요. 저장한 이미지를 카카오톡 대화방에서 <mark class="hl-y">「사진」으로 골라 보내 주세요</mark>.</p>', ok: '알겠어요', cancel: false }); return; }
       await share(jpgs, { title: fileTitle(doc), hint: '목록에서 「카카오톡」을 고른 뒤 받는 사람을 고르세요.', done: '공유 창으로 넘겼어요. 카카오톡에서 받는 사람을 골라 보내 주세요' });
     });
   }
@@ -298,11 +298,11 @@ function kakao(doc) {
   busy = true; document.body.classList.add('x-busy'); C.toast('카톡에 붙여 넣을 그림을 만드는 중이에요…');
   const done = () => { busy = false; document.body.classList.remove('x-busy'); };
   const png = makeClipPng(doc);
-  const ok = () => C.openModal({ icon: 'chat', title: '문서 그림을 복사했어요', body: '<ol class="x-steps"><li>PC <b>카카오톡</b>에서 보낼 대화방을 여세요.</li><li>입력 칸을 누르고 <b>Ctrl + V</b>(붙여넣기)를 누르세요.</li><li>그림이 보이면 <b>전송</b>을 누르세요.</li></ol><p class="x-sub">PDF 파일로 보내려면 「파일로 저장 → PDF」로 저장한 뒤 대화방에 끌어다 놓으세요.</p>', ok: '알겠어요', cancel: '이미지 파일로도 저장', onCancel: () => saveJpg(doc) });
+  const ok = () => C.openModal({ icon: 'chat', title: '문서 그림을 복사했어요', body: '<ol class="x-steps"><li>PC <b>카카오톡</b>에서 보낼 대화방을 여세요.</li><li>입력 칸을 누르고 <mark class="hl-p"><b>Ctrl + V</b>(붙여넣기)</mark>를 누르세요.</li><li>그림이 보이면 <mark class="hl-g"><b>전송</b></mark>을 누르세요.</li></ol><p class="x-sub">PDF 파일로 보내려면 <mark class="hl-y">「파일로 저장 → PDF」</mark>로 저장한 뒤 대화방에 끌어다 놓으세요.</p>', ok: '알겠어요', cancel: '이미지 파일로도 저장', onCancel: () => saveJpg(doc) });
   const fallback = async (why) => {
     try { const jpgs = await makeJpgs(doc); await downloadAll(jpgs); } catch (e) { done(); C.toast('그림을 만들지 못했어요'); return; }
     done();
-    C.openModal({ icon: 'chat', title: '이미지 파일로 저장했어요', body: '<p>' + C.esc(why) + '</p><ol class="x-steps"><li>PC <b>카카오톡</b>에서 보낼 대화방을 여세요.</li><li>방금 내려받은 이미지(다운로드 폴더)를 대화창에 <b>끌어다 놓으세요</b>.</li></ol>', ok: '알겠어요', cancel: false });
+    C.openModal({ icon: 'chat', title: '이미지 파일로 저장했어요', body: '<p>' + C.esc(why) + '</p><ol class="x-steps"><li>PC <b>카카오톡</b>에서 보낼 대화방을 여세요.</li><li>방금 내려받은 이미지(<mark class="hl-g">다운로드 폴더</mark>)를 <mark class="hl-y">대화창에 <b>끌어다 놓으세요</b></mark>.</li></ol>', ok: '알겠어요', cancel: false });
   };
   if (!(navigator.clipboard && navigator.clipboard.write && window.ClipboardItem)) { fallback('이 브라우저는 그림 복사를 지원하지 않아요.'); return; }
   let item;
@@ -328,9 +328,9 @@ function mail(doc) {
     download(pdf);
     C.openModal({
       icon: 'mail', title: 'PDF를 저장하고 Gmail을 열었어요', wide: true,
-      body: (m.to ? '' : '<p class="warnbox">' + C.ic('alert') + '<span>거래처 이메일이 없어서 받는 사람 칸이 비어 있어요. Gmail에서 직접 넣어 주세요. (거래처 목록에서 이메일을 넣어 두면 다음부터 자동으로 들어가요)</span></p>') +
+      body: (m.to ? '' : '<p class="warnbox">' + C.ic('alert') + '<span>거래처 이메일이 없어서 <mark class="hl-p">받는 사람 칸이 비어 있어요</mark>. Gmail에서 직접 넣어 주세요. (거래처 목록에서 이메일을 넣어 두면 다음부터 자동으로 들어가요)</span></p>') +
         '<ol class="x-steps"><li>' + (w ? '새로 열린 <b>Gmail 쓰기 창</b>' : '<a href="' + C.esc(gmailUrl(m)) + '" target="_blank" rel="noopener"><b>여기를 눌러 Gmail 쓰기 창</b></a>') + '에 받는 사람 · 제목 · 본문이 들어가 있어요.</li>' +
-        '<li>방금 내려받은 <b>' + C.esc(pdf.name) + '</b> 파일을 Gmail 창에 <b>끌어다 놓으세요</b>. (다운로드 폴더에 있어요)</li><li>내용을 확인하고 <b>보내기</b>를 누르세요.</li></ol>' +
+        '<li>방금 내려받은 <b>' + C.esc(pdf.name) + '</b> 파일을 <mark class="hl-y">Gmail 창에 <b>끌어다 놓으세요</b></mark>. (다운로드 폴더에 있어요)</li><li>내용을 확인하고 <mark class="hl-y"><b>보내기</b></mark>를 누르세요.</li></ol>' +
         '<p class="x-sub">Gmail이 아니라 PC의 메일 프로그램을 쓰신다면 <a href="' + C.esc(mailtoUrl(m)) + '">기본 메일 프로그램으로 쓰기</a></p>' +
         (w ? '<p class="x-sub">Gmail 창이 안 보이면 <a href="' + C.esc(gmailUrl(m)) + '" target="_blank" rel="noopener">다시 열기</a></p>' : ''),
       ok: '알겠어요', cancel: false
