@@ -2,34 +2,34 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwq56y00';
-import { emptyData, load } from './core/datafile.mjs?v=mwq56y00';
-import { ic } from './icons.mjs?v=mwq56y00';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwq56y00';
-import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwq56y00';
-import { bindSortable, sortedIds } from './sortable.mjs?v=mwq56y00';
-import { sortByOrder } from './core/catalog.mjs?v=mwq56y00';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwq56y00';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwq56y00';
-import { processStamp } from './stamp.mjs?v=mwq56y00';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwq56y00';
-import { stampImg } from './docview.mjs?v=mwq56y00';
-import { initExport, exportClick } from './export.mjs?v=mwq56y00';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwq56y00';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwq56y00';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwq56y00';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwq56y00';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwq56y00';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwq56y00';
-import { logProblem } from './errors.mjs?v=mwq56y00';
-import { initInputs } from './inputs.mjs?v=mwq56y00';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwq56y00';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwq56y00';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwq56y00';
-import { purgeTrash } from './core/reports.mjs?v=mwq56y00';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwqgvo9m';
+import { emptyData, load } from './core/datafile.mjs?v=mwqgvo9m';
+import { ic } from './icons.mjs?v=mwqgvo9m';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwqgvo9m';
+import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwqgvo9m';
+import { bindSortable, sortedIds } from './sortable.mjs?v=mwqgvo9m';
+import { sortByOrder } from './core/catalog.mjs?v=mwqgvo9m';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwqgvo9m';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwqgvo9m';
+import { processStamp } from './stamp.mjs?v=mwqgvo9m';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwqgvo9m';
+import { stampImg } from './docview.mjs?v=mwqgvo9m';
+import { initExport, exportClick } from './export.mjs?v=mwqgvo9m';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwqgvo9m';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwqgvo9m';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwqgvo9m';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwqgvo9m';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwqgvo9m';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwqgvo9m';
+import { logProblem } from './errors.mjs?v=mwqgvo9m';
+import { initInputs } from './inputs.mjs?v=mwqgvo9m';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwqgvo9m';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwqgvo9m';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwqgvo9m';
+import { purgeTrash } from './core/reports.mjs?v=mwqgvo9m';
 
-const APP_VERSION = '1.7.1';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwq56y00';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.8.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwqgvo9m';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 

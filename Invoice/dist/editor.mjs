@@ -1,12 +1,12 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { mergeLines, DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwq56y00';
-import { lineTax } from './core/money.mjs?v=mwq56y00';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwq56y00';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwq56y00';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwq56y00';
-import { serialFor } from './core/docs.mjs?v=mwq56y00';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwq56y00';
+import { mergeLines, DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwqgvo9m';
+import { lineTax } from './core/money.mjs?v=mwqgvo9m';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwqgvo9m';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwqgvo9m';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwqgvo9m';
+import { serialFor } from './core/docs.mjs?v=mwqgvo9m';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqgvo9m';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -212,7 +212,7 @@ export function editorPage() {
     '<div class="lines" id="lines">' + linesHtml(d) + '</div>' +
     '<button type="button" class="addline" data-act="line-add">' + ic('plus') + '품목 추가</button>' +
     '<div class="ed-sum" id="edSum">' + sumHtml(d) + '</div></section>' +
-    '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn won">₩</span>부가세 · 선금 · 끝자리</h2></div>' +
+    '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn won">₩</span>부가세 · 선금 · 끝자리 · 비고</h2></div>' +
     '<div class="opt-row"><span class="ol">부가세</span>' + seg('vat', [['excl', '별도 (10% 더하기)'], ['incl', '포함'], ['none', '없음']], d.vat) + '</div>' +
     (d.type !== 'quote' ? '' : '<div class="opt-row"><span class="ol">예상 선금</span>' + sw('deposit.on', d.deposit.on, '견적서에 선금 · 잔금 줄 넣기') +
     '<div class="dep"' + (d.deposit.on ? '' : ' hidden') + ' id="depBox"><input class="in num" data-d="deposit.amount" value="' + won(d.deposit.amount) + '" inputmode="numeric" aria-label="예상 선금 금액"><span class="won-s">원</span>' +
@@ -221,6 +221,7 @@ export function editorPage() {
     '<div class="opt-row"><span class="ol">끝자리 정리</span><label class="sw"><input type="checkbox" data-act-sw="agreed"' + (agreedOn ? ' checked' : '') + '><i></i><span>최종 합의금액으로 맞추기 (네고)</span></label>' +
     '<div class="dep"' + (agreedOn ? '' : ' hidden') + ' id="agreedBox"><input class="in num" data-d="agreed" value="' + (toNum(d.agreed) > 0 ? won(d.agreed) : '') + '" inputmode="numeric" placeholder="' + won(t.base.total) + '" aria-label="최종 합의금액 (부가세 포함)"><span class="won-s">원</span></div>' +
     '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p></div>' +
+    '<div class="opt-row"><span class="ol">비고</span>' + sw('showMemo', d.showMemo !== false, '문서 표에 비고 칸 넣기') + '</div>' +
     '</section>' +
     '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn">3</span>특이사항 · 문서 설정</h2></div>' +
     (d.type === 'quote' ? '<div class="opt-row">' + sw('notes.valid', d.notes.valid !== false, '유효기간 문구 (자동)') + sw('notes.bank', d.notes.bank !== false, '결제 계좌 문구 (자동)') + '</div>' : '') +

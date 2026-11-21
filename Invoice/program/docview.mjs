@@ -61,6 +61,11 @@ function sumBar(t) {
 
 const COLS = '<colgroup><col class="w-no"><col><col class="w-spec"><col class="w-d"><col class="w-q"><col class="w-p"><col class="w-s"><col class="w-t"><col class="w-m"></colgroup>';
 const THEAD = '<thead><tr><th>NO</th><th>품목</th><th>규격</th><th>일수</th><th>수량</th><th>단가</th><th>공급가액</th><th>세액</th><th>비고</th></tr></thead>';
+/* 비고 칸 넣기(v1.7.2, 문서마다 · 기본 켬): 끄면 표에서 비고 칸을 빼고 품목 칸이 그 너비를 씀 */
+const memoOn = (doc) => doc.showMemo !== false;
+const colsH = (doc) => (memoOn(doc) ? COLS : COLS.replace('<col class="w-m">', ''));
+const theadH = (doc) => (memoOn(doc) ? THEAD : THEAD.replace('<th>비고</th>', ''));
+const endTd = (doc) => (memoOn(doc) ? '<td></td>' : '');
 
 function rows(doc, a, b, fillTo) {
   let h = '';
@@ -68,20 +73,20 @@ function rows(doc, a, b, fillTo) {
     const l = doc.lines[i], r = lineTax(l, doc.vat);
     h += '<tr><td class="c">' + (i + 1) + '</td><td class="nm">' + esc(l.name) + (l.taxFree && doc.vat !== 'none' ? ' <small class="tfree">면세</small>' : '') + '</td><td class="c">' + esc(l.spec) + '</td>' +
       '<td class="c num">' + num(l.days) + '</td><td class="c num">' + num(l.qty) + '</td><td class="r num">' + won(l.price) + '</td>' +
-      '<td class="r num b">' + won(r.supply) + '</td><td class="r num">' + won(r.tax) + '</td><td class="memo">' + esc(l.memo) + '</td></tr>';
+      '<td class="r num b">' + won(r.supply) + '</td><td class="r num">' + won(r.tax) + '</td>' + (memoOn(doc) ? '<td class="memo">' + esc(l.memo) + '</td>' : '') + '</tr>';
   }
-  for (let k = b - a; k < fillTo; k++) h += '<tr class="empty"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+  for (let k = b - a; k < fillTo; k++) h += '<tr class="empty"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>' + endTd(doc) + '</tr>';
   return h;
 }
 
 function pageSub(doc, a, b) {
   let s = 0, t = 0;
   for (let i = a; i < b; i++) { const r = lineTax(doc.lines[i], doc.vat); s += r.supply; t += r.tax; }
-  return '<tr class="d-pagesub"><td colspan="6">이 쪽 소계 <small>— 다음 쪽에 이어집니다</small></td><td class="r num b">' + won(s) + '</td><td class="r num">' + won(t) + '</td><td></td></tr>';
+  return '<tr class="d-pagesub"><td colspan="6">이 쪽 소계 <small>— 다음 쪽에 이어집니다</small></td><td class="r num b">' + won(s) + '</td><td class="r num">' + won(t) + '</td>' + endTd(doc) + '</tr>';
 }
-function adjustRow(t) {
+function adjustRow(t, doc) {
   const sg = (n) => (n > 0 ? '+' : '') + won(n);
-  return '<tr class="d-adjust"><td class="c">-</td><td class="nm" colspan="5">끝자리 정리 <small>(최종 합의금액 ₩' + won(t.total) + ' 기준)</small></td><td class="r num b">' + sg(t.adjust.supply) + '</td><td class="r num">' + sg(t.adjust.tax) + '</td><td></td></tr>';
+  return '<tr class="d-adjust"><td class="c">-</td><td class="nm" colspan="5">끝자리 정리 <small>(최종 합의금액 ₩' + won(t.total) + ' 기준)</small></td><td class="r num b">' + sg(t.adjust.supply) + '</td><td class="r num">' + sg(t.adjust.tax) + '</td>' + (doc ? endTd(doc) : '<td></td>') + '</tr>';
 }
 
 function totals(doc, t, money) {
@@ -119,7 +124,7 @@ function stmtBlock(doc, me, t, money, a, b, cap, last, copy, mine, full) {
   let body = rows(doc, a, b, cap);
   let foot;
   if (last) {
-    foot = (t.adjust ? adjustRow(t) : '') + '<tr class="s-total"><td colspan="6">계</td><td class="r num b">' + won(t.supply) + '</td><td class="r num b">' + won(t.tax) + '</td><td></td></tr>';
+    foot = (t.adjust ? adjustRow(t, doc) : '') + '<tr class="s-total"><td colspan="6">계</td><td class="r num b">' + won(t.supply) + '</td><td class="r num b">' + won(t.tax) + '</td>' + endTd(doc) + '</tr>';
   } else foot = pageSub(doc, a, b).replace('— 다음 쪽에 이어집니다', '— 다음 장에 이어집니다');
   const got = money && money.linked ? money.received : 0;
   const left = money && money.linked ? money.remaining : t.total;
@@ -133,7 +138,7 @@ function stmtBlock(doc, me, t, money, a, b, cap, last, copy, mine, full) {
     '<tr><th>거래일자</th><td class="rv">' + dateKo(doc.tradeDate || doc.date) + '</td><th>업태</th><td>' + esc(me.bizType) + '</td><th>종목</th><td>' + esc(me.bizItem) + '</td></tr>' +
     '</tbody></table>' +
     '<div class="s-sum"><span class="lbl">합계금액</span><b class="num">₩' + won(t.total) + '</b><em>일금 ' + hangul(t.total) + ' 원정 · 공급가액 ' + won(t.supply) + ' + 세액 ' + won(t.tax) + '</em></div>' +
-    '<table class="d-items s-items">' + COLS + THEAD + '<tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +
+    '<table class="d-items s-items">' + colsH(doc) + theadH(doc) + '<tbody>' + body + '</tbody><tfoot>' + foot + '</tfoot></table>' +
     (last ? '<table class="s-bal"><tbody><tr><th>이번 거래 합계</th><td class="num">' + won(t.total) + '</td><th>받은 금액</th><td class="num">' + won(got) + '</td><th>남은 금액</th><td class="num b">' + won(left) + '</td></tr></tbody></table>' : '') +
     '<div class="s-sign"><span>위 품목과 수량을 확인하고 받았습니다.</span><span class="s-recv">인수자<i></i>(인)</span></div>' +
     '</div>';
@@ -159,8 +164,8 @@ export const RCPT_ROWS = 14;
 function renderRcpt(doc, me, t, money) {
   const c = doc.client || {}, ev = doc.event || {};
   const n = doc.lines.length, shown = Math.min(n, RCPT_ROWS);
-  const more = n > shown ? '<tr class="d-pagesub"><td colspan="9">외 ' + (n - shown) + '개 품목 (위 금액에 포함)</td></tr>' : '';
-  const foot = (t.adjust ? adjustRow(t) : '') + more;
+  const more = n > shown ? '<tr class="d-pagesub"><td colspan="' + (memoOn(doc) ? 9 : 8) + '">외 ' + (n - shown) + '개 품목 (위 금액에 포함)</td></tr>' : '';
+  const foot = (t.adjust ? adjustRow(t, doc) : '') + more;
   const voidMark = money && money.linked && money.valid === false ? '<div class="r-void" aria-label="무효">무 효<small>입금이 취소되어 완납이 아니에요</small></div>' : '';
   return ['<div class="a4 doc doc--a k-rcpt">' + head(doc) +
     '<section class="r-hero"><div class="r-lbl">받은 금액</div><div class="r-amt num">₩' + won(t.total) + '</div><div class="r-han">일금 ' + hangul(t.total) + ' 원정</div></section>' +
@@ -168,7 +173,7 @@ function renderRcpt(doc, me, t, money) {
     '<dt>받은 날짜</dt><dd>' + dateKo(doc.paidDate || doc.date) + '</dd>' +
     '<dt>결제 방법</dt><dd>' + esc(doc.payMethod || '') + '</dd>' +
     '<dt>관련 문서</dt><dd>' + esc([doc.baseLabel, ev.name].filter(Boolean).join(' · ') || '-') + '</dd></dl>' +
-    '<table class="d-items r-items">' + COLS + THEAD + '<tbody>' + rows(doc, 0, shown, n ? 0 : 3) + '</tbody>' + (foot ? '<tfoot>' + foot + '</tfoot>' : '') + '</table>' +
+    '<table class="d-items r-items">' + colsH(doc) + theadH(doc) + '<tbody>' + rows(doc, 0, shown, n ? 0 : 3) + '</tbody>' + (foot ? '<tfoot>' + foot + '</tfoot>' : '') + '</table>' +
     '<p class="r-state">위 금액을 정히 영수합니다.</p>' +
     '<div class="r-sign"><div class="r-date">' + dateKo(doc.date) + '</div>' + supplier(me) + '</div>' + voidMark +
     '<footer class="d-foot"><img src="assets/starmedia-logo.png" alt=""></footer></div>'];
@@ -190,8 +195,8 @@ export function renderPages(doc, me, money = null) {
       : contHead(doc, i, pages.length);
     let foot = '';
     if (!last) foot = pageSub(doc, a, b);
-    else if (t.adjust) foot = adjustRow(t);
-    h += '<table class="d-items">' + COLS + THEAD + '<tbody>' + rows(doc, a, b, fill) + '</tbody>' + (foot ? '<tfoot>' + foot + '</tfoot>' : '') + '</table>';
+    else if (t.adjust) foot = adjustRow(t, doc);
+    h += '<table class="d-items">' + colsH(doc) + theadH(doc) + '<tbody>' + rows(doc, a, b, fill) + '</tbody>' + (foot ? '<tfoot>' + foot + '</tfoot>' : '') + '</table>';
     if (last) h += '<section class="d-bottom">' + notes(doc, me) + totals(doc, t, money) + '</section>' + (doc.type === 'inv' ? bankBox(doc, me, t, money) : '');
     h += '<footer class="d-foot">' + (last ? '<img src="assets/starmedia-logo.png" alt="">' : '') + (pages.length > 1 ? '<span class="d-pno">' + (i + 1) + ' / ' + pages.length + '</span>' : '') + '</footer>';
     return '<div class="' + cls + '">' + h + '</div>';

@@ -1,16 +1,16 @@
 // 화면: 설정 · 백업 (#set)
 //  1) 문서 기본값  2) 화면(글자 크게)  3) 화면 잠금  4) 저장 위치  5) 백업 · 자료 파일  6) 문제 기록(AI 에게 보낼 글)  7) 프로그램 정보 · 업데이트 확인
 // 설정 값은 S.data.settings 에 저장된다 (core/datafile.mjs emptyData 참고).
-import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwq56y00';
-import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwq56y00';
-import { toNum } from './core/catalog.mjs?v=mwq56y00';
-import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwq56y00';
-import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwq56y00';
-import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwq56y00';
-import { wrap } from './core/datafile.mjs?v=mwq56y00';
-import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwq56y00';
-import { openInstall, isStandalone } from './install.mjs?v=mwq56y00';
-import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwq56y00';
+import { DEFAULT_PHRASES } from './core/docs.mjs?v=mwqgvo9m';
+import { uxMode, cardMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwqgvo9m';
+import { toNum } from './core/catalog.mjs?v=mwqgvo9m';
+import { onlyDigits, validPin, PIN_MIN, PIN_MAX } from './core/lock.mjs?v=mwqgvo9m';
+import { hasLock, lockNow, setPin, verifyPin, removePin, showCodeModal } from './lockscreen.mjs?v=mwqgvo9m';
+import { problems, clearProblems, reportText, deviceText } from './errors.mjs?v=mwqgvo9m';
+import { wrap } from './core/datafile.mjs?v=mwqgvo9m';
+import { RELEASES, KIND_LABEL } from './releases.mjs?v=mwqgvo9m';
+import { openInstall, isStandalone } from './install.mjs?v=mwqgvo9m';
+import { driveRowHtml, preloadGis } from './gdrive.mjs?v=mwqgvo9m';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
