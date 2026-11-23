@@ -27,6 +27,7 @@ import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis
 import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs';
 import { initInstall, shouldShowInstall, openInstall } from './install.mjs';
 import { purgeTrash } from './core/reports.mjs';
+import { initSound, sndActStart, sndModal, sndModalOk, sndModalCancel, sndToast, sndClick } from './sound.mjs';
 
 const APP_VERSION = '0.0.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
 const APP_BUILD = 'dev';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
@@ -61,6 +62,7 @@ const todayKo = () => { const d = new Date(); return d.getFullYear() + '년 ' + 
 
 function toast(msg, action) {
   const t = $('#toast'); if (!t) return;
+  sndToast(msg);
   t.innerHTML = '<span>' + esc(msg) + '</span>' + (action ? ' <button class="toast-act" id="toastAct">' + esc(action.label) + '</button>' : '');
   t.style.pointerEvents = action ? 'auto' : '';
   t.classList.add('on'); clearTimeout(toast._t);
@@ -90,6 +92,7 @@ function openModal(o) {
   cc.textContent = o.cancel || '취소';
   cc.style.display = o.cancel === false ? 'none' : '';
   setTimeout(() => { const f = m.querySelector('.modal-body input, .modal-body textarea'); (f || ok).focus(); }, 30);
+  sndModal(o);
 }
 function closeModal() { const m = $('#modal'); if (m) { m.className = 'modal'; delete m.dataset.sticky; } MODAL.onOk = null; MODAL.onCancel = null; }
 async function modalOk() {
@@ -579,7 +582,7 @@ document.addEventListener('click', async (e) => {
   if (e.target.id === 'moreSheet') { e.target.classList.remove('on'); return; }
   if (e.target.closest('#moreSheet a')) $('#moreSheet').classList.remove('on');
   const mb = e.target.closest('[data-modal]');
-  if (mb) { if (mb.dataset.modal === 'ok') await modalOk(); else { const fn = MODAL.onCancel; closeModal(); if (fn) await fn(); } return; }
+  if (mb) { if (mb.dataset.modal === 'ok') { sndModalOk(); await modalOk(); } else { sndModalCancel(); const fn = MODAL.onCancel; closeModal(); if (fn) await fn(); } return; }
   const sb = e.target.closest('[data-seg] button');
   if (sb) {
     const name = sb.parentElement.dataset.seg, r = editorSeg(name, sb.dataset.v);
@@ -591,6 +594,8 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (a.tagName === 'A') e.preventDefault();
+  sndActStart(act);
+  if (sndClick(act, a)) return;
   if (setupClick(act) || driveClick(act) || uxClick(act, a)) return;
   if (act === 'lock-now') { if (!lockNow()) { location.hash = '#set'; toast('먼저 비밀번호를 정해 주세요 (화면 잠금)'); } return; }
   if (equipClick(act, a, curEvent()) || editorClick(act, a) || eventsClick(act, a) || exportClick(act, a, curDoc()) ||
@@ -679,7 +684,7 @@ initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: 
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
 const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
+initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initSound(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {

@@ -43,7 +43,9 @@ for (const f of readdirSync(join(root, 'core'))) {
 const cssFiles = readdirSync(join(prog, 'css')).filter((f) => f.endsWith('.css')).sort();
 const css = cssFiles.map((f) => `/* ── ${f} ── */\n` + readFileSync(join(prog, 'css', f), 'utf8')).join('\n');
 writeFileSync(join(out, 'style.css'), css);
-for (const f of readdirSync(join(prog, 'assets'))) copyFileSync(join(prog, 'assets', f), join(out, 'assets', f));
+// assets/ 아래 폴더(assets/sound/sfx · voice — 효과음 v1.10.0)까지 통째로 복사
+const copyAssets = (from, to) => { mkdirSync(to, { recursive: true }); for (const f of readdirSync(from, { withFileTypes: true })) { if (f.isDirectory()) copyAssets(join(from, f.name), join(to, f.name)); else copyFileSync(join(from, f.name), join(to, f.name)); } };
+copyAssets(join(prog, 'assets'), join(out, 'assets'));
 writeFileSync(join(out, 'version.json'), JSON.stringify({ app: pkg.name, version: pkg.version, build: v, built }, null, 2));
 
 // 예전 주소(/app/) → 첫 화면
@@ -72,5 +74,8 @@ writeFileSync(join(so, 'nav', 'index.html'), readFileSync(join(sian, 'nav', 'ind
 // 형광펜 표시 고르기 시안 (v1.9 후보, 2026-11-22): sian/mark/ → dist/sian/mark/ (한 파일)
 mkdirSync(join(so, 'mark'), { recursive: true });
 copyFileSync(join(sian, 'mark', 'index.html'), join(so, 'mark', 'index.html'));
+// 효과음 고르기 시안 (v1.10 후보, 2026-11-23): sian/sound/ (+ sfx/ CC0 효과음, voice/v1~v4/ TTS 목소리) → dist/sian/sound/
+const copyTree = (from, to) => { mkdirSync(to, { recursive: true }); for (const f of readdirSync(from, { withFileTypes: true })) { if (f.isDirectory()) copyTree(join(from, f.name), join(to, f.name)); else copyFileSync(join(from, f.name), join(to, f.name)); } };
+copyTree(join(sian, 'sound'), join(so, 'sound'));
 
 console.log(`built dist/: 프로그램 v${pkg.version} (빌드 ${v}) · style.css ${css.length}자 · 시안은 dist/sian/`);

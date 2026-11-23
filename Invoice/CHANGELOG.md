@@ -2,6 +2,10 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.10.0 — 2026-11-23 · 효과음
+- 새 기능: program/sound.mjs. 설정(이 기기 localStorage `starmedia-quote:sound` = clean 기본 | sense | mute, `soundvol` 0.35 기본, `soundhover`). 단추(data-act) → ACT 표 → 소리 묶음, 팝업을 여는 단추는 팝업 확인 때 결과 소리. 팝업 열림(위험 · 확인 · 안내), 알림(입금 · 완납 · 드라이브 맞춤 · 실패), 잠금 풀기 · 틀림, 마우스 올림(메뉴 · 큰 카드 · 파란 단추). ② 센스는 목소리 22개 + 하루 첫 인사.
+- 소리 파일: program/assets/sound/sfx (Kenney CC0 21개, LICENSE 포함) · voice (Qwen3 TTS 소희 · 밝고 상냥하게 22개). build.mjs 가 assets 하위 폴더까지 복사. 고르기 시안: sian/sound/.
+
 ## v1.9.0 — 2026-11-22 · 형광펜 표시
 - 새 기능: 사용자가 sian/mark/(형광펜 표시 고르기)에서 고른 대로 팝업 · 안내 글 36곳에 <mark class="hl-y|hl-g|hl-p"> 를 넣음. 모양은 program/css/10-highlight.css (글자 아래 60%만 칠함, 인쇄 땐 뺌). 색 규칙: 노랑 = 해야 할 행동 · 초록 = 안심 · 분홍 = 주의.
 

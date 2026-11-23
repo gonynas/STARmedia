@@ -3,7 +3,8 @@
 // 잠금 화면 동그라미는 정한 비밀번호 자릿수만큼(settings.lock.len), 그만큼 누르면 저절로 열어 본다.
 // 비밀번호를 잊었을 때: ① 비밀번호 초기화(사업자등록번호 + 초기화 코드 5자리) → ② 비밀번호 재설정(새 비밀번호 두 번) → 새 초기화 코드.
 // 규칙(해시 · 코드 · 사업자번호 형식)은 core/lock.mjs. 「남이 화면을 못 보게 하는 문」이며 자료 파일을 암호화하지는 않는다.
-import { validPin, onlyDigits, makeLock, checkPin, checkReset, hasRecovery, shouldAutoLock, formatBizNo, normCode, PIN_MIN, PIN_MAX, CODE_LEN } from './core/lock.mjs?v=mwqo0jnd';
+import { sndUnlock, sndWrong } from './sound.mjs?v=mwtejjn0';
+import { validPin, onlyDigits, makeLock, checkPin, checkReset, hasRecovery, shouldAutoLock, formatBizNo, normCode, PIN_MIN, PIN_MAX, CODE_LEN } from './core/lock.mjs?v=mwtejjn0';
 
 let C;
 const LAST = 'starmedia-quote:lastActive';
@@ -115,10 +116,11 @@ async function tryOpen() {
       const r = await makeLock(typed); C.S.data.settings.lock = r.lock; C.changed();
       st.code = r.code; st.mode = 'code'; st.typed = ''; paint(); return;
     }
-    C.changed(); unlock(); C.toast('잠금을 풀었어요'); return;
+    C.changed(); unlock(); sndUnlock(); C.toast('잠금을 풀었어요'); return;
   }
   st.tries++; st.typed = '';
   paint(st.tries >= 5 ? '여러 번 틀렸어요. 잊었다면 아래 「비밀번호를 잊었어요」를 눌러 주세요' : '비밀번호가 맞지 않아요');
+  sndWrong();
   const card = document.querySelector('.lk-card'); if (card) { card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake'); }
 }
 const val = (id) => (document.getElementById(id) || {}).value || '';

@@ -2,34 +2,35 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwqo0jnd';
-import { emptyData, load } from './core/datafile.mjs?v=mwqo0jnd';
-import { ic } from './icons.mjs?v=mwqo0jnd';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwqo0jnd';
-import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwqo0jnd';
-import { bindSortable, sortedIds } from './sortable.mjs?v=mwqo0jnd';
-import { sortByOrder } from './core/catalog.mjs?v=mwqo0jnd';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwqo0jnd';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwqo0jnd';
-import { processStamp } from './stamp.mjs?v=mwqo0jnd';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwqo0jnd';
-import { stampImg } from './docview.mjs?v=mwqo0jnd';
-import { initExport, exportClick } from './export.mjs?v=mwqo0jnd';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwqo0jnd';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwqo0jnd';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwqo0jnd';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwqo0jnd';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwqo0jnd';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwqo0jnd';
-import { logProblem } from './errors.mjs?v=mwqo0jnd';
-import { initInputs } from './inputs.mjs?v=mwqo0jnd';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwqo0jnd';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwqo0jnd';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwqo0jnd';
-import { purgeTrash } from './core/reports.mjs?v=mwqo0jnd';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwtejjn0';
+import { emptyData, load } from './core/datafile.mjs?v=mwtejjn0';
+import { ic } from './icons.mjs?v=mwtejjn0';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwtejjn0';
+import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwtejjn0';
+import { bindSortable, sortedIds } from './sortable.mjs?v=mwtejjn0';
+import { sortByOrder } from './core/catalog.mjs?v=mwtejjn0';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwtejjn0';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwtejjn0';
+import { processStamp } from './stamp.mjs?v=mwtejjn0';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwtejjn0';
+import { stampImg } from './docview.mjs?v=mwtejjn0';
+import { initExport, exportClick } from './export.mjs?v=mwtejjn0';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwtejjn0';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwtejjn0';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwtejjn0';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwtejjn0';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwtejjn0';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwtejjn0';
+import { logProblem } from './errors.mjs?v=mwtejjn0';
+import { initInputs } from './inputs.mjs?v=mwtejjn0';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwtejjn0';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwtejjn0';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwtejjn0';
+import { purgeTrash } from './core/reports.mjs?v=mwtejjn0';
+import { initSound, sndActStart, sndModal, sndModalOk, sndModalCancel, sndToast, sndClick } from './sound.mjs?v=mwtejjn0';
 
-const APP_VERSION = '1.9.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwqo0jnd';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.10.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwtejjn0';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
@@ -61,6 +62,7 @@ const todayKo = () => { const d = new Date(); return d.getFullYear() + '년 ' + 
 
 function toast(msg, action) {
   const t = $('#toast'); if (!t) return;
+  sndToast(msg);
   t.innerHTML = '<span>' + esc(msg) + '</span>' + (action ? ' <button class="toast-act" id="toastAct">' + esc(action.label) + '</button>' : '');
   t.style.pointerEvents = action ? 'auto' : '';
   t.classList.add('on'); clearTimeout(toast._t);
@@ -90,6 +92,7 @@ function openModal(o) {
   cc.textContent = o.cancel || '취소';
   cc.style.display = o.cancel === false ? 'none' : '';
   setTimeout(() => { const f = m.querySelector('.modal-body input, .modal-body textarea'); (f || ok).focus(); }, 30);
+  sndModal(o);
 }
 function closeModal() { const m = $('#modal'); if (m) { m.className = 'modal'; delete m.dataset.sticky; } MODAL.onOk = null; MODAL.onCancel = null; }
 async function modalOk() {
@@ -579,7 +582,7 @@ document.addEventListener('click', async (e) => {
   if (e.target.id === 'moreSheet') { e.target.classList.remove('on'); return; }
   if (e.target.closest('#moreSheet a')) $('#moreSheet').classList.remove('on');
   const mb = e.target.closest('[data-modal]');
-  if (mb) { if (mb.dataset.modal === 'ok') await modalOk(); else { const fn = MODAL.onCancel; closeModal(); if (fn) await fn(); } return; }
+  if (mb) { if (mb.dataset.modal === 'ok') { sndModalOk(); await modalOk(); } else { sndModalCancel(); const fn = MODAL.onCancel; closeModal(); if (fn) await fn(); } return; }
   const sb = e.target.closest('[data-seg] button');
   if (sb) {
     const name = sb.parentElement.dataset.seg, r = editorSeg(name, sb.dataset.v);
@@ -591,6 +594,8 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-act]'); if (!a) return;
   const act = a.dataset.act;
   if (a.tagName === 'A') e.preventDefault();
+  sndActStart(act);
+  if (sndClick(act, a)) return;
   if (setupClick(act) || driveClick(act) || uxClick(act, a)) return;
   if (act === 'lock-now') { if (!lockNow()) { location.hash = '#set'; toast('먼저 비밀번호를 정해 주세요 (화면 잠금)'); } return; }
   if (equipClick(act, a, curEvent()) || editorClick(act, a) || eventsClick(act, a) || exportClick(act, a, curDoc()) ||
@@ -679,7 +684,7 @@ initEditor({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: 
 initEvents({ S, $, esc, ic, uid, toast, openModal, closeModal, changed, render: () => render() });
 initExport({ S, $, esc, ic, toast, openModal, closeModal, setDocStatus });
 const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow, savable, render: () => render(), homeSaveRows: () => homeSaveRows(), adoptData, setBigText, paintStatus: () => paintStatus(), replaceData: (d) => { S.data = normalize(d); applyBigText(); }, hasFolderApi: HAS_FOLDER, mePageHtml: () => mePage(), connectFolder: () => onFolderConnect(), startEmpty: async () => { S.data = normalize(emptyData()); await saveNow(); }, appInfo: { version: APP_VERSION, build: APP_BUILD } };
-initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
+initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initSound(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
 async function boot() {

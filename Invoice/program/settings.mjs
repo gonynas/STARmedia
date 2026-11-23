@@ -11,6 +11,7 @@ import { wrap } from './core/datafile.mjs';
 import { RELEASES, KIND_LABEL } from './releases.mjs';
 import { openInstall, isStandalone } from './install.mjs';
 import { driveRowHtml, preloadGis } from './gdrive.mjs';
+import { soundRowsHtml } from './sound.mjs';
 
 let C;
 export function initSettings(ctx) { C = ctx; }
@@ -48,6 +49,7 @@ function settingsBody() {
     seg('ux-set', [['', '기본'], ['a', 'A · 탭 정리형'], ['b', 'B · 목록 · 상세형']], uxMode()) + '</div>' +
     '<div class="set-row set-ux"><span class="sl"><b>영역 제목 모양</b><small>이 기기에만 적용돼요 · 각 상자 맨 위 제목 줄</small></span>' +
     seg('ux-cardh', [['soft', '연한 띠 (기본)'], ['band', '파란 띠'], ['none', '띠 없음']], cardMode()) + '</div>' +
+    soundRowsHtml() +
     '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +

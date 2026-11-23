@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>효과음 고르기 (v2.0 후보) · 스타미디어 견적서 발행기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--bg:#F3F6FB;--surface:#fff;--surface2:#F7F9FD;--line:#E3E9F2;--text:#172B46;--sub:#5F6B7D;--primary:#3A83F7;--ink:#1C62D8;--soft:#EAF2FE;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--text);background:var(--bg);line-height:1.6;word-break:keep-all}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid rgba(58,131,247,.35);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 140px}
+h1{margin:0;font-size:1.6rem;letter-spacing:-.02em}
+h2{margin:30px 4px 10px;font-size:1.12rem;display:flex;align-items:center;gap:8px}
+h2 small{font-size:.82rem;font-weight:600;color:var(--sub)}
+.lead{margin:6px 0 16px;color:var(--sub)}
+mark{color:var(--text);padding:0 .12em;border-radius:3px;background:linear-gradient(180deg,transparent 38%,#FFE45C 38%)}
+mark.g{background:linear-gradient(180deg,transparent 38%,#9BE8B5 38%)}
+.card{background:var(--surface);border:1px solid #E6EBF3;border-radius:var(--r);box-shadow:0 1px 2px rgba(23,43,70,.05),0 10px 28px -16px rgba(23,43,70,.22)}
+.pad{padding:16px 18px}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 13px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#174FAE}
+.btn.sm{min-height:32px;padding:0 10px;font-size:.88rem}
+.play::before{content:"";width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mode{padding:14px 16px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;text-align:left}
+.mode b{display:block;font-size:1.02rem}
+.mode span{color:var(--sub);font-size:.9rem}
+.mode[aria-pressed="true"]{border-color:var(--primary);background:var(--soft)}
+.row-set{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:14px;color:var(--sub);font-weight:600}
+.row-set select{min-height:34px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:0 8px;font-weight:700;color:var(--text)}
+.voices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.voice{padding:14px;border-radius:12px;border:2px solid var(--line);background:#fff}
+.voice.on{border-color:var(--primary);background:var(--soft)}
+.voice label{display:flex;gap:8px;align-items:center;font-weight:800;cursor:pointer}
+.voice p{margin:6px 0 10px;color:var(--sub);font-size:.88rem}
+.voice .btns{display:flex;gap:6px;flex-wrap:wrap}
+.grp{margin-bottom:12px;overflow:hidden}
+.grp-h{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--soft);border-bottom:1px solid #D6E4FB}
+.grp-h .no{font-weight:800;color:var(--ink);min-width:1.8em}
+.grp-h b{flex:1}
+.grp-h .vol{font-size:.76rem;font-weight:800;padding:1px 8px;border-radius:999px;background:#fff;border:1px solid #CFE0FB;color:var(--ink)}
+.ev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);border-top:1px solid var(--line)}
+.ev:first-of-type{border-top:0}
+.ev-l{padding:12px 16px;border-right:1px solid var(--line)}
+.ev-l b{display:block}
+.ev-l small{color:var(--sub)}
+.ev-r{padding:10px 14px;display:grid;gap:8px}
+.cands{display:flex;flex-wrap:wrap;gap:6px}
+.cand{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 6px;border-radius:9px;border:1px solid var(--line);background:var(--surface2);font-size:.88rem;font-weight:700;cursor:pointer}
+.cand.on{border-color:var(--primary);background:var(--soft);color:var(--ink)}
+.cand input{accent-color:var(--primary)}
+.vline{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 8px;border-radius:9px;background:#FFF9E0;border:1px solid #F5E6A6}
+.vline.off{background:var(--surface2);border-color:var(--line);opacity:.65}
+.vline .tag{font-size:.75rem;font-weight:800;color:#8F5A00;white-space:nowrap}
+.vline input[type=text]{min-height:32px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:#fff;min-width:0}
+.vline input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary)}
+.memo{width:100%;min-height:36px;border:1px dashed var(--line);border-radius:9px;padding:6px 10px;background:#fff;resize:vertical;font-size:.9rem}
+.demo{display:flex;flex-wrap:wrap;gap:8px}
+.demo .btn.danger{border-color:#F3B4B4;color:#B42318}
+.foot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);box-shadow:0 -10px 24px -18px rgba(23,43,70,.35);padding:12px 20px}
+.foot .in{max-width:1100px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.foot .sum{flex:1;min-width:200px;color:var(--sub)}
+.foot .sum b{color:var(--text)}
+.out{display:none;margin-top:18px}
+.out.on{display:block}
+.out textarea{width:100%;min-height:240px;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:.84rem}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#172B46;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.note{color:var(--sub);font-size:.88rem;margin:8px 4px 0}
+@media (max-width:860px){ .voices{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:640px){ .modes,.voices{grid-template-columns:1fr} .ev{grid-template-columns:1fr} .ev-l{border-right:0;border-bottom:1px dashed var(--line)} .vline{grid-template-columns:auto auto minmax(0,1fr)} .vline .tag{grid-column:1/-1} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>효과음 고르기</h1>
+  <p class="lead">단추를 누르거나 팝업이 뜰 때 나는 소리를 골라 주세요. 소리는 <b>「눌렀을 때 생기는 일」</b>로 14가지 묶음으로 나눴어요(같은 일 = 늘 같은 소리). 각 묶음에서 <b>▶ 눌러 듣고</b> 마음에 드는 소리 하나를 고르고, <b>② 센스 효과음</b>에서 나올 목소리 대사는 <b>쓸지 체크</b>하고 <b>글자를 고쳐 쓸 수도</b> 있어요. 다 고르면 맨 아래 <b>「최종 답변 만들기」 → 복사</b>해서 대화창에 붙여 넣어 주세요. (고른 내용은 이 브라우저에 저절로 저장돼요)</p>
+
+  <section class="card pad" aria-label="효과음 모드">
+    <b>설정 화면에 들어갈 선택 (이 기기에만 적용)</b>
+    <div class="modes" style="margin-top:10px" id="modes">
+      <button type="button" class="mode" data-mode="clean"><b>① 깔끔 효과음 (기본)</b><span>짧고 단정한 소리만. 하루 종일 켜 둬도 거슬리지 않게</span></button>
+      <button type="button" class="mode" data-mode="sense"><b>② 센스 효과음</b><span>①에 더해 특별한 순간에 여자 목소리 대사가 나와요</span></button>
+      <button type="button" class="mode" data-mode="mute"><b>③ 무음 모드</b><span>소리가 전혀 나지 않아요</span></button>
+    </div>
+    <div class="row-set">
+      <label>소리 크기 <select id="vol"><option value="0.35">작게</option><option value="0.6">보통</option><option value="0.9">크게</option></select></label>
+      <label><input type="checkbox" id="hoverOn"> 마우스 올렸을 때 소리 (메뉴 · 홈 큰 카드 · 파란 단추만)</label>
+    </div>
+    <p class="note">아래 「직접 눌러 보기」 단추로 지금 고른 모드를 바로 체험할 수 있어요. 휴대폰에서도 같은 설정이 들어가요(휴대폰은 마우스 올림이 없어 누를 때만 소리 나요).</p>
+    <div class="demo" style="margin-top:10px" id="demo">
+      <button type="button" class="btn" data-demo="nav">메뉴 이동</button>
+      <button type="button" class="btn primary" data-demo="newdoc">새 문서 만들기</button>
+      <button type="button" class="btn" data-demo="save">저장</button>
+      <button type="button" class="btn" data-demo="done">작성 완료</button>
+      <button type="button" class="btn primary" data-demo="kakao">카톡 보내기</button>
+      <button type="button" class="btn" data-demo="pdf">PDF 저장</button>
+      <button type="button" class="btn" data-demo="pay">입금 추가</button>
+      <button type="button" class="btn" data-demo="trash">삭제</button>
+      <button type="button" class="btn danger" data-demo="danger">완전히 지우기 팝업</button>
+      <button type="button" class="btn" data-demo="unlock">잠금 풀기</button>
+    </div>
+  </section>
+
+  <h2>목소리 고르기 <small>② 센스 효과음에 쓸 여자 목소리 (Qwen3 TTS로 만듦)</small></h2>
+  <div class="voices" id="voices"></div>
+
+  <h2>소리 묶음 14가지 <small>소리 이름은 원래 파일 이름 · 모두 무료 CC0(Kenney)</small></h2>
+  <div id="groups"></div>
+
+  <section class="card pad" style="margin-top:16px">
+    <b>전체 의견</b> <small style="color:var(--sub)">(이름 · 크기 · 더 넣고 싶은 소리 · 빼고 싶은 소리 등 자유롭게)</small>
+    <textarea class="memo" id="memoAll" style="margin-top:8px;min-height:70px" placeholder="예: 저장 소리는 조금 더 작게, 카톡 대사는 더 귀엽게"></textarea>
+  </section>
+  <section class="card pad out" id="out">
+    <b>최종 답변</b> — 아래 글을 <b>복사</b>해서 대화창에 붙여 넣어 주세요.
+    <div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" id="copy">복사하기</button><button type="button" class="btn" id="save">텍스트 파일로 저장</button></div>
+    <textarea id="outText" readonly></textarea>
+  </section>
+</div>
+<div class="foot"><div class="in"><span class="sum" id="sum"></span><button type="button" class="btn primary" id="make">최종 답변 만들기</button></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function () {
+  'use strict';
+  const VOICES = [
+    ['v1', '소희 · 자연스럽게', '편한 사무실 동료처럼 꾸밈없이'],
+    ['v2', '소희 · 밝고 상냥하게', '웃으면서 경쾌하게, 센스 있게'],
+    ['v3', '맑고 따뜻한 20대', '부드럽고 친근한 대화체'],
+    ['v4', '차분한 30대 진행자', '또렷하고 믿음 가는 말투']
+  ];
+  // [묶음 번호, 묶음 이름, 크기, [[소리 키, 이름, 어디서, [후보…], [[대사 키, 언제, 대사]…]]…]]
+  const GROUPS = [
+    [1, '마우스 올림', '아주 작게', [['hover', '마우스 올림', '왼쪽 메뉴 · 홈 큰 카드 · 파란 단추 (작은 단추 · 표 줄 X)', ['rollover2', 'rollover4', 'tick_001'], []]]],
+    [2, '이동', '작게', [['nav', '이동', '메뉴 · 탭 · 뒤로 · 달력 앞 · 뒤 · 단계 이동', ['click_001', 'select_001', 'click3'], []]]],
+    [3, '고르기 · 켜고 끄기', '작게', [['toggle', '고르기 · 켜고 끄기', '스위치 · 선택 칸(기본 · A · B) · 체크 · 목록에서 고르기', ['toggle_001', 'switch_002', 'switch7'], []]]],
+    [4, '만들기 · 추가', '보통', [['add', '만들기 · 추가', '새 문서 · 품목 · 거래처 · 장비 추가 · 줄 추가 · 세트 넣기', ['drop_002', 'pluck_001', 'maximize_004'], [['newdoc', '새 문서 만들기', '새 견적서, 시작해 볼까요?']]]]],
+    [5, '저장 · 완료', '보통', [['save', '저장 · 완료', '저장 · 작성 완료 · 계약 확정 · 순서 저장 · 설정 저장', ['confirmation_001', 'confirmation_002', 'confirmation_004'], [['save', '저장 단추', '저장했어요!'], ['done', '작성 완료', '짜잔~ 완성!'], ['contract', '계약 확정', '계약 성사! 축하드려요, 대표님!']]]]],
+    [6, '보내기', '보통', [['send', '보내기', '카톡 보내기 · 메일 보내기 · 공유', ['maximize_006', 'maximize_008', 'glass_003'], [['kakao', '카톡 보내기', '카톡~!'], ['mail', '메일 보내기', '메일, 슝~ 보냈어요!']]]]],
+    [7, '파일 만들기', '보통', [['file', '파일 만들기', 'PDF · 이미지 · 엑셀 저장 · 인쇄 · 백업 만들기', ['bookFlip1', 'bookPlace1', 'bookFlip2'], [['file', 'PDF · 이미지 저장', '파일 저장 완료!'], ['excel', '엑셀 저장', '엑셀 한 장, 대령이요~'], ['backup', '백업 만들기', '든든하게 백업했어요!']]]]],
+    [8, '복사', '작게', [['copy', '복사', '문서 복사 · 세트 복사 · 문제 기록 복사', ['select_003', 'click_004', 'switch12'], [['copy', '복사', '복사 완료~']]]]],
+    [9, '휴지통으로 (되돌릴 수 있음)', '보통', [['trash', '휴지통으로', '문서 · 거래처 · 품목 · 장비 삭제 · 줄 삭제', ['cloth2', 'minimize_003', 'dropLeather'], [['trash', '휴지통으로', '휴지통에 쏙!']]]]],
+    [10, '되살리기', '보통', [['restore', '되살리기', '휴지통에서 되살리기 · 백업 되살리기 · 취소 풀기', ['maximize_002', 'open_002', 'pluck_002'], [['restore', '되살리기', '다시 살렸어요!']]]]],
+    [11, '돈', '보통', [['money', '돈', '입금 추가 · 완납 · 영수증 만들기', ['handleCoins', 'handleCoins2'], [['pay', '입금 추가', '입금 확인했어요!'], ['paid', '완납', '완납이에요! 오늘 치킨 각~']]]]],
+    [12, '잠금', '보통', [
+      ['lock', '지금 잠그기', '잠그기 단추 · 자동 잠금', ['metalLatch', 'doorClose_1', 'metalClick'], [['lock', '잠글 때', '문단속 완료!']]],
+      ['unlock', '잠금 풀기', '비밀번호가 맞을 때', ['metalClick', 'open_001', 'doorOpen_1'], [['unlock', '잠금 풀 때', '어서 오세요, 대표님!'], ['hello', '그날 처음 열 때(하루 한 번)', '안녕하세요, 대표님! 오늘도 좋은 하루 보내세요.']]],
+      ['wrong', '비밀번호 틀림', '숫자를 잘못 눌렀을 때', ['error_004', 'error_006', 'error_008'], [['wrong', '틀렸을 때', '땡! 다시 한 번요~']]]]],
+    [13, '팝업 성격', '작게 · 위험은 크게', [
+      ['pop_info', '안내 팝업이 열릴 때', '「문서 그림을 복사했어요」 같은 안내', ['glass_001', 'open_003', 'pluck_002'], []],
+      ['pop_ask', '확인 팝업이 열릴 때', '「삭제할까요?」 같은 질문', ['question_001', 'question_002', 'question_004'], []],
+      ['pop_danger', '위험 팝업이 열릴 때 (빨간 창 12곳)', '완전히 지우기 · 휴지통 비우기 · 잠금 끄기 · 백업 되살리기', ['error_006', 'bong_001', 'error_005'], [['danger', '위험 팝업', '잠깐만요, 대표님! 이건 되돌릴 수 없어요.']]],
+      ['purge', '완전히 지웠을 때', '되돌릴 수 없는 일을 실제로 했을 때', ['bookClose', 'doorClose_2', 'minimize_007'], [['purge', '완전히 지움', '깔끔하게 지웠어요.']]]]],
+    [14, '알림 결과', '작게 · 오류는 크게', [
+      ['ok', '잘 됨 알림', '화면 아래 「~했어요」 짧은 알림', ['glass_002', 'tick_002', 'confirmation_003'], []],
+      ['err', '실패 · 오류', '저장 실패 · 파일 만들기 실패 · 오류 알림', ['error_002', 'error_007', 'glitch_001'], [['error', '오류', '어라? 한 번만 다시 해 볼까요?']]],
+      ['sync', '구글 드라이브 맞추기 끝', '드라이브와 맞추기 · 연결 끝', ['confirmation_003', 'glass_004', 'maximize_005'], [['sync', '드라이브 맞춤', '드라이브랑 딱 맞췄어요!']]]]]
+  ];
+  const EVENTS = GROUPS.flatMap((g) => g[3]);
+  const LINES = EVENTS.flatMap((e) => e[4]);
+  const KEY = 'starmedia-sound-pick-v1';
+  const def = () => ({ mode: 'clean', vol: '0.6', hover: true, voice: 'v1', memo: '', ev: Object.fromEntries(EVENTS.map((e) => [e[0], { pick: e[3][0], memo: '' }])), ln: Object.fromEntries(LINES.map((l) => [l[0], { on: true, text: l[2] }])) });
+  let S; try { S = Object.assign(def(), JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) { S = def(); }
+  const d0 = def(); for (const k in d0.ev) if (!S.ev[k]) S.ev[k] = d0.ev[k]; for (const k in d0.ln) if (!S.ln[k]) S.ln[k] = d0.ln[k];
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* 무시 */ } };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // 소리 내기: 효과음 → (센스면) 0.12초 뒤 목소리
+  let cur = [];
+  const stop = () => { cur.forEach((a) => { try { a.pause(); } catch (e) { /* 무시 */ } }); cur = []; };
+  const play = (src, delay = 0) => setTimeout(() => { const a = new Audio(src); a.volume = Number(S.vol); cur.push(a); a.play().catch(() => {}); }, delay);
+  const sfx = (name) => 'sfx/' + name + '.mp3';
+  const vox = (key, v) => 'voice/' + (v || S.voice) + '/' + key + '.mp3';
+  function fire(evKey, lineKey, force) {
+    if (S.mode === 'mute' && !force) return;
+    stop(); play(sfx(S.ev[evKey].pick));
+    if (lineKey && (S.mode === 'sense' || force) && S.ln[lineKey].on) play(vox(lineKey), 180);
+  }
+  function render() {
+    document.querySelectorAll('.mode').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+    document.getElementById('vol').value = S.vol; document.getElementById('hoverOn').checked = S.hover; document.getElementById('memoAll').value = S.memo;
+    document.getElementById('voices').innerHTML = VOICES.map(([id, n, d]) => '<div class="voice' + (S.voice === id ? ' on' : '') + '"><label><input type="radio" name="voice" value="' + id + '"' + (S.voice === id ? ' checked' : '') + '> ' + n + '</label><p>' + d + '</p><div class="btns"><button type="button" class="btn sm play" data-vplay="' + id + '" data-k="hello">인사</button><button type="button" class="btn sm play" data-vplay="' + id + '" data-k="kakao">카톡</button><button type="button" class="btn sm play" data-vplay="' + id + '" data-k="contract">계약</button><button type="button" class="btn sm play" data-vplay="' + id + '" data-k="danger">주의</button></div></div>').join('');
+    document.getElementById('groups').innerHTML = GROUPS.map(([no, name, vol, evs]) => '<article class="card grp"><div class="grp-h"><span class="no">' + no + '</span><b>' + esc(name) + '</b><span class="vol">' + esc(vol) + '</span></div>' + evs.map(([k, n, where, cands, lines]) => {
+      const st = S.ev[k];
+      return '<div class="ev" data-ev="' + k + '"><div class="ev-l"><b>' + esc(n) + '</b><small>' + esc(where) + '</small></div><div class="ev-r"><div class="cands">' +
+        cands.map((c, i) => '<label class="cand' + (st.pick === c ? ' on' : '') + '"><input type="radio" name="ev-' + k + '" value="' + c + '"' + (st.pick === c ? ' checked' : '') + '><button type="button" class="btn sm play" data-sfx="' + c + '" aria-label="' + c + ' 듣기"></button>후보 ' + (i + 1) + '</label>').join('') + '</div>' +
+        lines.map(([lk, when]) => { const ls = S.ln[lk]; return '<div class="vline' + (ls.on ? '' : ' off') + '" data-ln="' + lk + '"><input type="checkbox" data-lon' + (ls.on ? ' checked' : '') + ' aria-label="' + esc(when) + ' 대사 쓰기"><button type="button" class="btn sm play" data-lplay="' + lk + '" data-ev="' + k + '" aria-label="' + esc(when) + ' 듣기"></button><input type="text" data-ltext value="' + esc(ls.text) + '" aria-label="' + esc(when) + ' 대사"><span class="tag">② 목소리 · ' + esc(when) + '</span></div>'; }).join('') +
+        '<textarea class="memo" data-evmemo placeholder="이 소리에 대한 의견 (적고 싶을 때만)">' + esc(st.memo) + '</textarea></div></div>';
+    }).join('') + '</article>').join('');
+    summary();
+  }
+  function summary() {
+    const on = LINES.filter((l) => S.ln[l[0]].on).length;
+    const mn = { clean: '① 깔끔 효과음', sense: '② 센스 효과음', mute: '③ 무음 모드' }[S.mode];
+    document.getElementById('sum').innerHTML = '체험 모드 <b>' + mn + '</b> · 목소리 <b>' + VOICES.find((v) => v[0] === S.voice)[1] + '</b> · 대사 <b>' + on + '</b> / ' + LINES.length + '개 사용';
+  }
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.dataset.mode) { S.mode = t.dataset.mode; save(); render(); if (S.mode !== 'mute') fire('toggle'); return; }
+    if (t.dataset.sfx) { e.preventDefault(); stop(); play(sfx(t.dataset.sfx)); return; }
+    if (t.dataset.vplay) { stop(); play(vox(t.dataset.k, t.dataset.vplay)); return; }
+    if (t.dataset.lplay) { fire(t.dataset.ev, t.dataset.lplay, true); return; }
+    if (t.dataset.demo) {
+      const m = { nav: ['nav'], newdoc: ['add', 'newdoc'], save: ['save', 'save'], done: ['save', 'done'], kakao: ['send', 'kakao'], pdf: ['file', 'file'], pay: ['money', 'pay'], trash: ['trash', 'trash'], danger: ['pop_danger', 'danger'], unlock: ['unlock', 'unlock'] }[t.dataset.demo];
+      fire(m[0], m[1]); return;
+    }
+  });
+  document.addEventListener('mouseover', (e) => { const b = e.target.closest('#demo .btn.primary, #demo [data-demo="nav"]'); if (!b || b.contains(e.relatedTarget)) return; if (S.hover && S.mode !== 'mute') play(sfx(S.ev.hover.pick)); });
+  document.addEventListener('change', (e) => {
+    const el = e.target;
+    if (el.name === 'voice') S.voice = el.value;
+    else if (el.id === 'vol') S.vol = el.value;
+    else if (el.id === 'hoverOn') S.hover = el.checked;
+    else if (el.name && el.name.startsWith('ev-')) { S.ev[el.name.slice(3)].pick = el.value; stop(); play(sfx(el.value)); }
+    else if (el.hasAttribute('data-lon')) S.ln[el.closest('[data-ln]').dataset.ln].on = el.checked;
+    else return;
+    save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  });
+  document.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.id === 'memoAll') S.memo = el.value;
+    else if (el.hasAttribute('data-ltext')) S.ln[el.closest('[data-ln]').dataset.ln].text = el.value;
+    else if (el.hasAttribute('data-evmemo')) S.ev[el.closest('[data-ev]').dataset.ev].memo = el.value;
+    else return;
+    save();
+  });
+  function answer() {
+    const mn = { clean: '① 깔끔 효과음', sense: '② 센스 효과음', mute: '③ 무음 모드' };
+    const L = ['[효과음 최종 답변] ' + new Date().toLocaleDateString('ko-KR'), '목소리: ' + VOICES.find((v) => v[0] === S.voice)[1] + ' · 기본 크기: ' + document.querySelector('#vol option:checked').textContent + ' · 마우스 올림 소리: ' + (S.hover ? '켬' : '끔') + ' · 마지막 체험 모드: ' + mn[S.mode], ''];
+    GROUPS.forEach(([no, name, , evs]) => evs.forEach(([k, n, , cands, lines]) => {
+      const st = S.ev[k];
+      let s = no + '. ' + n + ' — 후보 ' + (cands.indexOf(st.pick) + 1) + '(' + st.pick + ')';
+      lines.forEach(([lk, when, orig]) => { const ls = S.ln[lk]; s += ' / 목소리 ' + when + ': ' + (ls.on ? '「' + ls.text + '」' + (ls.text !== orig ? '(고침)' : '') : '안 씀'); });
+      if (st.memo.trim()) s += ' / 의견: ' + st.memo.trim();
+      L.push(s);
+    }));
+    if (S.memo.trim()) L.push('', '전체 의견: ' + S.memo.trim());
+    L.push('', '— 아래는 프로그램에 적용할 때 쓰는 자료예요(지우지 말고 같이 붙여 넣어 주세요) —', JSON.stringify({ v: 1, voice: S.voice, vol: S.vol, hover: S.hover, ev: Object.fromEntries(Object.entries(S.ev).map(([k, v]) => [k, v.pick])), ln: S.ln }));
+    return L.join('\n');
+  }
+  const toast = (t) => { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 1800); };
+  document.getElementById('make').addEventListener('click', () => { document.getElementById('outText').value = answer(); const o = document.getElementById('out'); o.classList.add('on'); o.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  document.getElementById('copy').addEventListener('click', async () => { const t = document.getElementById('outText'); try { await navigator.clipboard.writeText(t.value); } catch (e) { t.select(); document.execCommand('copy'); } toast('복사했어요. 대화창에 붙여 넣어 주세요'); });
+  document.getElementById('save').addEventListener('click', () => { const b = new Blob([document.getElementById('outText').value], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = '효과음_최종답변.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('텍스트 파일로 저장했어요'); });
+  render();
+})();
+</script>
+</body>
+</html>
