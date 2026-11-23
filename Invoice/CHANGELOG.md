@@ -2,6 +2,10 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.10.1 — 2026-11-24 · 효과음 상자 · 순서
+- 설정 화면: 효과음 줄을 「화면」 카드에서 빼서 새 카드 「효과음」(화면 다음)으로. 시안 A · B 묶음 SET_GROUPS · SET_SECS(screen = 화면 · 효과음 · 화면 잠금), 묶음 이름 「화면 · 효과음 · 잠금」.
+- 효과음 순서 ① 센스(기본) · ② 깔끔 · ③ 무음. sndMode 기본값 'clean' → 'sense'(저장 값 이름은 그대로라 이미 고른 기기는 그대로).
+
 ## v1.10.0 — 2026-11-23 · 효과음
 - 새 기능: program/sound.mjs. 설정(이 기기 localStorage `starmedia-quote:sound` = clean 기본 | sense | mute, `soundvol` 0.35 기본, `soundhover`). 단추(data-act) → ACT 표 → 소리 묶음, 팝업을 여는 단추는 팝업 확인 때 결과 소리. 팝업 열림(위험 · 확인 · 안내), 알림(입금 · 완납 · 드라이브 맞춤 · 실패), 잠금 풀기 · 틀림, 마우스 올림(메뉴 · 큰 카드 · 파란 단추). ② 센스는 목소리 22개 + 하루 첫 인사.
 - 소리 파일: program/assets/sound/sfx (Kenney CC0 21개, LICENSE 포함) · voice (Qwen3 TTS 소희 · 밝고 상냥하게 22개). build.mjs 가 assets 하위 폴더까지 복사. 고르기 시안: sian/sound/.

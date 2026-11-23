@@ -1,16 +1,16 @@
 // 효과음 (v1.10.0, 사용자가 sian/sound/ 에서 고른 대로)
-//  설정 · 백업 → 화면 → 「효과음」: ① 깔끔 효과음(기본) · ② 센스 효과음(+ 소희 목소리) · ③ 무음 모드 — 이 기기에만(localStorage)
+//  설정 · 백업 → 「효과음」 상자(화면 다음): ① 센스 효과음(기본, + 소희 목소리) · ② 깔끔 효과음 · ③ 무음 모드 — 이 기기에만(localStorage). v1.10.1 에 순서 · 기본값 바꿈
 //  규칙: 소리는 「눌렀을 때 생기는 일」로 정한다(같은 일 = 늘 같은 소리). 좋은 일 = 밝은 소리, 위험 = 낮은 경고음.
 //   · 단추(data-act) → ACT 표. 팝업을 여는 단추는 팝업 소리가 먼저 나고, 팝업의 확인을 눌렀을 때 그 단추의 결과 소리가 난다(취소 = 소리 없음).
 //   · 팝업이 열릴 때: 빨간 창 = 위험, 단추 둘 = 확인, 단추 하나 = 안내.
 //   · 화면 아래 알림(toast): 입금 · 완납 · 드라이브 맞춤 · 실패는 늘 소리, 그 밖의 「잘 됨」은 바로 앞에 소리가 없을 때만.
 //   · 마우스 올림: 왼쪽 메뉴 · 새 문서 · 홈 큰 카드 · 파란 단추만(마우스가 있는 기기에서만).
-//   · 0.15초 안에 또 나면 앞의 것만. 그날 처음 나는 목소리는 인사(하루 한 번).
+//   · 0.15초 안에 또 나면 앞의 것만. (① 센스 = 'sense', ② 깔끔 = 'clean' — 저장 값 이름은 그대로) 그날 처음 나는 목소리는 인사(하루 한 번).
 //  소리 파일: assets/sound/sfx/*.mp3 (Kenney CC0, LICENSE-Kenney-CC0.txt) · assets/sound/voice/*.mp3 (Qwen3 TTS 「소희 · 밝고 상냥하게」로 만듦)
 const K = { mode: 'starmedia-quote:sound', vol: 'starmedia-quote:soundvol', hover: 'starmedia-quote:soundhover', hello: 'starmedia-quote:soundhello' };
 const get = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
 const put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* 무시 */ } };
-export const sndMode = () => { const v = get(K.mode, 'clean'); return v === 'sense' || v === 'mute' ? v : 'clean'; };
+export const sndMode = () => { const v = get(K.mode, 'sense'); return v === 'clean' || v === 'mute' ? v : 'sense'; };
 export const sndVol = () => { const v = get(K.vol, '0.35'); return ['0.35', '0.6', '0.9'].includes(v) ? v : '0.35'; };
 export const sndHover = () => get(K.hover, 'on') !== 'off';
 
@@ -115,8 +115,8 @@ function seg(act, opts, cur) {
 }
 /** 설정 · 백업 → 화면 의 효과음 줄 3개 */
 export function soundRowsHtml() {
-  return '<div class="set-row set-ux"><span class="sl"><b>효과음</b><small>이 기기에만 적용돼요 · ② 센스는 특별한 순간(카톡 보내기 · 계약 확정 · 입금 등)에 소희 목소리가 같이 나와요</small></span>' +
-    seg('snd-mode', [['clean', '① 깔끔 효과음'], ['sense', '② 센스 효과음'], ['mute', '③ 무음 모드']], sndMode()) + '</div>' +
+  return '<div class="set-row set-ux"><span class="sl"><b>효과음 종류</b><small>① 센스는 특별한 순간(카톡 보내기 · 계약 확정 · 입금 등)에 소희 목소리가 같이 나와요 · ② 깔끔은 짧은 소리만</small></span>' +
+    seg('snd-mode', [['sense', '① 센스 효과음 (기본)'], ['clean', '② 깔끔 효과음'], ['mute', '③ 무음 모드']], sndMode()) + '</div>' +
     '<div class="set-row set-ux"><span class="sl"><b>효과음 크기</b><small>' + (sndMode() === 'mute' ? '지금은 ③ 무음 모드라 소리가 나지 않아요' : '아이폰은 기기 소리 크기를 따라가요') + '</small></span>' +
     '<span class="set-btns">' + seg('snd-vol', [['0.35', '작게'], ['0.6', '보통'], ['0.9', '크게']], sndVol()) + '<button type="button" class="btn sm" data-act="snd-test">' + ctx.ic('bell') + '미리 듣기</button></span></div>' +
     '<div class="set-row set-ux"><span class="sl"><b>마우스 올렸을 때 소리</b><small>왼쪽 메뉴 · 홈 큰 카드 · 파란 단추에서만 · 휴대폰 · 태블릿은 누를 때만 소리가 나요</small></span>' +

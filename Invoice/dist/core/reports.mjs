@@ -8,8 +8,8 @@
 //  · 받은 돈: 취소 표시하지 않은 입금(환불은 빼기), 입금한 날의 달.
 //  · 미수금: 계약된 행사의 계약 금액 − 받은 돈 (0보다 클 때만). 행사로 묶지 않은 문서는 입금을 셀 수 없어 넣지 않는다.
 //  · 장비: 행사에 넣은 장비(gear)는 반출일(out)부터 반납일(back)까지 나가 있다고 본다. 없으면 행사 시작 · 끝 날짜.
-import { eventMoney, eventDocs } from './events.mjs?v=mwtejjn0';
-import { docTotals, addDays, validUntil } from './docs.mjs?v=mwtejjn0';
+import { eventMoney, eventDocs } from './events.mjs?v=mwtf14zz';
+import { docTotals, addDays, validUntil } from './docs.mjs?v=mwtf14zz';
 
 const inYear = (s, y) => !!s && String(s).slice(0, 4) === String(y);
 const monthOf = (s) => Number(String(s).slice(5, 7));

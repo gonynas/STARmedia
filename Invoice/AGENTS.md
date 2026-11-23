@@ -56,7 +56,7 @@ app/
 │  ├─ stamp.mjs        도장 사진 흰 배경 지우기
 │  ├─ icons.mjs        아이콘 ic('이름')
 │  ├─ ux.mjs           하위 메뉴 디자인(v1.6.0): 설정 · 백업 → 화면 → 「화면 디자인 (UI · UX)」 기본 · A · B (이 기기 localStorage), uxMode() · 탭 · 하위 메뉴 · ⋯ 메뉴 · 휴대폰 자세히 창. 품목 · 발행 목록 · 설정 화면이 uxMode() 로 모양을 고름 (CSS: css/09-ux-ab.css)
-│  ├─ sound.mjs        효과음(v1.10.0): ① 깔끔(기본) · ② 센스(+소희 목소리) · ③ 무음, 이 기기 localStorage. 새 단추를 만들면 ACT 표에 [소리 묶음, 목소리] 를 넣는다(없으면 「이동」 소리). 소리 파일 assets/sound/
+│  ├─ sound.mjs        효과음(v1.10.0, 순서 v1.10.1): ① 센스(기본, +소희 목소리) · ② 깔끔 · ③ 무음, 설정 · 백업의 「효과음」 상자(화면 다음), 이 기기 localStorage. 새 단추를 만들면 ACT 표에 [소리 묶음, 목소리] 를 넣는다(없으면 「이동」 소리). 소리 파일 assets/sound/
 │  ├─ sortable.mjs     끌어서 순서 바꾸기 부품(bindSortable · sortedIds) — 거래처 순서(v1.6.1)
 │  ├─ sw.js · manifest.webmanifest   홈 화면 설치(인터넷 먼저, 끊기면 저장본)
 │  ├─ assets/          로고 · 아이콘

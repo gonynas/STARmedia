@@ -49,8 +49,9 @@ function settingsBody() {
     seg('ux-set', [['', '기본'], ['a', 'A · 탭 정리형'], ['b', 'B · 목록 · 상세형']], uxMode()) + '</div>' +
     '<div class="set-row set-ux"><span class="sl"><b>영역 제목 모양</b><small>이 기기에만 적용돼요 · 각 상자 맨 위 제목 줄</small></span>' +
     seg('ux-cardh', [['soft', '연한 띠 (기본)'], ['band', '파란 띠'], ['none', '띠 없음']], cardMode()) + '</div>' +
-    soundRowsHtml() +
     '</div></section>' +
+    // 2-1. 효과음 (v1.10.1: 화면 다음 따로 상자)
+    '<section class="card"><div class="card-h"><h2>' + C.ic('bell') + '효과음</h2><span class="hint">이 기기에만 적용돼요 · 단추 · 팝업 · 알림 소리</span></div><div class="set-rows">' + soundRowsHtml() + '</div></section>' +
     // 3. 잠금
     '<section class="card"><div class="card-h"><h2>' + C.ic('lock') + '화면 잠금</h2><span class="hint">남이 화면을 못 보게 하는 문이에요 (자료 파일을 암호화하지는 않아요)</span></div>' +
     '<div class="set-rows"><div class="set-row"><span class="sl"><b>비밀번호</b><small>' + (lockOn ? '정해져 있어요 · 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리' : '아직 정하지 않았어요 · 숫자 ' + PIN_MIN + '~' + PIN_MAX + '자리') + '</small></span>' +
@@ -198,14 +199,14 @@ export function settingsChange(t) {
 }
 
 /* ── 설정 시안 A · B (v1.6.0 시험): 7개 영역을 4개 묶음으로 나눠 한 번에 하나만 ── */
-const SET_GROUPS = ['doc', 'screen', 'screen', 'save', 'save', 'info', 'info'];
-const SET_SECS = { doc: ['문서 기본값'], screen: ['화면', '화면 잠금'], save: ['저장 위치', '백업 · 자료 파일'], info: ['문제 기록', '프로그램 정보'] };   // 영역 순서: 기본값 · 화면 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 정보
+const SET_GROUPS = ['doc', 'screen', 'screen', 'screen', 'save', 'save', 'info', 'info'];
+const SET_SECS = { doc: ['문서 기본값'], screen: ['화면', '효과음', '화면 잠금'], save: ['저장 위치', '백업 · 자료 파일'], info: ['문제 기록', '프로그램 정보'] };   // 영역 순서: 기본값 · 화면 · 효과음 · 잠금 · 저장 위치 · 백업 · 문제 기록 · 정보
 function uxSettings(html) {
   const m = uxMode(); if (!m) return html;
   let i = 0; html = html.replace(/<section class="card/g, () => '<section data-sg="' + (SET_GROUPS[i++] || 'info') + '" class="card');
   const s = st(), S = C.S, g = S.setGroup || 'doc', probs = problems();
   const vat = { excl: '별도', incl: '포함', none: '없음' }[s.vat] || '별도';
-  const groups = [['doc', '문서 기본값', vat + ' · ' + (s.validDays || 15) + '일'], ['screen', '화면 · 잠금', hasLock() ? (Number(s.autoLockMin) ? s.autoLockMin + '분 잠금' : '잠금 켬') : '잠금 없음'],
+  const groups = [['doc', '문서 기본값', vat + ' · ' + (s.validDays || 15) + '일'], ['screen', '화면 · 효과음 · 잠금', hasLock() ? (Number(s.autoLockMin) ? s.autoLockMin + '분 잠금' : '잠금 켬') : '잠금 없음'],
     ['save', '저장 · 백업', '자동 저장'], ['info', '문제 · 정보', probs.length ? '기록 ' + probs.length + '개' : 'v' + C.appInfo.version]];
   const nav = m === 'a' ? uxTabs(groups.map(([k, l]) => [k, l]), g, 'set-ux-g')
     : '<aside class="uxsub2" aria-label="설정 하위 메뉴">' + uxGroup('sliders', '설정', groups.map(([k, l]) => {
