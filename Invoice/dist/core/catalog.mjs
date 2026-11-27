@@ -1,7 +1,7 @@
 // 스타미디어 견적서 발행기 — 품목 · 세트 규칙 (1단계)
 // 화면과 상관없는 순수 규칙만 둔다. 품목: { id, cat, name, spec, price, days, taxFree, memo, createdAt, updatedAt }
 // 세트: { id, name, memo, lines:[{ itemId, qty, days, name, spec, price, taxFree }] (name · spec · price 는 지운 품목 대비 사본) }
-import { lineAmount } from './money.mjs?v=mwybfj92';
+import { lineAmount } from './money.mjs?v=mwybydwd';
 
 export const NO_CAT = '분류 없음';
 const squash = (s) => String(s == null ? '' : s).replace(/\s+/g, '').toLowerCase();

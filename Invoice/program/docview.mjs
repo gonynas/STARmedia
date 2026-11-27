@@ -156,7 +156,9 @@ function renderStmt(doc, me, t, money) {
     const inner = two
       ? stmtBlock(doc, me, t, money, a, b, per, last, '공급받는자 보관용', false, false) + '<div class="cut"><span>✂ 자르는 선</span></div>' + stmtBlock(doc, me, t, money, a, b, per, last, '공급자 보관용', true, false)
       : stmtBlock(doc, me, t, money, a, b, per, last, '공급받는자 보관용', false, true);
-    return '<div class="a4 doc doc--a k-stmt' + (two ? '' : ' one') + '">' + inner + pno + '</div>';
+    // v1.11.2: 1부짜리만 맨 아래 로고(견적서와 같은 자리), 2부짜리는 로고 없음
+    const foot = !two && last ? '<footer class="d-foot"><img src="assets/starmedia-logo.png" alt=""></footer>' : '';
+    return '<div class="a4 doc doc--a k-stmt' + (two ? '' : ' one') + '">' + inner + pno + foot + '</div>';
   });
 }
 

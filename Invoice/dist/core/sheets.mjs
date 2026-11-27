@@ -5,10 +5,10 @@
 //   세액(별도)          = INT(공급가액 × 0.1)                           … 원 아래 버림
 //   포함               : 공급가액 = ROUND(줄 금액 ÷ 1.1, 0), 세액 = 줄 금액 − 공급가액
 //   없음 · 면세 줄      : 세액 0
-import { lineAmount, lineTax, hangul } from './money.mjs?v=mwybfj92';
-import { DOC_TYPES, DOC_STATUS, docNo, docTotals, dateKo, validUntil, notesList } from './docs.mjs?v=mwybfj92';
-import { colName } from './xlsx.mjs?v=mwybfj92';
-import { expandSet } from './catalog.mjs?v=mwybfj92';
+import { lineAmount, lineTax, hangul } from './money.mjs?v=mwybydwd';
+import { DOC_TYPES, DOC_STATUS, docNo, docTotals, dateKo, validUntil, notesList } from './docs.mjs?v=mwybydwd';
+import { colName } from './xlsx.mjs?v=mwybydwd';
+import { expandSet } from './catalog.mjs?v=mwybydwd';
 
 const T = (v, s = 'text') => ({ v: v == null ? '' : String(v), s });
 const N = (v, s = 'num') => ({ v: Math.round(Number(v) || 0), s });
@@ -172,7 +172,7 @@ export function docSheet(doc, me = {}, money = null, pics = {}) {
     M('A' + r, 'B' + r); M('C' + r, 'I' + r);
   }
   if (doc.type === 'rcpt') { add([], 12); const r = add([T('위 금액을 정히 영수합니다.', 'rcptLine')], 24); M('A' + r, 'I' + r); }
-  footerLogo(800);
+  footerLogo(LOGO_AT);
   return { name: Ty.label.replace('ㆍ', '·'), cols: COLW, rows, merges, grid: false, onePage: true, center: true, margins: 0.4, images };
 
   // 남은 칸을 채워 로고를 A4 맨 아래쯤에 둔다 (줄 높이 합 = target pt)
@@ -217,10 +217,12 @@ export function docSheet(doc, me = {}, money = null, pics = {}) {
       add([], 14);
       block('공급자 보관용', true);
     }
-    footerLogo(two ? 820 : 800);
+    if (!two) footerLogo(LOGO_AT);   // v1.11.2: 2부짜리는 로고 없음, 1부짜리는 견적서와 같은 맨 아래
     return { name: Ty.label, cols: COLW, rows, merges, grid: false, onePage: true, center: true, margins: 0.4, images };
   }
 }
+// 로고 줄이 A4 인쇄 영역 맨 아래에 오도록 그 위 줄 높이의 합(pt). 폭 106자 시트를 한 장에 맞출 때 기준
+const LOGO_AT = 1010;
 const won0 = (n) => Math.round(Number(n) || 0).toLocaleString('ko-KR');
 
 /* ── 발행 목록: 문서마다 한 줄 + 품목마다 한 줄 ── */

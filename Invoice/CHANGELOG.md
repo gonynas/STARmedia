@@ -2,6 +2,10 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.11.2 — 2026-11-27 · 로고 자리
+- core/sheets.mjs: LOGO_AT 1010pt(로고 위 줄 높이 합) → 엑셀 인쇄 시 로고가 A4 맨 아래. 거래명세서 2부는 로고 없음, 1부는 같은 자리(엑셀로 PDF 바꿔 확인).
+- docview renderStmt: 1부짜리 마지막 쪽에 d-foot 로고.
+
 ## v1.11.1 — 2026-11-27 · 새 버전 바로 받기
 - 원인: GitHub Pages 가 첫 페이지를 Cache-Control max-age=600(10분)으로 보내서, 올린 직후 새로 고침해도 브라우저 · sw.js(fetch(req))가 옛 index.html(옛 ?v=빌드)을 씀.
 - sw.js: 첫 페이지 · version.json 은 cache:'no-cache' 로 늘 서버에 확인. main.mjs autoUpdate(): 시작 뒤 version.json(no-store) 빌드가 다르면 ?v=빌드 주소로 한 번 다시 열기(sessionStorage 로 한 번만). reg.update().
