@@ -106,7 +106,7 @@ events    [{ id, name, clientId, client{name,person,tel}, start, end, place, dat
              gear:[{equipId, qty}], out(반출일), back(반납일), gearNote, memo, createdAt, updatedAt }]
 docs      [{ id, type('quote'|'stmt'|'inv'|'rcpt'), serial, version, showNo, date, validDays, status('draft' 작성 중|'done' 작성 완료|'sent' 발송 완료), editedAfter, doneAt, sentAt,
              clientId, client{...사본}, event{name,date,place}, lines[{name,spec,days,qty,price,note,...}], vat('excl'|'incl'|'none'),
-             agreed, deposit{on,amount}, notes{...}, fillRows, showMemo(비고 칸, 없으면 켬), eventId, tradeDate, copies, dueDate, paidDate, payMethod, device, createdAt, updatedAt }]
+             agreed, deposit{on,amount}, notes{...}, fillRows, showMemo(비고 칸, 없으면 켬), showRound(끝자리 정리 줄 보이기, 없으면 켬), eventId, tradeDate, copies, dueDate, paidDate, payMethod, device, createdAt, updatedAt }]
 payments  [{ id, eventId, date, amount(환불은 음수), method, memo, cancelled, createdAt }]
 trash     [{ kind('doc'|'client'|'item'|'set'|'equip'), item, deletedAt, gearOf? }]   30일 뒤 자동으로 비움
 settings  { vat, validDays, dueDays, autoLockMin, bigText, fillRows, phrases[], catOrder[](분류 순서, 없으면 가나다순), clientOrder[](거래처 id 순서), lock?{salt,hash,len,rsalt,rhash,setAt} }   (lock 은 PC · 휴대폰이 같이 씀, bigText · autoLockMin 은 기기마다)

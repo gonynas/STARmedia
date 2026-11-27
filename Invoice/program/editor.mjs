@@ -220,7 +220,8 @@ export function editorPage() {
     '<p class="dep-hint">실제로 받은 돈은 <mark class="hl-y">「행사 · 입금」에서 따로 적어요</mark>. 여기는 견적서에 보여 줄 <mark class="hl-p"><b>예상</b></mark> 금액이에요.</p></div>') +
     '<div class="opt-row"><span class="ol">끝자리 정리</span><label class="sw"><input type="checkbox" data-act-sw="agreed"' + (agreedOn ? ' checked' : '') + '><i></i><span>최종 합의금액으로 맞추기 (네고)</span></label>' +
     '<div class="dep"' + (agreedOn ? '' : ' hidden') + ' id="agreedBox"><input class="in num" data-d="agreed" value="' + (toNum(d.agreed) > 0 ? won(d.agreed) : '') + '" inputmode="numeric" placeholder="' + won(t.base.total) + '" aria-label="최종 합의금액 (부가세 포함)"><span class="won-s">원</span></div>' +
-    '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p></div>' +
+    '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p>' +
+    '<div id="roundShowBox"' + (agreedOn ? '' : ' hidden') + '>' + sw('showRound', d.showRound !== false, '문서에 「끝자리 정리」 줄 보이기 (끄면 표에서 숨기고 합계만 최종 금액)') + '</div></div>' +
     '<div class="opt-row"><span class="ol">비고</span>' + sw('showMemo', d.showMemo !== false, '문서 표에 비고 칸 넣기') + '</div>' +
     '</section>' +
     '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn">3</span>특이사항 · 문서 설정</h2></div>' +
@@ -477,7 +478,7 @@ export function editorChange(t) {
     refreshSum(); touch(d); pvSoon(); return true;
   }
   if (t.dataset.actSw === 'agreed') {
-    document.getElementById('agreedBox').hidden = !t.checked; document.getElementById('agreedHint').hidden = !t.checked;
+    document.getElementById('agreedBox').hidden = !t.checked; document.getElementById('agreedHint').hidden = !t.checked; { const rb = document.getElementById('roundShowBox'); if (rb) rb.hidden = !t.checked; }
     C.S.agreedOpen = t.checked ? d.id : null;
     if (!t.checked) { d.agreed = null; const a = document.querySelector('[data-d="agreed"]'); if (a) a.value = ''; refreshSum(); touch(d); pvSoon(); }
     else setTimeout(() => document.querySelector('[data-d="agreed"]').focus(), 30);

@@ -1,9 +1,9 @@
 // A4 문서 그리기 (미리보기와 인쇄 · PDF가 똑같은 그림을 쓴다) — 시안 A 블루 모던
 // 견적서 · 납품ㆍ청구서(입금 기한 · 입금 계좌 상자 · 이번에 청구하는 금액) · 거래명세서(A4에 2부 또는 1부) · 영수증(무효 표시)
 // money: 행사에 묶인 문서면 { linked, received, remaining, valid } — 받은 금액 · 남은 금액은 이 행사 것만 보여 준다
-import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwtf14zz';
-import { lineTax } from './core/money.mjs?v=mwtf14zz';
-import { hangul } from './core/money.mjs?v=mwtf14zz';
+import { DOC_TYPES, docNo, docTotals, dateKo, validUntil, notesList, paginate, pageCapacity, pageLimits } from './core/docs.mjs?v=mwyavegf';
+import { lineTax } from './core/money.mjs?v=mwyavegf';
+import { hangul } from './core/money.mjs?v=mwyavegf';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nl2br = (s) => esc(s).replace(/\n/g, '<br>');
@@ -85,6 +85,7 @@ function pageSub(doc, a, b) {
   return '<tr class="d-pagesub"><td colspan="6">이 쪽 소계 <small>— 다음 쪽에 이어집니다</small></td><td class="r num b">' + won(s) + '</td><td class="r num">' + won(t) + '</td>' + endTd(doc) + '</tr>';
 }
 function adjustRow(t, doc) {
+  if (doc && doc.showRound === false) return '';   // v1.11.0: 끝자리 정리 줄 숨기기
   const sg = (n) => (n > 0 ? '+' : '') + won(n);
   return '<tr class="d-adjust"><td class="c">-</td><td class="nm" colspan="5">끝자리 정리 <small>(최종 합의금액 ₩' + won(t.total) + ' 기준)</small></td><td class="r num b">' + sg(t.adjust.supply) + '</td><td class="r num">' + sg(t.adjust.tax) + '</td>' + (doc ? endTd(doc) : '<td></td>') + '</tr>';
 }

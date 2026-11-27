@@ -76,28 +76,55 @@ const XF = [
   ['sub', 3, 0, 0, 0, '', false],
   ['keyLabel', 4, 2, 1, 0, '', false],
   ['keyVal', 0, 0, 1, 0, '', true],
-  ['keyNum', 4, 2, 1, 3, '', false]
+  ['keyNum', 4, 2, 1, 3, '', false],
+  // v1.11.0 앱 문서 모양(견적서 · 거래명세서 A4) — 글꼴 5~ · 채움 4~ · 테두리 2~ · 숫자형식 164 = ₩#,##0
+  ['barBlue', 0, 4, 0, 0, '', false], ['ruleNavy', 0, 0, 3, 0, '', false],
+  ['eyebrow', 5, 0, 0, 0, 'left', false], ['bigTitle', 6, 0, 0, 0, 'left', false], ['stTitle', 16, 0, 0, 0, 'left', false],
+  ['metaL', 10, 0, 0, 0, 'right', false], ['metaV', 14, 0, 0, 0, 'right', false],
+  ['blueCap', 17, 0, 0, 0, '', false], ['copyTagB', 17, 0, 0, 0, '', false], ['copyTagR', 9, 0, 0, 0, '', false],
+  ['clientName', 11, 0, 0, 0, '', false], ['clientSub', 10, 0, 0, 0, '', false],
+  ['evL', 10, 7, 0, 0, '', false], ['evV', 14, 7, 0, 0, '', true], ['intro', 13, 0, 0, 0, '', true],
+  ['supV', 12, 8, 5, 0, 'center', true], ['supL', 12, 8, 5, 0, 'center', true], ['supT', 13, 0, 5, 0, '', true],
+  ['bandL', 7, 4, 0, 0, 'left', true], ['bandC', 7, 4, 0, 0, 'center', true], ['bandN', 8, 4, 0, 164, 'right', false], ['bandNL', 8, 4, 0, 164, 'left', false], ['bandS', 15, 4, 0, 0, 'right', true],
+  ['th', 12, 8, 4, 0, 'center', true],
+  ['tdC', 13, 0, 2, 0, 'center', false], ['tdT', 13, 0, 2, 0, '', true], ['tdN', 13, 0, 2, 3, 'right', false], ['tdNB', 14, 0, 2, 3, 'right', false], ['tdQ', 13, 0, 2, 0, 'center', false], ['tdM', 10, 0, 2, 0, '', true],
+  ['adjC', 9, 6, 2, 0, 'center', false], ['adjT', 9, 6, 2, 0, '', false], ['adjN', 9, 6, 2, 3, 'right', false],
+  ['noteT', 17, 0, 0, 0, '', false], ['noteL', 13, 0, 0, 0, '', true],
+  ['totL', 10, 0, 2, 0, 'left', false], ['totN', 14, 0, 2, 3, 'right', false],
+  ['grandL', 7, 5, 0, 0, 'left', false], ['grandN', 8, 5, 0, 164, 'right', false],
+  ['sumL', 12, 8, 2, 0, 'center', false], ['sumN', 14, 8, 2, 3, 'right', false],
+  ['mL', 12, 8, 5, 0, 'center', false], ['mN', 14, 0, 5, 3, 'right', false], ['mNBlue', 19, 0, 5, 3, 'right', false],
+  ['confirm', 13, 0, 5, 0, '', false], ['confirmR', 13, 0, 5, 0, 'right', false], ['cut', 18, 0, 6, 0, 'center', false], ['rcptLine', 14, 0, 0, 0, 'center', false]
 ];
 const XF_INDEX = Object.fromEntries(XF.map((x, i) => [x[0], i]));
 export const STYLE_NAMES = Object.keys(XF_INDEX);
 
+const F = (b, sz, rgb) => '<font>' + (b ? '<b/>' : '') + '<sz val="' + sz + '"/><color rgb="FF' + rgb + '"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>';
 function stylesXml() {
   const fonts = [
     '<font><sz val="10.5"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>',
     '<font><b/><sz val="10.5"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>',
     '<font><b/><sz val="20"/><color rgb="FF172B46"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>',
     '<font><sz val="9"/><color rgb="FF6B7280"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>',
-    '<font><b/><sz val="10.5"/><color rgb="FF173A6B"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>'
+    '<font><b/><sz val="10.5"/><color rgb="FF173A6B"/><name val="맑은 고딕"/><family val="3"/><charset val="129"/></font>',
+    F(true, 8, '3A83F7'), F(true, 22, '172B46'), F(true, 10, 'FFFFFF'), F(true, 15, 'FFFFFF'), F(true, 9, 'D92D20'), F(false, 8.5, '6B7280'),
+    F(true, 13, '172B46'), F(true, 9, '173A6B'), F(false, 9.5, '172B46'), F(true, 9.5, '172B46'), F(false, 8.5, 'FFFFFF'), F(true, 18, '172B46'),
+    F(true, 9, '3A83F7'), F(false, 9, '9AA4B2'), F(true, 10, '1C62D8')
   ];
   const fill = (rgb) => '<fill><patternFill patternType="solid"><fgColor rgb="' + rgb + '"/><bgColor indexed="64"/></patternFill></fill>';
-  const fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>', fill('FFEAF2FE'), fill('FFDCE8FD')];
+  const fills = ['<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>', fill('FFEAF2FE'), fill('FFDCE8FD'), fill('FF3A83F7'), fill('FF172B46'), fill('FFFFF3F3'), fill('FFF5F8FC'), fill('FFEEF4FE')];
   const side = (n) => '<' + n + ' style="thin"><color rgb="FFB8C4D6"/></' + n + '>';
-  const borders = ['<border><left/><right/><top/><bottom/><diagonal/></border>', '<border>' + side('left') + side('right') + side('top') + side('bottom') + '<diagonal/></border>'];
+  const sd = (n, st, rgb) => '<' + n + ' style="' + st + '"><color rgb="FF' + rgb + '"/></' + n + '>';
+  const bottom = (st, rgb) => '<border><left/><right/><top/>' + sd('bottom', st, rgb) + '<diagonal/></border>';
+  const borders = ['<border><left/><right/><top/><bottom/><diagonal/></border>', '<border>' + side('left') + side('right') + side('top') + side('bottom') + '<diagonal/></border>',
+    bottom('thin', 'E3E9F2'), bottom('medium', '172B46'), bottom('medium', '3A83F7'),
+    '<border>' + sd('left', 'thin', 'E3E9F2') + sd('right', 'thin', 'E3E9F2') + sd('top', 'thin', 'E3E9F2') + sd('bottom', 'thin', 'E3E9F2') + '<diagonal/></border>', bottom('dashed', '9AA4B2')];
   const xfs = XF.map(([, font, fillI, border, fmt, h, wrap]) =>
     '<xf numFmtId="' + fmt + '" fontId="' + font + '" fillId="' + fillI + '" borderId="' + border + '" xfId="0"' +
     (font ? ' applyFont="1"' : '') + (fillI ? ' applyFill="1"' : '') + (border ? ' applyBorder="1"' : '') + (fmt ? ' applyNumberFormat="1"' : '') +
     ' applyAlignment="1"><alignment vertical="center"' + (h ? ' horizontal="' + h + '"' : '') + (wrap ? ' wrapText="1"' : '') + '/></xf>').join('');
   return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<numFmts count="1"><numFmt numFmtId="164" formatCode="&quot;₩&quot;#,##0"/></numFmts>' +
     '<fonts count="' + fonts.length + '">' + fonts.join('') + '</fonts>' +
     '<fills count="' + fills.length + '">' + fills.join('') + '</fills>' +
     '<borders count="' + borders.length + '">' + borders.join('') + '</borders>' +
@@ -134,15 +161,15 @@ function cellXml(cell, addr) {
   return '<c r="' + addr + '"' + sa + ' t="inlineStr"><is><t xml:space="preserve">' + xmlEsc(o.v) + '</t></is></c>';
 }
 
-function sheetXml(sh) {
+function sheetXml(sh, drawingRid) {
   const rows = sh.rows.map((r) => (Array.isArray(r) ? { cells: r } : r));
   let maxC = 0;
   const body = rows.map((r, ri) => {
     const cells = r.cells || [];
     maxC = Math.max(maxC, cells.length);
     const inner = cells.map((c, ci) => cellXml(c, ref(ci, ri + 1))).join('');
-    if (!inner && !r.h) return '';
-    return '<row r="' + (ri + 1) + '"' + (r.h ? ' ht="' + r.h + '" customHeight="1"' : '') + '>' + inner + '</row>';
+    if (!inner && !r.h && !r.hidden) return '';
+    return '<row r="' + (ri + 1) + '"' + (r.h ? ' ht="' + r.h + '" customHeight="1"' : '') + (r.hidden ? ' hidden="1"' : '') + '>' + inner + '</row>';
   }).join('');
   const dim = 'A1:' + ref(Math.max(0, maxC - 1), Math.max(1, rows.length));
   const freeze = sh.freeze ? (() => {
@@ -155,8 +182,10 @@ function sheetXml(sh) {
     '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="' + dim + '"/>' +
     '<sheetViews><sheetView workbookViewId="0"' + (sh.grid === false ? ' showGridLines="0"' : '') + '>' + freeze + '</sheetView></sheetViews>' +
     '<sheetFormatPr defaultRowHeight="18"/>' + cols + '<sheetData>' + body + '</sheetData>' + merges +
-    '<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>' +
-    '<pageSetup paperSize="9" orientation="' + (sh.landscape ? 'landscape' : 'portrait') + '" fitToWidth="1" fitToHeight="0"/></worksheet>';
+    (sh.center ? '<printOptions horizontalCentered="1"/>' : '') +
+    (sh.margins ? '<pageMargins left="' + sh.margins + '" right="' + sh.margins + '" top="' + sh.margins + '" bottom="' + sh.margins + '" header="0.2" footer="0.2"/>' : '<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>') +
+    '<pageSetup paperSize="9" orientation="' + (sh.landscape ? 'landscape' : 'portrait') + '" fitToWidth="1" fitToHeight="' + (sh.onePage ? 1 : 0) + '"/>' +
+    (drawingRid ? '<drawing r:id="' + drawingRid + '"/>' : '') + '</worksheet>';
 }
 
 /** 시트 목록 → .xlsx 파일 내용(바이트) */
@@ -188,7 +217,28 @@ export function buildXlsx(sheets, { title = '', when = new Date() } = {}) {
     sheets.map((_, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') +
     '<Relationship Id="rId' + (sheets.length + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' });
   files.push({ name: 'xl/styles.xml', data: stylesXml() });
-  sheets.forEach((s, i) => files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) }));
+  // 그림(로고 · 도장): sheet.images = [{ data: PNG 바이트, col, row(0부터), colOff, rowOff, w, h (px) }]
+  let img = 0, dr = 0;
+  sheets.forEach((s, i) => {
+    const pics = (s.images || []).filter((p) => p && p.data && p.data.length);
+    if (!pics.length) { files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) }); return; }
+    dr++;
+    const E = (px) => Math.round(px * 9525);
+    const anchors = pics.map((p, k) => { img++; files.push({ name: 'xl/media/image' + img + '.png', data: p.data });
+      return '<xdr:oneCellAnchor><xdr:from><xdr:col>' + p.col + '</xdr:col><xdr:colOff>' + E(p.colOff || 0) + '</xdr:colOff><xdr:row>' + p.row + '</xdr:row><xdr:rowOff>' + E(p.rowOff || 0) + '</xdr:rowOff></xdr:from>' +
+        '<xdr:ext cx="' + E(p.w) + '" cy="' + E(p.h) + '"/><xdr:pic><xdr:nvPicPr><xdr:cNvPr id="' + (k + 2) + '" name="' + xmlEsc(p.name || 'pic' + k) + '"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>' +
+        '<xdr:blipFill><a:blip r:embed="rId' + (k + 1) + '"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill><xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + E(p.w) + '" cy="' + E(p.h) + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/></xdr:oneCellAnchor>'; });
+    const first = img - pics.length;
+    files.push({ name: 'xl/drawings/drawing' + dr + '.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' + anchors.join('') + '</xdr:wsDr>' });
+    files.push({ name: 'xl/drawings/_rels/drawing' + dr + '.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + pics.map((_, k) => '<Relationship Id="rId' + (k + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image' + (first + k + 1) + '.png"/>').join('') + '</Relationships>' });
+    files.push({ name: 'xl/worksheets/_rels/sheet' + (i + 1) + '.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing' + dr + '.xml"/></Relationships>' });
+    files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s, 'rId1') });
+  });
+  if (dr) {
+    const ct = files[0];
+    ct.data = ct.data.replace('<Default Extension="xml"', '<Default Extension="png" ContentType="image/png"/><Default Extension="xml"')
+      .replace('</Types>', Array.from({ length: dr }, (_, k) => '<Override PartName="/xl/drawings/drawing' + (k + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>').join('') + '</Types>');
+  }
   return zip(files, when);
 }
 

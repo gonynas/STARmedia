@@ -2086,6 +2086,14 @@ html[data-cardh="soft"] .main .card>.card-h:first-child .hint{color:#4D6A93}
 html[data-cardh="soft"] .main .uxg>.uxg-h .uxg-i{background:#fff}
 @media (max-width:767px){ html[data-cardh] .main .card>.card-h:first-child{margin:-16px -16px 14px;padding:12px 16px} }
 
+/* v1.11.0 품목 · 세트 탭: 하위 메뉴 맨 위(시안 B) · 화면 맨 위(기본) */
+.uxsub2.uxsub-tabbed .uxtabs{margin:0 0 10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;border-bottom:1px solid var(--line)}
+.uxsub2.uxsub-tabbed .uxtabs button{flex:1;justify-content:center;padding:9px 10px;border-radius:9px}
+.uxsub2.uxsub-tabbed .uxtabs button.on{background:var(--primary-soft,#EAF2FE)}
+.uxsub2.uxsub-tabbed .uxtabs button.on::after{display:none}
+.itempage.tabbed>.uxtabs{grid-column:1/-1;margin:0}
+.itempage.set-on>.setcard{grid-column:1/-1}
+
 /* ── 10-highlight.css ── */
 /* ── 형광펜 표시 (v1.9.0, 사용자가 sian/mark/ 에서 고른 대로) ──
    노랑 hl-y = 해야 할 행동 · 초록 hl-g = 안심 · 분홍 hl-p = 주의

@@ -687,19 +687,21 @@ const ctx = { S, $, esc, ic, uid, toast, openModal, closeModal, changed, saveNow
 initUx(ctx); bindSortable('#clientSort', '.csrow[data-id]'); initSetup(ctx); initMoney(ctx); initCalendar(ctx); initEquip(ctx); initTrash(ctx); initSettings(ctx); initSound(ctx); initLock(ctx); initInputs(ctx); initInstall(ctx);
 
 /* ── 시작 ── */
+// v1.10.2: PC 폴더(OneDrive · 네트워크 드라이브 등)나 구글 준비가 늦어도 프로그램은 먼저 열린다 — 4초까지만 기다리고 나머지는 뒤에서 마저 한다
+const within = (p, ms) => Promise.race([p.catch(() => {}), new Promise((r) => setTimeout(r, ms))]);
 async function boot() {
   // 연결해 둔 PC 폴더가 있으면 다시 붙인다 (브라우저가 허락을 다시 물으면 '다시 연결' 버튼으로)
   if (HAS_FOLDER) {
-    try {
+    await within((async () => {
       const h = await S.device.get('folderHandle');
       if (h) {
         S.folder.handle = h;
         const p = await h.queryPermission({ mode: 'readwrite' });
-        if (p === 'granted') await attachFolder(h); else S.folder.state = 'needs-permission';
+        if (p === 'granted') { await attachFolder(h); if (window.__smStarted) { paintStatus(); render(); } } else S.folder.state = 'needs-permission';
       }
-    } catch (e) { /* 폴더를 못 찾으면 연결 안 됨으로 둔다 */ }
+    })(), 2500);
   }
-  await initDrive(ctx);
+  await within(initDrive(ctx), 1500);
   let r;
   try { r = await S.store.open(); } catch (e) { r = { ok: false, reason: 'device-error' }; }
   if (r.ok) {

@@ -85,6 +85,7 @@ function pageSub(doc, a, b) {
   return '<tr class="d-pagesub"><td colspan="6">이 쪽 소계 <small>— 다음 쪽에 이어집니다</small></td><td class="r num b">' + won(s) + '</td><td class="r num">' + won(t) + '</td>' + endTd(doc) + '</tr>';
 }
 function adjustRow(t, doc) {
+  if (doc && doc.showRound === false) return '';   // v1.11.0: 끝자리 정리 줄 숨기기
   const sg = (n) => (n > 0 ? '+' : '') + won(n);
   return '<tr class="d-adjust"><td class="c">-</td><td class="nm" colspan="5">끝자리 정리 <small>(최종 합의금액 ₩' + won(t.total) + ' 기준)</small></td><td class="r num b">' + sg(t.adjust.supply) + '</td><td class="r num">' + sg(t.adjust.tax) + '</td>' + (doc ? endTd(doc) : '<td></td>') + '</tr>';
 }

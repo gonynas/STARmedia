@@ -2,13 +2,13 @@
 // 문서 그림은 미리보기와 똑같은 A4 화면을 그대로 찍는다(같은 renderPages · 같은 스타일 · 같은 글꼴).
 // PDF · 엑셀 파일은 core/pdf.mjs · core/xlsx.mjs 가 외부 라이브러리 없이 만든다.
 // 휴대폰 · 태블릿(손가락 화면)은 공유 창으로, PC 는 내려받기 · 클립보드 · Gmail 쓰기 창으로.
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwtf14zz';
-import { docMoney } from './core/events.mjs?v=mwtf14zz';
-import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwtf14zz';
-import { imagesToPdf } from './core/pdf.mjs?v=mwtf14zz';
-import { buildXlsx } from './core/xlsx.mjs?v=mwtf14zz';
-import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwtf14zz';
-import { logProblem } from './errors.mjs?v=mwtf14zz';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwyavegf';
+import { docMoney } from './core/events.mjs?v=mwyavegf';
+import { DOC_TYPES, docNo, docTotals, dateKo, filterDocs, ymd } from './core/docs.mjs?v=mwyavegf';
+import { imagesToPdf } from './core/pdf.mjs?v=mwyavegf';
+import { buildXlsx } from './core/xlsx.mjs?v=mwyavegf';
+import { docSheet, listSheets, clientsSheet, itemsSheets } from './core/sheets.mjs?v=mwyavegf';
+import { logProblem } from './errors.mjs?v=mwyavegf';
 
 let C;
 export function initExport(ctx) { C = ctx; }
@@ -195,9 +195,26 @@ export async function makeClipPng(doc) {
   let y = 0; for (const c of cvs) { g.drawImage(c, 0, y); y += c.height + gap; }
   return toBlob(all, 'image/png');
 }
-export function makeDocXlsx(doc) {
-  const bytes = buildXlsx([docSheet(doc, C.S.data.me, docMoney(doc, C.S.data))], { title: fileTitle(doc) });
-  return { blob: new Blob([bytes], { type: XLSX_TYPE }), name: fileTitle(doc) + '.xlsx' };
+// v1.11.0: 문서 엑셀은 앱 문서 모양 + 맨 아래 로고 · 도장 그림, 파일 이름 앞에 늘 「[스타미디어]_」
+export const XLSX_PREFIX = '[스타미디어]_';
+let logoBytes = null;
+async function pngBytes(src) {
+  try {
+    if (/^data:image\/png;base64,/.test(src)) { const b = atob(src.split(',')[1]); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+    if (/^data:/.test(src)) {   // JPG 도장 등 → PNG 로 바꿔 넣는다
+      const img = new Image(); img.src = src; await img.decode();
+      const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight; cv.getContext('2d').drawImage(img, 0, 0);
+      const bl = await new Promise((r) => cv.toBlob(r, 'image/png')); return new Uint8Array(await bl.arrayBuffer());
+    }
+    const res = await fetch(src); return res.ok ? new Uint8Array(await res.arrayBuffer()) : null;
+  } catch (e) { return null; }
+}
+export async function makeDocXlsx(doc) {
+  const me = C.S.data.me;
+  if (!logoBytes) logoBytes = await pngBytes('assets/starmedia-logo.png');
+  const pics = { logo: logoBytes, stamp: me.stamp ? await pngBytes(me.stamp) : null };
+  const bytes = buildXlsx([docSheet(doc, me, docMoney(doc, C.S.data), pics)], { title: fileTitle(doc) });
+  return { blob: new Blob([bytes], { type: XLSX_TYPE }), name: XLSX_PREFIX + fileTitle(doc) + '.xlsx' };
 }
 
 /* ────────────────────────── 내보내기 · 공유 ────────────────────────── */
@@ -282,7 +299,7 @@ function noLinesWarn(doc) { if (!doc.lines.length) C.toast('품목이 없는 문
 
 function savePdf(doc) { noLinesWarn(doc); return withBusy('PDF 파일을 만드는 중이에요…', async () => save([await makePdf(doc)], 'PDF')); }
 function saveJpg(doc) { noLinesWarn(doc); return withBusy('이미지 파일을 만드는 중이에요…', async () => save(await makeJpgs(doc), '이미지')); }
-function saveXlsx(doc) { return withBusy('엑셀 파일을 만드는 중이에요…', async () => { download(makeDocXlsx(doc)); C.toast('엑셀 파일을 내려받았어요 (금액 칸은 수식이에요)'); }); }
+function saveXlsx(doc) { return withBusy('엑셀 파일을 만드는 중이에요…', async () => { download(await makeDocXlsx(doc)); C.toast('엑셀 파일을 내려받았어요 (금액 칸은 수식이에요)'); }); }
 
 function kakao(doc) {
   noLinesWarn(doc); markSent(doc);

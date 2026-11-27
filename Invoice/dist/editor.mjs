@@ -1,12 +1,12 @@
 // 문서 작성 화면 (견적서) · 발행 목록 · 홈의 최근 문서 · 인쇄 / PDF
 // PC · 태블릿: 왼쪽 입력 + 오른쪽 A4 미리보기 / 휴대폰: ① 받는 곳 → ② 품목 → ③ 확인 · 인쇄
-import { mergeLines, DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwtf14zz';
-import { lineTax } from './core/money.mjs?v=mwtf14zz';
-import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwtf14zz';
-import { renderPages, won, fileTitle } from './docview.mjs?v=mwtf14zz';
-import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwtf14zz';
-import { serialFor } from './core/docs.mjs?v=mwtf14zz';
-import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwtf14zz';
+import { mergeLines, DOC_TYPES, DOC_STATUS, DEFAULT_PHRASES, ymd, dateShort, docNo, newDoc, copyDoc, renumberIfDateChanged, docTotals, depositFromRate, validUntil, dateKo, newLine, itemToLine, parseLinePaste, filterDocs } from './core/docs.mjs?v=mwyavegf';
+import { lineTax } from './core/money.mjs?v=mwyavegf';
+import { toNum, filterItems, expandSet, categories, NO_CAT, searchItems, sortByOrder } from './core/catalog.mjs?v=mwyavegf';
+import { renderPages, won, fileTitle } from './docview.mjs?v=mwyavegf';
+import { eventFromDoc, convertDoc, reviseDoc, applyTypeDefaults, docMoney, baseDoc } from './core/events.mjs?v=mwyavegf';
+import { serialFor } from './core/docs.mjs?v=mwyavegf';
+import { uxMode, uxLvl, setLvl, isPhone, uxTabs, uxNavBtn, uxMore, uxSheetHtml, openSheet, uxBackHtml, uxGroup, uxMid, uxKids, uxLeaf } from './ux.mjs?v=mwyavegf';
 
 let C = null;
 export function initEditor(ctx) { C = ctx; bindOnce(); }
@@ -220,7 +220,8 @@ export function editorPage() {
     '<p class="dep-hint">실제로 받은 돈은 <mark class="hl-y">「행사 · 입금」에서 따로 적어요</mark>. 여기는 견적서에 보여 줄 <mark class="hl-p"><b>예상</b></mark> 금액이에요.</p></div>') +
     '<div class="opt-row"><span class="ol">끝자리 정리</span><label class="sw"><input type="checkbox" data-act-sw="agreed"' + (agreedOn ? ' checked' : '') + '><i></i><span>최종 합의금액으로 맞추기 (네고)</span></label>' +
     '<div class="dep"' + (agreedOn ? '' : ' hidden') + ' id="agreedBox"><input class="in num" data-d="agreed" value="' + (toNum(d.agreed) > 0 ? won(d.agreed) : '') + '" inputmode="numeric" placeholder="' + won(t.base.total) + '" aria-label="최종 합의금액 (부가세 포함)"><span class="won-s">원</span></div>' +
-    '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p></div>' +
+    '<p class="dep-hint" id="agreedHint"' + (agreedOn ? '' : ' hidden') + '>' + agreedHint(d) + '</p>' +
+    '<div id="roundShowBox"' + (agreedOn ? '' : ' hidden') + '>' + sw('showRound', d.showRound !== false, '문서에 「끝자리 정리」 줄 보이기 (끄면 표에서 숨기고 합계만 최종 금액)') + '</div></div>' +
     '<div class="opt-row"><span class="ol">비고</span>' + sw('showMemo', d.showMemo !== false, '문서 표에 비고 칸 넣기') + '</div>' +
     '</section>' +
     '<section class="card" data-s="2"><div class="card-h"><h2><span class="sn">3</span>특이사항 · 문서 설정</h2></div>' +
@@ -477,7 +478,7 @@ export function editorChange(t) {
     refreshSum(); touch(d); pvSoon(); return true;
   }
   if (t.dataset.actSw === 'agreed') {
-    document.getElementById('agreedBox').hidden = !t.checked; document.getElementById('agreedHint').hidden = !t.checked;
+    document.getElementById('agreedBox').hidden = !t.checked; document.getElementById('agreedHint').hidden = !t.checked; { const rb = document.getElementById('roundShowBox'); if (rb) rb.hidden = !t.checked; }
     C.S.agreedOpen = t.checked ? d.id : null;
     if (!t.checked) { d.agreed = null; const a = document.querySelector('[data-d="agreed"]'); if (a) a.value = ''; refreshSum(); touch(d); pvSoon(); }
     else setTimeout(() => document.querySelector('[data-d="agreed"]').focus(), 30);

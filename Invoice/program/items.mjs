@@ -165,7 +165,9 @@ function uxItemsPage(m) {
   }
   const title = tab === 'set' ? '품목 세트' : (S.itemCat || '전체 품목');
   return '<div class="uxp ux-b ux-items lvl' + uxLvl() + '">' +
-    '<aside class="uxsub2" aria-label="품목 하위 메뉴">' + uxGroup('layers', '품목', '<div id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div>') + uxGroup('grid', '세트', setNavHtml()) + '</aside>' +
+    // v1.11.0: 품목이 많아도 세트를 바로 고르게 — 맨 위 탭(품목 · 세트)으로 한쪽만 보여 준다
+    '<aside class="uxsub2 uxsub-tabbed" aria-label="품목 하위 메뉴">' + uxTabs([['item', '품목', nI], ['set', '세트', nS]], tab, 'item-tab') +
+    (tab === 'set' ? uxGroup('grid', '세트', setNavHtml()) : uxGroup('layers', '품목', '<div id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div>')) + '</aside>' +
     '<section class="card uxlist">' + uxBackHtml('품목 · 세트') + '<div class="uxtool"><h2 class="uxlist-h">' + esc(title) + '</h2><div class="uxtools">' + tools + '</div></div>' +
     (tab === 'item' ? '<div class="uxtool">' + search + '</div>' : '') + body + '</section>' +
     '<aside class="card uxdet" aria-label="자세히">' + (tab === 'set' ? setDetailHtml(curSet()) : itemDetailHtml(curItem())) + '</aside>' + uxSheetHtml() + '</div>';
@@ -174,7 +176,13 @@ function uxItemsPage(m) {
 export function itemsPage() {
   const { S, esc, ic } = C;
   if (uxMode()) return uxItemsPage(uxMode());
-  return '<div class="itempage">' +
+  const tab = S.itemTab === 'set' ? 'set' : 'item';
+  const tabs = uxTabs([['item', '품목', S.data.items.length], ['set', '세트', S.data.sets.length]], tab, 'item-tab');
+  if (tab === 'set') return '<div class="itempage tabbed set-on">' + tabs +
+    '<section class="card setcard"><div class="card-h"><h2>' + ic('layers') + '품목 세트</h2><span class="hint">자주 같이 나가는 품목을 한 번에 넣어요</span>' +
+    '<div class="tools"><button class="btn primary" data-act="set-add">' + ic('plus') + '세트 만들기</button></div></div>' +
+    '<div id="slist">' + setCardsHtml() + '</div></section></div>';
+  return '<div class="itempage tabbed">' + tabs +
     '<aside class="card catcard uxg"><h3 class="uxg-h"><span class="uxg-i">' + ic('layers') + '</span>품목</h3><div class="catlist uxtree" id="catlist">' + catListHtml() + '</div><div id="cattools">' + catToolsHtml() + '</div></aside>' +
     '<section class="card itemcard"><div class="card-h"><h2>' + ic('layers') + '품목 목록</h2><span class="hint">' + S.data.items.length + '개</span>' +
     '<div class="tools">' + (S.data.items.length ? '<button class="btn" data-act="x-items-xlsx">' + ic('table') + '엑셀로 저장</button>' : '') + '<button class="btn" data-act="item-paste">' + ic('table') + '엑셀에서 붙여넣기</button><button class="btn primary" data-act="item-add">' + ic('plus') + '품목 추가</button></div></div>' +
@@ -182,9 +190,6 @@ export function itemsPage() {
     '<div class="searchrow"><input class="in" type="search" id="iq" placeholder="품목 · 규격 · 분류 · 비고로 찾기" value="' + esc(S.itemQuery) + '" aria-label="품목 찾기"></div>' +
     '<div class="iwrap" id="ilist">' + itemRowsHtml() + '</div>' +
     '<p class="note" style="margin:12px 0 0">' + C.ic('check') + '<span>여기 단가는 <mark class="hl-y"><b>기본값</b></mark>이에요. 문서마다 단가 · 일수 · 수량을 <mark class="hl-g">따로 고칠 수 있어요</mark>.</span></p></section>' +
-    '<section class="card setcard"><div class="card-h"><h2>' + ic('layers') + '품목 세트</h2><span class="hint">자주 같이 나가는 품목을 한 번에 넣어요</span>' +
-    '<div class="tools"><button class="btn primary" data-act="set-add">' + ic('plus') + '세트 만들기</button></div></div>' +
-    '<div id="slist">' + setCardsHtml() + '</div></section>' +
     '</div>';
 }
 
@@ -513,7 +518,7 @@ export function itemsClick(act, a) {
   const { S } = C;
   switch (act) {
     case 'cat-pick': S.itemCat = a.dataset.cat; if (uxMode()) { S.itemTab = 'item'; if (uxMode() === 'b') setLvl(2); C.render(); } else repaint(); return true;
-    case 'item-tab': S.itemTab = a.dataset.v; S.catSort = false; if (uxMode() === 'b') setLvl(2); C.render(); return true;
+    case 'item-tab': S.itemTab = a.dataset.v; S.catSort = false; if (uxMode() === 'b' && !a.closest('.uxsub2')) setLvl(2); C.render(); return true;
     case 'item-pick': { S.itemSel = a.dataset.id; const it = S.data.items.find((i) => i.id === S.itemSel); if (isPhone() && it && openSheet(itemDetailHtml(it))) return true; C.render(); return true; }
     case 'set-pick': { S.setSel = a.dataset.id; if (!isPhone()) S.itemTab = 'set'; const st = S.data.sets.find((x) => x.id === S.setSel); if (isPhone() && st && openSheet(setDetailHtml(st))) return true; C.render(); return true; }
     case 'cat-rename': renameCat(); return true;
