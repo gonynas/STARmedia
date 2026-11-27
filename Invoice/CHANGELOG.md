@@ -2,6 +2,10 @@
 
 새 버전을 낼 때마다 맨 위에 쉬운 말로 적습니다. (고침 1.0.1 · 기능 추가 1.1.0 · 큰 변화 2.0.0)
 
+## v1.11.1 — 2026-11-27 · 새 버전 바로 받기
+- 원인: GitHub Pages 가 첫 페이지를 Cache-Control max-age=600(10분)으로 보내서, 올린 직후 새로 고침해도 브라우저 · sw.js(fetch(req))가 옛 index.html(옛 ?v=빌드)을 씀.
+- sw.js: 첫 페이지 · version.json 은 cache:'no-cache' 로 늘 서버에 확인. main.mjs autoUpdate(): 시작 뒤 version.json(no-store) 빌드가 다르면 ?v=빌드 주소로 한 번 다시 열기(sessionStorage 로 한 번만). reg.update().
+
 ## v1.11.0 — 2026-11-27 · 엑셀 양식 · 끝자리 숨기기 · 품목/세트 탭
 - doc.showRound(없으면 켬): false 면 docview adjustRow 빈 줄, 엑셀은 그 줄을 숨김 행으로(합계 수식 유지). 편집 화면 끝자리 정리 아래 스위치(#roundShowBox).
 - 품목 · 세트: 시안 B 하위 메뉴 맨 위 uxTabs(품목 · 세트) 로 한쪽만, 기본 화면도 맨 위 탭으로 품목 카드 / 세트 카드 전환.

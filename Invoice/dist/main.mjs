@@ -2,35 +2,35 @@
 // 하는 일: 자료 불러오기 · 자동 저장 · 화면 틀(메뉴) · 주소(#home 등)에 맞는 화면 고르기 · 누르기/입력을 각 화면 파일로 넘기기
 // 직접 그리는 화면: 처음 실행 · 홈 · 내 정보 · 거래처. 나머지 화면은 각자 파일(아래 import)에 있다.
 // 계산 · 저장 규칙은 core/ (node 시험 통과한 것)을 그대로 쓴다. 전체 지도는 app/AGENTS.md.
-import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwyavegf';
-import { emptyData, load } from './core/datafile.mjs?v=mwyavegf';
-import { ic } from './icons.mjs?v=mwyavegf';
-import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwyavegf';
-import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwyavegf';
-import { bindSortable, sortedIds } from './sortable.mjs?v=mwyavegf';
-import { sortByOrder } from './core/catalog.mjs?v=mwyavegf';
-import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwyavegf';
-import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwyavegf';
-import { processStamp } from './stamp.mjs?v=mwyavegf';
-import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwyavegf';
-import { stampImg } from './docview.mjs?v=mwyavegf';
-import { initExport, exportClick } from './export.mjs?v=mwyavegf';
-import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwyavegf';
-import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwyavegf';
-import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwyavegf';
-import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwyavegf';
-import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwyavegf';
-import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwyavegf';
-import { logProblem } from './errors.mjs?v=mwyavegf';
-import { initInputs } from './inputs.mjs?v=mwyavegf';
-import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwyavegf';
-import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwyavegf';
-import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwyavegf';
-import { purgeTrash } from './core/reports.mjs?v=mwyavegf';
-import { initSound, sndActStart, sndModal, sndModalOk, sndModalCancel, sndToast, sndClick } from './sound.mjs?v=mwyavegf';
+import { createStore, idbAdapter, folderAdapter, pickLatest } from './core/storage.mjs?v=mwybfj92';
+import { emptyData, load } from './core/datafile.mjs?v=mwybfj92';
+import { ic } from './icons.mjs?v=mwybfj92';
+import { initItems, itemsPage, itemsClick, itemsInput, itemsBlur } from './items.mjs?v=mwybfj92';
+import { initUx, uxHeadHtml, uxClick, uxOn, setLvl } from './ux.mjs?v=mwybfj92';
+import { bindSortable, sortedIds } from './sortable.mjs?v=mwybfj92';
+import { sortByOrder } from './core/catalog.mjs?v=mwybfj92';
+import { initEditor, setDocStatus, editorPage, editorClick, editorInput, editorChange, editorBlur, editorSeg, editorAfterRender, homeRecentHtml, listPage, listInput, curDoc } from './editor.mjs?v=mwybfj92';
+import { docNo, DOC_TYPES } from './core/docs.mjs?v=mwybfj92';
+import { processStamp } from './stamp.mjs?v=mwybfj92';
+import { initEvents, eventListPage, eventPage, eventsClick, eventsInput, curEvent } from './events.mjs?v=mwybfj92';
+import { stampImg } from './docview.mjs?v=mwybfj92';
+import { initExport, exportClick } from './export.mjs?v=mwybfj92';
+import { initMoney, moneyPage, moneyClick, homeTodoHtml, homeMoneyHtml } from './money.mjs?v=mwybfj92';
+import { initCalendar, calendarPage, calendarClick } from './calendar.mjs?v=mwybfj92';
+import { initEquip, equipPage, equipClick, equipInput, equipChange } from './equip.mjs?v=mwybfj92';
+import { initTrash, trashPage, trashClick } from './trash.mjs?v=mwybfj92';
+import { initSettings, settingsPage, settingsAfterRender, settingsClick, settingsInput, settingsChange } from './settings.mjs?v=mwybfj92';
+import { initLock, lockNow, lockOnBoot, hasLock } from './lockscreen.mjs?v=mwybfj92';
+import { logProblem } from './errors.mjs?v=mwybfj92';
+import { initInputs } from './inputs.mjs?v=mwybfj92';
+import { initDrive, drivePill, driveClick, syncSoon, setupOptionHtml, preloadGis, driveConnected, driveRowHtml, warnIfDisconnected } from './gdrive.mjs?v=mwybfj92';
+import { initSetup, needsSetup, setupWizardHtml, setupClick } from './setup.mjs?v=mwybfj92';
+import { initInstall, shouldShowInstall, openInstall } from './install.mjs?v=mwybfj92';
+import { purgeTrash } from './core/reports.mjs?v=mwybfj92';
+import { initSound, sndActStart, sndModal, sndModalOk, sndModalCancel, sndToast, sndClick } from './sound.mjs?v=mwybfj92';
 
-const APP_VERSION = '1.11.0';   // 빌드할 때 package.json 의 version 으로 바뀐다
-const APP_BUILD = 'mwyavegf';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
+const APP_VERSION = '1.11.1';   // 빌드할 때 package.json 의 version 으로 바뀐다
+const APP_BUILD = 'mwybfj92';       // 빌드할 때 빌드 번호로 바뀐다 (설정 → 업데이트 확인에 씀)
 const HAS_FOLDER = typeof window.showDirectoryPicker === 'function';
 const DEVICE = '이 기기', FOLDER = 'PC 폴더';
 
@@ -719,7 +719,23 @@ async function boot() {
   if (S.data && driveConnected()) syncSoon(800);   // 열 때 드라이브와 한 번 맞추기   // 휴대폰 · 태블릿 처음: 바탕화면 아이콘 만들기 안내부터
   // 홈 화면 설치용 도우미 (인터넷 먼저 · 끊겼을 때만 저장해 둔 파일). 실패해도 프로그램은 그대로 쓴다.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    navigator.serviceWorker.register('sw.js').catch((e) => logProblem('홈 화면 설치 도우미 등록 실패', e));
+    navigator.serviceWorker.register('sw.js').then((reg) => { if (reg && reg.update) reg.update().catch(() => {}); }).catch((e) => logProblem('홈 화면 설치 도우미 등록 실패', e));
   }
+  autoUpdate();
+}
+/* ── 새 버전이 올라와 있으면 저절로 한 번 다시 열기 (v1.11.1) ── */
+// 브라우저가 옛 첫 페이지를 들고 있어도(GitHub Pages 는 10분 보관) 서버의 version.json 을 직접 물어보고, 빌드가 다르면 한 번만 새로 연다
+async function autoUpdate() {
+  if (APP_BUILD === 'dev') return;
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return;
+    const v = await r.json();
+    if (!v.build || v.build === APP_BUILD) return;
+    const key = 'starmedia-quote:reloadedFor';
+    if (sessionStorage.getItem(key) === v.build) return;   // 같은 빌드로 두 번은 안 함(무한 새로 고침 막기)
+    sessionStorage.setItem(key, v.build);
+    if (S.dirty) await saveNow();
+    location.replace(location.pathname + '?v=' + v.build + location.hash);
+  } catch (e) { /* 인터넷이 안 되면 지금 버전 그대로 쓴다 */ }
 }
 boot();

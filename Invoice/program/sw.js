@@ -10,8 +10,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;   // 다른 곳(글꼴 등)은 손대지 않음
+  // v1.11.1: 첫 페이지 · version.json 은 브라우저 보관본(10분)을 쓰지 않고 늘 서버에 새로 물어본다 → 새 버전이 바로 보임
+  const u = new URL(req.url);
+  const fresh = req.mode === 'navigate' || u.pathname.endsWith('/version.json');
   e.respondWith(
-    fetch(req).then((res) => {
+    (fresh ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(req)).then((res) => {
       if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {}); }
       return res;
     }).catch(() => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match('./') : Response.error())))

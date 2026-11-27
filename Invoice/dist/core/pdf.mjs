@@ -1,6 +1,6 @@
 // PDF 파일 만들기 — 외부 라이브러리 없이 (5단계)
 // A4 한 쪽마다 문서 그림(JPEG) 한 장을 꽉 채워 넣는다. 미리보기 · 이미지와 똑같은 모습이 된다.
-import { concat } from './xlsx.mjs?v=mwyavegf';
+import { concat } from './xlsx.mjs?v=mwybfj92';
 
 const A4 = { w: 595.28, h: 841.89 }; // pt (1pt = 1/72인치)
 const enc = new TextEncoder();

@@ -719,7 +719,23 @@ async function boot() {
   if (S.data && driveConnected()) syncSoon(800);   // 열 때 드라이브와 한 번 맞추기   // 휴대폰 · 태블릿 처음: 바탕화면 아이콘 만들기 안내부터
   // 홈 화면 설치용 도우미 (인터넷 먼저 · 끊겼을 때만 저장해 둔 파일). 실패해도 프로그램은 그대로 쓴다.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-    navigator.serviceWorker.register('sw.js').catch((e) => logProblem('홈 화면 설치 도우미 등록 실패', e));
+    navigator.serviceWorker.register('sw.js').then((reg) => { if (reg && reg.update) reg.update().catch(() => {}); }).catch((e) => logProblem('홈 화면 설치 도우미 등록 실패', e));
   }
+  autoUpdate();
+}
+/* ── 새 버전이 올라와 있으면 저절로 한 번 다시 열기 (v1.11.1) ── */
+// 브라우저가 옛 첫 페이지를 들고 있어도(GitHub Pages 는 10분 보관) 서버의 version.json 을 직접 물어보고, 빌드가 다르면 한 번만 새로 연다
+async function autoUpdate() {
+  if (APP_BUILD === 'dev') return;
+  try {
+    const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) return;
+    const v = await r.json();
+    if (!v.build || v.build === APP_BUILD) return;
+    const key = 'starmedia-quote:reloadedFor';
+    if (sessionStorage.getItem(key) === v.build) return;   // 같은 빌드로 두 번은 안 함(무한 새로 고침 막기)
+    sessionStorage.setItem(key, v.build);
+    if (S.dirty) await saveNow();
+    location.replace(location.pathname + '?v=' + v.build + location.hash);
+  } catch (e) { /* 인터넷이 안 되면 지금 버전 그대로 쓴다 */ }
 }
 boot();
